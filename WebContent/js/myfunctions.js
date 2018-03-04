@@ -327,7 +327,7 @@ $newRowModal.on('show.bs.modal', function (e) {
   if(activeTab == "Final"){
     $('#modKeyType').append('<option value="F">F</option>');
   }
-  if(activeTab == "Reference"){
+  if(activeTab.match("Reference|Security")){
     $('#modKeyType').append('<option value="F">F</option>');
     $('#modKeyType').append('<option value="P">P</option>');
   }
@@ -596,6 +596,8 @@ function modValidate(){
   relation.pktable_alias = $('#modPKTableAlias').val();
   relation.fin = false;
   relation.ref = false;
+  relation.sec = false;
+  relation.tra = false;
   relation.withPK = false;
   seq.column_name = $('#modColumn').find("option:selected").val();
   seq.pkcolumn_name = $('#modPKColumn').find("option:selected").val();
