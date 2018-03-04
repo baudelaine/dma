@@ -236,13 +236,13 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 								FactorySVC.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
 								//end tooltip
 								//change property query item
-/*								FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+								FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
 								if (!field.getDisplayType().toLowerCase().equals("value"))
 								{
 									FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
 									
 								}
-*/								//end change
+								//end change
 							}
 							
 							
@@ -266,12 +266,12 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					FactorySVC.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", query_subject.getValue().getTable_name() + "." + field.getField_name() + desc);
 					//end tooltip
 					//change property query item
-/*					FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+					FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
 					if (!field.getDisplayType().toLowerCase().equals("value"))
 					{
 						FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
 					}
-*/					//end change
+					//end change
 					}
 					// end label		
 				}
@@ -289,7 +289,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			
 			// tests
 			
-			
+			CognosSVC.executeAllActions();
 			// fin tests
 		
 			TaskerSVC.stop();
@@ -342,36 +342,12 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				spath = spath + "/namespace[" + k + "]";
 				FactorySVC.recursiveParserQS(document, spath, "en", labelMap);
 
-				// test writer
-
-//				OutputFormat format = OutputFormat.createPrettyPrint();
-//			    format.setEncoding(document.getXMLEncoding());
-//			    PrintStream ps = null;
-//			    try {
-//					ps = new PrintStream(new BufferedOutputStream(new FileOutputStream("/mnt/dd3/model-60/model1.xml")), true);
-//				} catch (FileNotFoundException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//				XMLWriter writer = null;
-//				try {
-//					writer = new XMLWriter( ps, format );
-//				} catch (UnsupportedEncodingException e) {
-//					// TODO Auto-generated catch blockco
-//					e.printStackTrace();
-//				}
 				try {
-//					writer.write( document );
-					
+	
 					datas = document.asXML();
 
 					datas = StringUtils.replace(datas, outputSearch, outputReplace);
 					Files.write(output, datas.getBytes());
-				
-//					Files.copy(tempOutput, output, REPLACE_EXISTING);
-//					BufferedWriter writer = Files.newBufferedWriter(path, charset);
-//					writer.write(datas, 0, datas.length());
-//					writer.close();
 
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -492,14 +468,14 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 						if(field.getDescription() != null) {desc = ": " + field.getDescription();}
 						FactorySVC.createScreenTip("queryItem", qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
 						// end tooltip
-/*						//change property query item
+						//change property query item
 						FactorySVC.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
 						if (!field.getDisplayType().toLowerCase().equals("value"))
 						{
 							FactorySVC.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
 							
 						}
-*/						//end change
+						//end change
 					}
 					
 					RelationShip RS = new RelationShip("[REF].[" + qsAliasInc + "]" , "[REF].[" + pkAlias + String.valueOf(i) + "]");
