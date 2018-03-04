@@ -36,6 +36,7 @@ relationCols.push({field:"ref", title: "ref", formatter: "boolFormatter", align:
 relationCols.push({field:"sec", title: "sec", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"tra", title: "tra", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"nommageRep", title: "RepTableName", formatter: "boolFormatter", align: "center"});
+relationCols.push({field:"leftJoin", title: "Left Join", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"duplicate", title: '<i class="glyphicon glyphicon-duplicate"></i>', formatter: "duplicateFormatter", align: "center"});
 relationCols.push({field:"remove", title: '<i class="glyphicon glyphicon-trash"></i>', formatter: "removeFormatter", align: "center"});
 // relationCols.push({field:"operate", title: "operate", formatter: "operateRelationFormatter", align: "center", events: "operateRelationEvents"});
@@ -734,6 +735,7 @@ function buildSubTable($el, cols, data, parentData){
           case "traduction":
           case "visible":
           case "timezone":
+          case "leftJoin":
             var newValue = value == false ? true : false;
             updateCell($el, row.index, field, newValue);
             break;
@@ -1362,6 +1364,7 @@ function RemoveFilter(){
 
 function ApplyFilter(){
   if(activeTab == 'Final'){
+    $datasTable.bootstrapTable("filterBy", {type: 'Final'});
     if($activeSubDatasTable != undefined){
       $activeSubDatasTable.bootstrapTable("filterBy", {key_type: 'F'});
     }
@@ -1672,6 +1675,8 @@ function SetProjectName(){
 }
 
 function Publish(){
+
+  RemoveFilter();
 	var data = $datasTable.bootstrapTable('getData');
 
   if (data.length == 0) {
@@ -1700,10 +1705,13 @@ function Publish(){
 		}
 	});
 
+  ApplyFilter();
+
 }
 
 function SaveModel(){
 
+  RemoveFilter();
 	var data = $datasTable.bootstrapTable('getData');
 
   if (data.length == 0) {
@@ -1731,6 +1739,8 @@ function SaveModel(){
 			showalert("SaveModel()", "Saving model failed.", "alert-danger", "bottom");
 		}
 	});
+
+  ApplyFilter();
 
 }
 

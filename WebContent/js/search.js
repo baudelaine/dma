@@ -197,7 +197,9 @@ function Filter(){
   var selection = $('#searchSelect').val();
   console.log(selection);
 
+  console.log($('#searchTable').bootstrapTable("getOptions").strictSearch);
   $('#searchTable').bootstrapTable("filterBy", {});
+  $('#searchTable').bootstrapTable("filterBy", {table_name: selection});
   var datas = $('#searchTable').bootstrapTable("getData");
   console.log(datas);
 

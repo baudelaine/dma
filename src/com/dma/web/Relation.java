@@ -23,6 +23,7 @@ public class Relation {
 	boolean sec = false;
 	boolean tra = false;
 	boolean nommageRep = false;
+	boolean leftJoin = false;
 	String relationship = "";
 	String where = "";
 	String key_type = "";
@@ -171,6 +172,12 @@ public class Relation {
 	}
 	public void setRecCountPercent(int recCountPercent) {
 		this.recCountPercent = recCountPercent;
+	}
+	public boolean isLeftJoin() {
+		return leftJoin;
+	}
+	public void setLeftJoin(boolean leftJoin) {
+		this.leftJoin = leftJoin;
 	}
 	
 }
