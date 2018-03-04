@@ -992,7 +992,7 @@ function PrepareRemoveKeys(o, qs){
                                     console.log("k=" + k);
                                     console.log("v=");
                                     console.log(v);
-                                    if(v.fin || v.ref){
+                                    if(v.fin || v.ref || v.sec){
                                       console.log("RemoveKeys: " + v._id + " is checked. Recurse...");
                                       return recurse(v);
                                     }
