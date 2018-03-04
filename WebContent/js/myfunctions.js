@@ -895,7 +895,7 @@ function buildSubTable($el, cols, data, parentData){
             }
             var linked = false;
             $.each(parentData.relations, function(i, obj){
-              if(obj.fin || obj.ref){
+              if(obj.fin || obj.ref || obj.sec){
                 linked = true;
               }
             });
@@ -1060,6 +1060,14 @@ function RemoveKeys(row, qs){
           qs2rm.row.relationship = qs2rm.row.relationship.split("[REF]." + pkAlias).join(pkAlias);
           if($activeSubDatasTable){
             updateCell($activeSubDatasTable, qs2rm.row.index, "ref", false);
+          }
+        }
+        if(activeTab == "Security"){
+          qs2rm.row.relationship = qs2rm.row.relationship.split("[SEC]." + pkAlias).join(pkAlias);
+          console.log("$activeSubDatasTable");
+          console.log($activeSubDatasTable);
+          if($activeSubDatasTable){
+            updateCell($activeSubDatasTable, qs2rm.row.index, "sec", false);
           }
         }
 
@@ -1229,7 +1237,6 @@ function AddRow($table, row){
 	nextIndex = $table.bootstrapTable("getData").length;
 	console.log("nextIndex=" + nextIndex);
 	$table.bootstrapTable('insertRow', {index: nextIndex, row: row});
-
 
 }
 
