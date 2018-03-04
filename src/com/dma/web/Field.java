@@ -12,7 +12,7 @@ public class Field {
 	int field_size = 0;
 	String nullable = "NO";
 	boolean traduction = false;
-	boolean visible = false;
+	boolean hidden = false;
 	boolean timezone = false;
 	String icon = "Attribute";
 	String displayType = "Value";
@@ -78,12 +78,11 @@ public class Field {
 	public void setTraduction(boolean traduction) {
 		this.traduction = traduction;
 	}
-	
-	public boolean isVisible() {
-		return visible;
+	public boolean isHidden() {
+		return hidden;
 	}
-	public void setVisible(boolean visible) {
-		this.visible = visible;
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 	public boolean isTimezone() {
 		return timezone;
