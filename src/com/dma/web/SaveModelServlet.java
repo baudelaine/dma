@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -44,36 +47,25 @@ public class SaveModelServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
+		Map<String, Object> parms = Tools.fromJSON(request.getInputStream());
+		
+		String modelName = (String) parms.get("modelName");
 
 		Calendar c = Calendar.getInstance();
-		c.setTimeInMillis(System.currentTimeMillis());
+//		c.setTimeInMillis(System.currentTimeMillis());
 
+		java.text.SimpleDateFormat mois = new java.text.SimpleDateFormat("MM");
+		
 		String date = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH) + "-" + c.get(Calendar.DAY_OF_MONTH);
+		date = c.get(Calendar.YEAR) + "-" + mois.format(c.getTime()) + "-" + c.get(Calendar.DAY_OF_MONTH);
 		String time = c.get(Calendar.HOUR_OF_DAY) + "-" + c.get(Calendar.MINUTE) + "-" + c.get(Calendar.SECOND);
 
-				
-		
 		String realPath = getServletContext().getRealPath("/");
-		System.out.println("realPath=" + realPath);
-		
-		String fileName = realPath + "/models/model-" + date + "-" + time + ".json";
+		String fileName = realPath + "/models/" + modelName + "-" + date + "-" + time + ".json";
 		System.out.println("fileName=" + fileName);
-		
-		File file = new File(fileName);
-		if(!file.exists()){file.createNewFile();}
-		file.setReadable(true, false);
-		
-		BufferedWriter bw = new BufferedWriter(new FileWriter(new File(fileName)));
-	
-//		IOUtils.copy(br, bw);
-		
-		String l;
-		while((l=br.readLine())!=null){
-		    bw.write(l);
-		}
+		Path output = Paths.get(fileName);
 
-		bw.close();		
+		Files.write(output, Tools.toJSON(parms.get("data")).getBytes());
 		
 		List<Object> result = new ArrayList<Object>();
 		    

@@ -1754,6 +1754,7 @@ function Publish(){
 function SaveModel(){
 
   RemoveFilter();
+  var modelName;
 	var data = $datasTable.bootstrapTable('getData');
 
   if (data.length == 0) {
@@ -1761,28 +1762,36 @@ function SaveModel(){
     return;
   }
 
-	// var objs = [];
-  //
-	// $.each(data, function(k, v){
-	// 	var obj = JSON.stringify(v);
-	// 	objs += obj + "\r\n";
-	// });
+  bootbox.prompt({
+    size: "small",
+    title: "Enter model name",
+    callback: function(result){
+     /* result = String containing user input if OK clicked or null if Cancel clicked */
+    modelName = result;
+    if(!modelName){
+      return;
+    }
 
-	$.ajax({
-		type: 'POST',
-		url: "SaveModel",
-		dataType: 'json',
-		data: JSON.stringify(data),
+    var parms = {modelName: modelName, data: data};
 
-		success: function(data) {
-			showalert("SaveModel()", "Model saved successfully.", "alert-success", "bottom");
-		},
-		error: function(data) {
-			showalert("SaveModel()", "Saving model failed.", "alert-danger", "bottom");
-		}
-	});
+   	$.ajax({
+   		type: 'POST',
+   		url: "SaveModel",
+   		dataType: 'json',
+   		data: JSON.stringify(parms),
 
-  ApplyFilter();
+   		success: function(data) {
+   			showalert("SaveModel()", "Model saved successfully.", "alert-success", "bottom");
+   		},
+   		error: function(data) {
+   			showalert("SaveModel()", "Saving model failed.", "alert-danger", "bottom");
+   		}
+   	});
+
+    ApplyFilter();
+
+    }
+  })
 
 }
 
