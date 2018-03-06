@@ -1718,6 +1718,7 @@ function SetProjectName(){
 
 function Publish(){
 
+  var projectName = "";
   RemoveFilter();
 	var data = $datasTable.bootstrapTable('getData');
 
@@ -1726,28 +1727,34 @@ function Publish(){
     return;
   }
 
-	// var objs = [];
-  //
-	// $.each(data, function(k, v){
-	// 	var obj = JSON.stringify(v);
-	// 	objs += obj + "\r\n";
-	// });
+  bootbox.prompt({
+    size: "small",
+    title: "Enter project name",
+    callback: function(result){
+       /* result = String containing user input if OK clicked or null if Cancel clicked */
+      projectName = result;
+      if(!projectName){
+        return;
+      }
 
-	$.ajax({
-		type: 'POST',
-		url: "SendQuerySubjects",
-		dataType: 'json',
-		data: JSON.stringify(data),
+      $.ajax({
+    		type: 'POST',
+    		url: "SendQuerySubjects",
+    		dataType: 'json',
+    		data: JSON.stringify(data),
 
-		success: function(data) {
-			$('#DatasTable').bootstrapTable('load', data);
-		},
-		error: function(data) {
-			showalert("SyncRelations() failed.", "alert-danger");
-		}
-	});
+    		success: function(data) {
+    			$('#DatasTable').bootstrapTable('load', data);
+    		},
+    		error: function(data) {
+    			showalert("Publish()", "Publish failed.", "alert-danger", "bottom");
+    		}
+    	});
 
-  ApplyFilter();
+      ApplyFilter();
+
+    }
+  });
 
 }
 
@@ -1791,7 +1798,7 @@ function SaveModel(){
     ApplyFilter();
 
     }
-  })
+  });
 
 }
 
