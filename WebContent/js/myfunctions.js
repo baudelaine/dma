@@ -1737,14 +1737,18 @@ function Publish(){
         return;
       }
 
+      var parms = {projectName: projectName, data: JSON.stringify(data)};
+      console.log(parms);
+
       $.ajax({
     		type: 'POST',
-    		url: "SendQuerySubjects",
+    		url: "Test",
     		dataType: 'json',
-    		data: JSON.stringify(data),
+    		data: JSON.stringify(parms),
 
     		success: function(data) {
     			$('#DatasTable').bootstrapTable('load', data);
+          console.log(data);
     		},
     		error: function(data) {
     			showalert("Publish()", "Publish failed.", "alert-danger", "bottom");

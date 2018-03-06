@@ -87,9 +87,14 @@ public class SendQuerySubjectsServlet extends HttpServlet {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         
+        Map<String, Object> parms = Tools.fromJSON(request.getInputStream());
+		
+		String projectName = (String) parms.get("projectName");
+		String data = (String) parms.get("data");
+        
 
 //        QuerySubject[] qsArray = mapper.readValue(br, QuerySubject[].class);
-        List<QuerySubject> qsList = Arrays.asList(mapper.readValue(br, QuerySubject[].class));
+        List<QuerySubject> qsList = Arrays.asList(mapper.readValue(data, QuerySubject[].class));
         
         query_subjects = new HashMap<String, QuerySubject>();
         Map<String, Integer> recurseCount = new HashMap<String, Integer>();
@@ -113,12 +118,11 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 		
 		query_subjects = (Map<String, QuerySubject>) request.getSession().getAttribute("query_subjects");
 		
-		System.out.println("+++++++++++ query_subjects.size=" + query_subjects.size());
+		System.out.println("query_subjects.size=" + query_subjects.size());
 		
 		List<Object> result = new ArrayList<Object>();
 
 		try{
-			
 			
 	        TaskerSVC.start();
 			TaskerSVC.IICInitNameSpace();
