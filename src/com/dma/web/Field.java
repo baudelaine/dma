@@ -1,5 +1,8 @@
 package com.dma.web;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Field {
 
 	String _id = "";
@@ -9,6 +12,7 @@ public class Field {
 	boolean pk = false;
 	boolean index = false;
 	String label = "";
+	Map<String, Object> labels = new HashMap<String, Object>();
 	int field_size = 0;
 	String nullable = "NO";
 	boolean traduction = false;
@@ -17,6 +21,7 @@ public class Field {
 	String icon = "Attribute";
 	String displayType = "Value";
 	String description = "";
+	Map<String, Object> descriptions = new HashMap<String, Object>();
 	
 	public String get_id() {
 		return _id;
