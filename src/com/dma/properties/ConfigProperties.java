@@ -23,6 +23,9 @@ public class ConfigProperties {
 
 	public static String model;
 	public static String modelXML;
+	public static String modelsCognosFolder;
+	public static String modelsSharedFolder;
+	
 	public static String dispatcher;
 	public static String PathToXML;
 	public static String PublishFolder;
@@ -57,10 +60,12 @@ public class ConfigProperties {
 			// get the property value
 			model = prop.getProperty("model");
 			modelXML = prop.getProperty("modelXML");
-			System.out.println("++++++++++++++++++++++ model=" + model);
+			modelsCognosFolder = prop.getProperty("modelsCognosFolder");
+			modelsSharedFolder = prop.getProperty("modelsSharedFolder");
+//			System.out.println("++++++++++++++++++++++ model=" + model);
 			dispatcher = prop.getProperty("dispatcher");
 			PathToXML = prop.getProperty("PathToXML");
-			System.out.println("++++++++++++++++++++++ PathToXML=" + PathToXML);
+//			System.out.println("++++++++++++++++++++++ PathToXML=" + PathToXML);
 			DefaultLocale = prop.getProperty("DefaultLocale");
 			ActiveLocale = prop.getProperty("ActiveLocale");
 			PublishFolder = prop.getProperty("PublishFolder");

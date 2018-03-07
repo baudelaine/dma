@@ -15,7 +15,17 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
+import com.cognos.developer.schemas.bibus._3.AddOptions;
+import com.cognos.developer.schemas.bibus._3.BaseClass;
 import com.cognos.developer.schemas.bibus._3.BiBusHeader;
+import com.cognos.developer.schemas.bibus._3.Folder;
+import com.cognos.developer.schemas.bibus._3.PropEnum;
+import com.cognos.developer.schemas.bibus._3.QueryOptions;
+import com.cognos.developer.schemas.bibus._3.SearchPathMultipleObject;
+import com.cognos.developer.schemas.bibus._3.SearchPathSingleObject;
+import com.cognos.developer.schemas.bibus._3.Sort;
+import com.cognos.developer.schemas.bibus._3.TokenProp;
+import com.cognos.developer.schemas.bibus._3.UpdateActionEnum;
 import com.cognos.developer.schemas.bibus._3.XmlEncodedXML;
 import com.cognos.org.apache.axis.client.Stub;
 import com.cognos.org.apache.axis.message.SOAPHeaderElement;
@@ -27,20 +37,23 @@ import sapphire.util.Logger;
 
 public class CognosSVC {
 
-	public static CRNConnect crnConnect;
-	private static Map<String, Element> actionsMap;
-	private static int i;
+	private CRNConnect crnConnect;
+	private String modelPath;
+	private Map<String, Element> actionsMap;
+	private int i;
 
-	static {
+
+	public CognosSVC () {
 		crnConnect = new CRNConnect();
 		crnConnect.connectToCognosServer();
 		actionsMap = new HashMap<String, Element>();
 		i=1;
 	}
 	
+	
 	public Document doc = null;
 
-	public static boolean logon() {
+	public boolean logon() {
 		try {
 			StringBuilder credentialXML = new StringBuilder();
 
@@ -73,7 +86,7 @@ public class CognosSVC {
 
 	}
 
-	public static void logoff() {
+	public void logoff() {
 
 		try {
 			crnConnect.getCMService().logoff();
@@ -84,44 +97,84 @@ public class CognosSVC {
 		}
 
 	}
-
-	public static void executeModel(Document D) {
+	
+	public void openModel(String modelName) {
+		
+		modelPath = ConfigProperties.modelsCognosFolder + "/" + modelName + "/" + modelName + ".cpf";
 		try {
-			File rootFile = new File(ConfigProperties.PathToXML + "/executeModel.xml");
-
+			File xmlFile = new File(ConfigProperties.PathToXML + "/openModel.xml");
 			SAXReader reader = new SAXReader();
-			Document scriptDocument = D;
+			Document document = reader.read(xmlFile);
 
-			Document rootDocument = reader.read(rootFile);
-			Element root = rootDocument.getRootElement();
-
-			Node node = rootDocument.selectSingleNode("//@model");
-			node.setText(ConfigProperties.model);
-
-			// 1/ remove root
-			List<Node> nodes = scriptDocument.selectNodes("//transaction/action");
-			
-			
-			for (Node n : nodes) {
-
-				Element e = (Element) n.detach();
-				
-				actionsMap.put(String.valueOf(i), e);
-				i++;
-				
-				XmlEncodedXML xex = new XmlEncodedXML(root.asXML());
-				
-			}
+			Node node = document.selectSingleNode("//@model");
+			node.setText(modelPath);
+			XmlEncodedXML xex = new XmlEncodedXML(node.getParent().asXML());
+			String res = crnConnect.getMetadataService().updateMetadata(xex).toString();
+			System.out.println("openModel" + modelPath + " successful");
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
-			ex.printStackTrace();
-			TaskerSVC.stop();   // ajout test Nico
-			System.exit(0);
-		} 
+		} catch (RemoteException ex) {
+			lg(ex.getMessage());
+		}
 
 	}
 
-	public static void executeAllActions() {
+	public void saveModel() {
+
+		try {
+			File xmlFile = new File(ConfigProperties.PathToXML + "/saveModel.xml");
+			SAXReader reader = new SAXReader();
+			Document document = reader.read(xmlFile);
+			Node node = document.selectSingleNode("//@model");
+			node.setText(modelPath);
+			XmlEncodedXML xex = new XmlEncodedXML(node.getParent().asXML());
+			String res = crnConnect.getMetadataService().updateMetadata(xex).toString();
+			System.out.println("saveModel " + modelPath);
+		} catch (DocumentException ex) {
+			lg(ex.getMessage());
+		} catch (RemoteException ex) {
+			lg(ex.getMessage());
+		}
+
+	}
+
+	
+	public void closeModel() {
+
+		try {
+			File xmlFile = new File(ConfigProperties.PathToXML + "/closeModel.xml");
+			SAXReader reader = new SAXReader();
+			Document document = reader.read(xmlFile);
+			Node node = document.selectSingleNode("//@model");
+			node.setText(modelPath);
+			XmlEncodedXML xex = new XmlEncodedXML(node.getParent().asXML());
+			String res = crnConnect.getMetadataService().updateMetadata(xex).toString();
+			System.out.println("closeModel " + modelPath);
+		} catch (DocumentException ex) {
+			lg(ex.getMessage());
+		} catch (RemoteException ex) {
+			lg(ex.getMessage());
+		}
+
+	}
+
+	public void executeModel(Document D) {
+		
+		Document scriptDocument = D;
+
+		// 1/ remove root
+		List<Node> nodes = scriptDocument.selectNodes("//transaction/action");
+		
+		for (Node n : nodes) {
+
+			Element e = (Element) n.detach();
+			
+			actionsMap.put(String.valueOf(i), e);
+			i++;			
+		} 
+	}
+
+	public void executeAllActions() {
 		try {
 			File rootFile = new File(ConfigProperties.PathToXML + "/executeModel.xml");
 
@@ -131,7 +184,7 @@ public class CognosSVC {
 			Element root = rootDocument.getRootElement();
 
 			Node node = rootDocument.selectSingleNode("//@model");
-			node.setText(ConfigProperties.model);
+			node.setText(modelPath);
 			
 			int j=1;
 			List<Element> lst = new ArrayList<Element>();
@@ -150,22 +203,60 @@ public class CognosSVC {
 			t.setContent(lst);
 			// t.addAttribute("commit", "y");   //pour balise transaction
 			XmlEncodedXML xex = new XmlEncodedXML(root.asXML());
-//			System.out.println(root.asXML());
+			//System.out.println(root.asXML());
 			String res = crnConnect.getMetadataService().updateMetadata(xex).toString();
 			
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 			ex.printStackTrace();
-			TaskerSVC.stop();   // ajout test Nico
-			System.exit(0);
+			saveModel();
+			closeModel();
+			logoff();   // ajout test Nico
+//			System.exit(0);
 		} catch (RemoteException ex) {
 			lg(ex.getMessage());
 			ex.printStackTrace();
-			TaskerSVC.stop();    // ajout test Nico
-			System.exit(0);
+			saveModel();
+			closeModel();
+			logoff();  // ajout test Nico
+//			System.exit(0);
 		}
-
 	}
+	
+	public void createPublicFolder(String newFolderName) {
+		PropEnum[] properties = new PropEnum[] { PropEnum.searchPath, PropEnum.defaultName };
+
+		AddOptions add = new AddOptions();
+		add.setUpdateAction(UpdateActionEnum.replace);
+
+		// create new folder object
+		Folder aFolder = new Folder();
+
+		TokenProp tp = new TokenProp();
+		tp.setValue(newFolderName);
+
+		aFolder.setDefaultName(tp);
+
+		SearchPathMultipleObject searchPath = new SearchPathMultipleObject();
+		searchPath.set_value("/content/folder[@name='" + newFolderName + "']");
+
+		try {
+			BaseClass[] folder = crnConnect.getCMService().query(searchPath, properties, new Sort[] {}, new QueryOptions());
+			// Check if the folder is already exist if not create it.
+			if (folder.length == 0) {
+				SearchPathSingleObject searchPathSing = new SearchPathSingleObject();
+				searchPathSing.set_value("/content");
+				crnConnect.getCMService().add(searchPathSing, new BaseClass[] { aFolder }, add);
+
+				System.out.println("New folder [" + newFolderName + "] has been created.");
+			} else {
+				System.out.println(newFolderName + " already exists.");
+			}
+		} catch (Exception e) {
+			System.out.println("Exception ");
+		}
+	}
+
 
 	
 	public static void lg(String msg) {

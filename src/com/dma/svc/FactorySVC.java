@@ -31,14 +31,83 @@ import sapphire.util.Logger;
 
 public class FactorySVC {
 
-	private static CRNConnect crnConnect;
+	CognosSVC csvc;
+	public FactorySVC (CognosSVC csvc)
+	{
+		this.csvc = csvc;
+	}
+	
+	public void addLocale(String locale) {
+		try {
+			File xmlFile = new File(ConfigProperties.PathToXML + "/addLocale.xml");
+			SAXReader reader = new SAXReader();
+			Document document = reader.read(xmlFile);
+			Node newLocale = document.selectSingleNode("//param[@seq='1']/value");
+			Node activeLocale = document.selectSingleNode("//param[@seq='2']/value");
 
-	static {
-		crnConnect = CognosSVC.crnConnect;
+			newLocale.setText("<stringCollection><item>" + locale + "</item></stringCollection>");
+			activeLocale.setText("en-gb");
+			System.out.println("addLocale(" + locale + ")");
+			csvc.executeModel(document);
+		} catch (DocumentException ex) {
+			lg(ex.getMessage());
+		}
+
 	}
 
+	public void removeLocale(String locale) {
+		try {
+			File xmlFile = new File(ConfigProperties.PathToXML + "/removeLocale.xml");
+			SAXReader reader = new SAXReader();
+			Document document = reader.read(xmlFile);
+			Node nodeLocale = document.selectSingleNode("//param[@seq='1']/value");
+
+			nodeLocale.setText(locale);
+
+			csvc.executeModel(document);
+		} catch (DocumentException ex) {
+			lg(ex.getMessage());
+		}
+
+	}
+
+	public void setLocale() {
+		try {
+			File xmlFile = new File(ConfigProperties.PathToXML + "/setLocale.xml");
+
+			SAXReader reader = new SAXReader();
+			Document document = reader.read(xmlFile);
+			Element root = document.getRootElement();
+
+			Node n1 = document.selectSingleNode("//action[@type='SetActiveLocale']/inputparams/param/value");
+			Node n2 = document.selectSingleNode("//action[@type='SetDefaultLocale']/inputparams/param/value");
+
+			n1.setText(ConfigProperties.ActiveLocale);
+			n2.setText(ConfigProperties.DefaultLocale);
+			
+			System.out.println("setLocale " + "ActiveLocale=" + ConfigProperties.ActiveLocale + " DefaultLocale=" + ConfigProperties.DefaultLocale);
+			csvc.executeModel(document);
+		} catch (DocumentException ex) {
+			lg(ex.getMessage());
+		}
+
+	}
 	
-	public static void copyQuerySubject(String targetNameSpace, String sourceQS){
+	public void changePropertyFixIDDefaultLocale() {
+		try {
+			File xmlFile = new File(ConfigProperties.PathToXML + "/changePropertyFixIDDefaultLocale.xml");
+
+			SAXReader reader = new SAXReader();
+			Document document = reader.read(xmlFile);
+
+			csvc.executeModel(document);
+		} catch (DocumentException ex) {
+			lg(ex.getMessage());
+		}
+
+	}
+
+	public void copyQuerySubject(String targetNameSpace, String sourceQS){
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/copyQuerySubject.xml");
 			SAXReader reader = new SAXReader();
@@ -51,7 +120,7 @@ public class FactorySVC {
 			n2.setText(sourceQS);
 
 			System.out.println("copyQuerySubject(" + targetNameSpace + ", " + sourceQS + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
@@ -59,7 +128,7 @@ public class FactorySVC {
 		
 	}
 	
-	public static void renameQuerySubject(String qs, String name){
+	public void renameQuerySubject(String qs, String name){
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/renameQuerySubject.xml");
 			SAXReader reader = new SAXReader();
@@ -72,34 +141,15 @@ public class FactorySVC {
 			n2.setText(name);
 
 			System.out.println("renameQuerySubject(" + qs + ", " + name + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 		
 	}
-
-	// faire évoluer DB LV en dur dans la datasource
-//	public static void ImportDB(String Namespace) {
-//		try {
-//			File xmlFile = new File(ConfigProperties.PathToXML + "/DBImport.xml");
-//
-//			SAXReader reader = new SAXReader();
-//			Document script = reader.read(xmlFile);
-//
-//			Element root = script.getRootElement();
-//			Node namespace = script.selectSingleNode("//param[@seq='1']/value");
-//			Node cdata = script.selectSingleNode("//param[@seq='2']/value");
-//
-//			namespace.setText("[" + Namespace + "]");
-//			CognosSVC.executeModel(script);
-//		} catch (DocumentException ex) {
-//			lg(ex.getMessage());
-//		}
-//	}
 	
-	public static void DBImport(String Namespace, String dataSourceName, String schemaName) {
+	public void DBImport(String Namespace, String dataSourceName, String schemaName) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/DBImport.xml");
 
@@ -132,17 +182,17 @@ public class FactorySVC {
 			
 //		    System.out.println(script.asXML());
 		    System.out.println("DBImport(" + Namespace + ", " + dataSourceName + ", " + schemaName + ")");
-			CognosSVC.executeModel(script);
+			csvc.executeModel(script);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void deleteDataSource(String datasource) {
+	public void deleteDataSource(String datasource) {
 		try {
 //			String datasource = "[].[dataSources].[DEV]";
 			
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/deleteDataSource.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/deleteDataSource.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -151,13 +201,13 @@ public class FactorySVC {
 			handle.setText(datasource);
 	
 //			System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 	
-	public static void createFolder(String NamespaceRefObj, String Name) {
+	public void createFolder(String NamespaceRefObj, String Name) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createFolder.xml");
 			SAXReader reader = new SAXReader();
@@ -168,14 +218,14 @@ public class FactorySVC {
 			Node n2 = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150727115905548\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[3]/value");
 			n2.setText(Name);
 
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createFolderInFolder(String Namespace, String Fin, String Fout) {
+	public void createFolderInFolder(String Namespace, String Fin, String Fout) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createFolderInFolder.xml");
 			SAXReader reader = new SAXReader();
@@ -189,14 +239,14 @@ public class FactorySVC {
 			Node n3 = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150916123602448\"]/transaction[@saved=\"false\"]/action[2]/inputparams/param[@seq=\"1\"]/value");
 			n3.setText(Namespace + ".[" + Fout + "]");
 
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createNamespace(String NameSpace, String Parent) {
+	public void createNamespace(String NameSpace, String Parent) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createNamespace.xml");
 			SAXReader reader = new SAXReader();
@@ -208,17 +258,17 @@ public class FactorySVC {
 			namespace.setText(NameSpace);
 
 			System.out.println("createNamespace(" + NameSpace + ", " + Parent + ")") ;
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 	
-	public static void deleteNamespace(String namespace) {
+	public void deleteNamespace(String namespace) {
 		try {
 	
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/deleteNamespace.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/deleteNamespace.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -226,13 +276,13 @@ public class FactorySVC {
 
 			handle.setText(namespace);
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createQuerySubject(String Source, String Destination, String Name) {
+	public void createQuerySubject(String Source, String Destination, String Name) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createQuerySubject.xml");
 			SAXReader reader = new SAXReader();
@@ -249,14 +299,14 @@ public class FactorySVC {
 			mod_path.setText("/O/name[0]/O/[" + Destination + "].[" + Name + "_" + Name + "]");
 			mod_val.setText(Name);
 
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createQuerySubjectInFolder(String Source, String Destination, String Folder, String Name) {
+	public void createQuerySubjectInFolder(String Source, String Destination, String Folder, String Name) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createQuerySubject.xml");
 			SAXReader reader = new SAXReader();
@@ -280,7 +330,7 @@ public class FactorySVC {
 
 			System.out.println("+-+-+-+-+-+-+- CREATE QS " + Source + ", " + Destination + ", " + Folder + ", " + Name);
 			
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
@@ -289,7 +339,7 @@ public class FactorySVC {
 
 	// ceci pour les QS qui pointe directement sur la DB.
 	// il ont besoin du vrai nom de la table et aussi du u_name
-	public static void createQuerySubject(String Source, String Destination, String BasedOnQuerySubject, String NameQuerySubject) {
+	public void createQuerySubject(String Source, String Destination, String BasedOnQuerySubject, String NameQuerySubject) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createQuerySubject.xml");
 			SAXReader reader = new SAXReader();
@@ -309,14 +359,14 @@ public class FactorySVC {
 			
 //			System.out.println(document.asXML());
 			System.out.println("createQuerySubject(" + Source + ", " + Destination + ", " + BasedOnQuerySubject + ", " + BasedOnQuerySubject + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createQueryItem(String QuerySubject, String Name, String Exp) {
+	public void createQueryItem(String QuerySubject, String Name, String Exp) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createQueryItem.xml");
 			File cdataFile = new File(ConfigProperties.PathToXML + "/createQueryItemCDATA.xml");
@@ -343,13 +393,13 @@ public class FactorySVC {
 			cdata.addCDATA(root_cdata.asXML());
 
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 	
-	public static void createQueryItemInFolder(String QS, String Folder, String Name, String Exp) {
+	public void createQueryItemInFolder(String QS, String Folder, String Name, String Exp) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createQueryItemInFolder.xml");
 			SAXReader reader = new SAXReader();
@@ -372,49 +422,13 @@ public class FactorySVC {
 
 			// System.out.println(document.asXML());
 			System.out.println("createQueryItemInFolder(" + QS + ", " + Folder + ", " + Exp + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
-	/*
-	public static void createQueryItemsInFolderWithOptions(String QSFinalTargetName, String Folder, String prefixName, String QSSourceNameinc, QuerySubject QSSource) {
-		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createQueryItemInFolder.xml");
-			SAXReader reader = new SAXReader();
-			Document document = reader.read(xmlFile);
-
-			for(Field field: QSSource.getFields()){
-				
-				FactorySVC.createQueryItemInFolder(qsFinal, gDirNameCurrent, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
-				
-				//add label
-				if(field.getLabel() == null || field.getLabel().equals(""))
-				{label = field.getField_name();} else {label = field.getLabel();
-				}
-				labelMap.put(qsFinalName + "." + gFieldName + "." + field.getField_name(), label);
-				// end label
-				// add tooltip
-				desc = "";
-				if(field.getDescription() != null) {desc = ": " + field.getDescription();}
-				FactorySVC.createScreenTip("queryItem", qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
-				// end tooltip
-				//change property query item
-				FactorySVC.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
-				if (!field.getDisplayType().toLowerCase().equals("value"))
-				{
-					FactorySVC.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
-					
-				}
-				//end change
-			}
-			
-		} catch (DocumentException ex) {
-			lg(ex.getMessage());
-		}
-	}
-*/
-	public static void changeQueryItemProperty(String queryItemPath, String property, String value) {
+	
+	public void changeQueryItemProperty(String queryItemPath, String property, String value) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/changeQueryitemProperty.xml");
 			SAXReader reader = new SAXReader();
@@ -440,13 +454,13 @@ public class FactorySVC {
 
 		//	 System.out.println(document.asXML());
 			System.out.println("changeQueryitemProperty(" + queryItemPath + ", " + property + ", " + value + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createRelationship(RelationShip rs) {
+	public void createRelationship(RelationShip rs) {
 
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createRelationship.xml");
@@ -495,7 +509,7 @@ public class FactorySVC {
 					"name: " + rs.getName() + ", " +
 					"exp: " + rs.getExpression()
 					);
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
@@ -503,41 +517,8 @@ public class FactorySVC {
 
 	}
 
-	public static void createPublicFolder(String newFolderName) {
-		PropEnum[] properties = new PropEnum[] { PropEnum.searchPath, PropEnum.defaultName };
 
-		AddOptions add = new AddOptions();
-		add.setUpdateAction(UpdateActionEnum.replace);
-
-		// create new folder object
-		Folder aFolder = new Folder();
-
-		TokenProp tp = new TokenProp();
-		tp.setValue(newFolderName);
-
-		aFolder.setDefaultName(tp);
-
-		SearchPathMultipleObject searchPath = new SearchPathMultipleObject();
-		searchPath.set_value("/content/folder[@name='" + newFolderName + "']");
-
-		try {
-			BaseClass[] folder = crnConnect.getCMService().query(searchPath, properties, new Sort[] {}, new QueryOptions());
-			// Check if the folder is already exist if not create it.
-			if (folder.length == 0) {
-				SearchPathSingleObject searchPathSing = new SearchPathSingleObject();
-				searchPathSing.set_value("/content");
-				crnConnect.getCMService().add(searchPathSing, new BaseClass[] { aFolder }, add);
-
-				System.out.println("New folder [" + newFolderName + "] has been created.");
-			} else {
-				System.out.println(newFolderName + " already exists.");
-			}
-		} catch (Exception e) {
-			System.out.println("Exception ");
-		}
-	}
-
-	public static void ReorderSubFolderBefore(String handle, String target) {
+	public void ReorderSubFolderBefore(String handle, String target) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/ReorderBefore.xml");
 			SAXReader reader = new SAXReader();
@@ -551,14 +532,14 @@ public class FactorySVC {
 			tp.setText("queryItemFolder");
 
 			System.out.println("ReorderSubFolderBefore(" + handle + ", " + target + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void ReorderBefore(String handle, String target) {
+	public void ReorderBefore(String handle, String target) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/ReorderBefore.xml");
 			SAXReader reader = new SAXReader();
@@ -569,14 +550,14 @@ public class FactorySVC {
 			h.setText(handle);
 			t.setText(target);
 
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createSubFolder(String QSRejObj, String Name) {
+	public void createSubFolder(String QSRejObj, String Name) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createSubFolder.xml");
 			SAXReader reader = new SAXReader();
@@ -589,14 +570,14 @@ public class FactorySVC {
 			n2.setText(Name);
 
 			System.out.println("createSubFolder(" + QSRejObj + ", " + Name + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createSubFolderInSubFolder(String QSRefObj, String Fext, String Fint) {
+	public void createSubFolderInSubFolder(String QSRefObj, String Fext, String Fint) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createSubFolder.xml");
 			SAXReader reader = new SAXReader();
@@ -608,13 +589,13 @@ public class FactorySVC {
 			Node n2 = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150727152555245\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[3]/value");
 			n2.setText(Fint);
 
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
-	public static void createSubFolderInSubFolderIIC(String QSRefObj, String Fint) {
+	public void createSubFolderInSubFolderIIC(String QSRefObj, String Fint) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createSubFolder.xml");
 			SAXReader reader = new SAXReader();
@@ -627,14 +608,14 @@ public class FactorySVC {
 			n2.setText(Fint);
 
 			System.out.println("createSubFolderInSubFolderIIC( " + QSRefObj + ", " + Fint + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createFilter(String Name, String Expression, String Namespace) {
+	public void createFilter(String Name, String Expression, String Namespace) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/createFilter.xml");
 			SAXReader reader = new SAXReader();
@@ -649,14 +630,14 @@ public class FactorySVC {
 			ExpressionNode.setText(Expression);
 			ExpressionSettingNode.setText("/O/expression[0]/O/[" + Namespace + "].[" + Name + "]");
 
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void assignFilter(String Filter, String QuerySubject) {
+	public void assignFilter(String Filter, String QuerySubject) {
 		try {
 
 			File xmlFile = new File(ConfigProperties.PathToXML + "/assignFilter.xml");
@@ -683,17 +664,17 @@ public class FactorySVC {
 			cdata.addCDATA(root_cdata.asXML());
 
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void lg(String msg) {
+	public void lg(String msg) {
 		Logger.logInfo(" BuildModel.java ", msg);
 	}
 	
-	public static void createScreenTip(String objectType, String objectPath, String objectToolTip) {
+	public void createScreenTip(String objectType, String objectPath, String objectToolTip) {
 		
 		try {
 //			String objectType = "querySubject"; //queryItem , queryItemFolder
@@ -703,7 +684,7 @@ public class FactorySVC {
 			String objectTypePath = objectType + "/screenTip";
 			String stObjectPath = "/O/screenTip[0]/O/" + objectPath;
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createScreenTip.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createScreenTip.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -717,17 +698,17 @@ public class FactorySVC {
 			
 //			System.out.println(document.asXML());
 			System.out.println("createScreenTip(" + objectType + ", " + objectPath + ", " + objectToolTip + ")");
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
 			}
 		}
 	
 	// Dimension functions factory
-	public static void createMeasureDimension(String handle, String measureDimensionName) {
+	public void createMeasureDimension(String handle, String measureDimensionName) {
 		try {
 	
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createMeasureDimension.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createMeasureDimension.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -754,20 +735,20 @@ public class FactorySVC {
 			cdata.addCDATA(root_cdata.asXML());
 
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createMeasure(String dimensionPath, String measureName, String exp) {
+	public void createMeasure(String dimensionPath, String measureName, String exp) {
 		try {
 			
 //			String measureName = "SDIDATA_COUNT";
 //			String dimensionPath = "[DIMENSIONS].[SDIDATA_MEASURES]";
 //			String exp = "[FINAL].[SDIDATA].[SDIDATA_COUNT]";
 						
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createMeasure.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createMeasure.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -792,13 +773,13 @@ public class FactorySVC {
 			cdata.addCDATA(root_cdata.asXML());
 
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void createDimension(String handle, String dimensionName) {
+	public void createDimension(String handle, String dimensionName) {
 		try {
 			
 //			namespace = "[DIMENSIONS]";
@@ -808,7 +789,7 @@ public class FactorySVC {
 			String mappingPath = "";
 			if (handle.contains("].[")) {mappingPath = "folder";} else {mappingPath="namespace";}
 			
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createDimension.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimension.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -827,19 +808,19 @@ public class FactorySVC {
 		    cdata1.addCDATA(root_cdata1.asXML());
 
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 	
-	public static void createDimensionHierarchy(String dimensionPath, String exp) {
+	public void createDimensionHierarchy(String dimensionPath, String exp) {
 		try {
 			
 //			dimensionPath = "[DIMENSIONS].[S_PRODUCT]";
 //			exp = "[FINAL].[S_PRODUCT]";
 						
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createDimensionHierarchy.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimensionHierarchy.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 	    
@@ -856,13 +837,13 @@ public class FactorySVC {
 		    cdata2.addCDATA(root_cdata2.asXML());
 
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void addHierarchyLevel(String hierarchyPath, String levelBefore, String newLevel, String exp) {
+	public void addHierarchyLevel(String hierarchyPath, String levelBefore, String newLevel, String exp) {
 		try {
 			
 //			hierarchyPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT]";
@@ -870,7 +851,7 @@ public class FactorySVC {
 //			newLevel = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_BATCH]";
 //			exp = "[FINAL].[S_BATCH]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/addHierarchyLevel.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/addHierarchyLevel.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -893,19 +874,19 @@ public class FactorySVC {
 		    cdata.addCDATA(root_cdata.asXML());
 		    
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void addDimensionHierarchy(String dimensionPath, String exp) {
+	public void addDimensionHierarchy(String dimensionPath, String exp) {
 		try {
 			
 //			dimensionPath = "[DIMENSIONS].[S_PRODUCT]";
 //			exp = "[FINAL].[S_REQUEST]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/addDimensionHierarchy.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/addDimensionHierarchy.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -924,18 +905,18 @@ public class FactorySVC {
 			
 		    
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 	
-	public static void createDimensionRole_BK(String queryItemPath) {
+	public void createDimensionRole_BK(String queryItemPath) {
 		try {
 			
 //			String queryItemPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_PRODUCT].[S_PRODUCTID1]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createDimensionRole_BK.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimensionRole_BK.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -945,18 +926,18 @@ public class FactorySVC {
 			handle2.setText(queryItemPath);
 		    
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 	
-	public static void createDimensionRole_MC(String queryItemPath) {
+	public void createDimensionRole_MC(String queryItemPath) {
 		try {
 			
 //			String queryItemPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_PRODUCT].[S_PRODUCTID1]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createDimensionRole_MC.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimensionRole_MC.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -966,18 +947,18 @@ public class FactorySVC {
 			handle2.setText(queryItemPath);
 		    
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 	
-	public static void createDimensionRole_MD(String queryItemPath) {
+	public void createDimensionRole_MD(String queryItemPath) {
 		try {
 			
 //			String queryItemPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_PRODUCT].[S_PRODUCTID1]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createDimensionRole_MD.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimensionRole_MD.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -987,19 +968,19 @@ public class FactorySVC {
 			handle2.setText(queryItemPath);
 		    
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 	
-	public static void createScopeRelationship(String dimensionPath) {
+	public void createScopeRelationship(String dimensionPath) {
 				
 			try {
 				
 //				String dimensionPath = "[DIMENSIONS].[S_PRODUCT]";
 
-				File xmlFile = new File("/root/ddtool/WebContent/res/templates/createScopeRelationship.xml");
+				File xmlFile = new File(ConfigProperties.PathToXML + "/createScopeRelationship.xml");
 				SAXReader reader = new SAXReader();
 				Document document = reader.read(xmlFile);
 
@@ -1007,13 +988,13 @@ public class FactorySVC {
 				handle.setText(dimensionPath);
 		    
 			// System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
 		}
 	}
 
-	public static void adjustScopeRelationship(String dimensionMeasurePath, String measurePath, String dimensionPath, String levelPath) {
+	public void adjustScopeRelationship(String dimensionMeasurePath, String measurePath, String dimensionPath, String levelPath) {
 		
 		try {
 //			String dimensionMeasurePath = "[DIMENSIONS].[S_SAMPLE_MEASURES]";
@@ -1021,7 +1002,7 @@ public class FactorySVC {
 //			String dimensionPath = "[DIMENSIONS].[S_PRODUCT]";
 //			String levelPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_BATCH]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/adjustScopeRelationship.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/adjustScopeRelationship.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1035,13 +1016,13 @@ public class FactorySVC {
 			handleDP.setText(dimensionPath);
 			handleLP.setText(levelPath);
 		// System.out.println(document.asXML());
-		CognosSVC.executeModel(document);
+		csvc.executeModel(document);
 	} catch (DocumentException ex) {
 		lg(ex.getMessage());
 	}
 }
 	
-	public static void createEmptyHierarchy(String dimensionPath, String hierarchyName) {
+	public void createEmptyHierarchy(String dimensionPath, String hierarchyName) {
 		
 		try {
 //			String dimensionPath = "[DIMENSIONS].[SDIDATA.CREATEDT]";
@@ -1051,7 +1032,7 @@ public class FactorySVC {
 			String handleLevelName = "/O/name[0]/O/" + dimensionPath + ".[" + hierarchyName + "].[New Hierarchy(All)]";
 			String levelName = hierarchyName + "(All)";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createEmptyHierarchy.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createEmptyHierarchy.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1066,13 +1047,13 @@ public class FactorySVC {
 			ElemlevelName.setText(levelName);
 			
 		// System.out.println(document.asXML());
-		CognosSVC.executeModel(document);
+		csvc.executeModel(document);
 	} catch (DocumentException ex) {
 		lg(ex.getMessage());
 	}
 }
 
-	public static void modifyHierarchyName(String dimensionPath, String hierarchyOldName, String hierarchyName) {
+	public void modifyHierarchyName(String dimensionPath, String hierarchyOldName, String hierarchyName) {
 		
 		try {
 //			String dimensionPath = "[DIMENSIONS].[SDIDATA.CREATEDT]";
@@ -1082,7 +1063,7 @@ public class FactorySVC {
 			String handleLevelName = "/O/name[0]/O/" + dimensionPath + ".[" + hierarchyName + "].[" + hierarchyOldName +"(All)]";
 			String levelName = hierarchyName + "(All)";
 			
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/modifyHierarchyName.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/modifyHierarchyName.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1097,19 +1078,19 @@ public class FactorySVC {
 			ElemlevelName.setText(levelName);
 			
 		// System.out.println(document.asXML());
-		CognosSVC.executeModel(document);
+		csvc.executeModel(document);
 	} catch (DocumentException ex) {
 		lg(ex.getMessage());
 	}
 }
 
 	
-	public static void createEmptyNewHierarchy(String dimensionPath) {
+	public void createEmptyNewHierarchy(String dimensionPath) {
 		
 		try {
 //			String dimensionPath = "[DIMENSIONS].[SDIDATA.CREATEDT]";
 			
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createEmptyNewHierarchy.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createEmptyNewHierarchy.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1117,13 +1098,13 @@ public class FactorySVC {
 			handle.setText(dimensionPath);
 		
 		// System.out.println(document.asXML());
-		CognosSVC.executeModel(document);
+		csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
 			}
 		}
 	
-	public static void createEmptyHierarchyLevel(String hierarchyPath, String levelName) {
+	public void createEmptyHierarchyLevel(String hierarchyPath, String levelName) {
 		
 		try {
 			
@@ -1132,7 +1113,7 @@ public class FactorySVC {
 					
 			String handleLevelName = "/O/name[0]/O/" + hierarchyPath + ".[New Level]";
 			
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createEmptyHierarchyLevel.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createEmptyHierarchyLevel.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1145,13 +1126,13 @@ public class FactorySVC {
 			ElemlevelName.setText(levelName);
 
 		// System.out.println(document.asXML());
-				CognosSVC.executeModel(document);
+				csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
 			}
 		}
 
-	public static void modifyLevelName(String hierarchyPath, String levelOldName, String levelName) {
+	public void modifyLevelName(String hierarchyPath, String levelOldName, String levelName) {
 		
 		try {
 			
@@ -1160,7 +1141,7 @@ public class FactorySVC {
 					
 			String handleLevelName = "/O/name[0]/O/" + hierarchyPath + ".[" + levelOldName + "]";
 			
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/modifyLevelName.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/modifyLevelName.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Element elemhandleLevelName = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20171122161606340\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[1]/value");
@@ -1170,21 +1151,21 @@ public class FactorySVC {
 			ElemlevelName.setText(levelName);
 
 		// System.out.println(document.asXML());
-				CognosSVC.executeModel(document);
+				csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
 			}
 		}
 
 	
-	public static void createHierarchyLevelQueryItem(String levelPath, String queryItemName, String exp) {
+	public void createHierarchyLevelQueryItem(String levelPath, String queryItemName, String exp) {
 		
 		try {
 //			String levelPath = "[DIMENSIONS].[SDIDATA.CREATEDT].[SDIDATA.CREATEDT (By month)].[YEAR]";
 //			String queryItemName = "YEAR_KEY";
 //			String exp = "_year (<refobj>[FINAL].[SDIDATA].[CREATEDT]</refobj>)";
 					
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createHierarchyLevelQueryItem.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createHierarchyLevelQueryItem.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1205,13 +1186,13 @@ public class FactorySVC {
 		    cdata.addCDATA(root_cdata.asXML());
 
 		// System.out.println(document.asXML());
-				CognosSVC.executeModel(document);
+				csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
 			}
 		}
 
-	public static void modifyLevelQueryItemName(String levelPath, String queryItemOldName, String queryItemName, String exp) {
+	public void modifyLevelQueryItemName(String levelPath, String queryItemOldName, String queryItemName, String exp) {
 		
 		try {
 //			String queryItemOldName = "CREATEDT";
@@ -1219,7 +1200,7 @@ public class FactorySVC {
 //			String exp = "_year(&lt;refobj&gt;[FINAL].[SDIDATA].[CREATEDT]&lt;/refobj&gt;)";
 //			levelPath = "[DIMENSIONS].[SDIDATA.CREATEDT].[SDIDATA.CREATEDT (By month)].[YEAR]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/modifyLevelQueryItem.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/modifyLevelQueryItem.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1235,13 +1216,13 @@ public class FactorySVC {
 			
 
 		// System.out.println(document.asXML());
-				CognosSVC.executeModel(document);
+				csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
 			}
 		}
 	
-	public static void createTimeDimension(String dateQueryItemPath, String dimensionName, String dateQueryItemName) {
+	public void createTimeDimension(String dateQueryItemPath, String dimensionName, String dateQueryItemName) {
 	
 
 	// time dimension
@@ -1249,121 +1230,121 @@ public class FactorySVC {
 //			String dateQueryItemName = "CREATEDT";
 //			String dimensionName = "SDIDATA.CREATEDT";	
 			
-			FactorySVC.createDimension("[DIMENSIONS]", dimensionName);
+			createDimension("[DIMENSIONS]", dimensionName);
 
 	// hierarchy (By month)
-			FactorySVC.createDimensionHierarchy("[DIMENSIONS].[" + dimensionName + "]", dateQueryItemPath);
-			FactorySVC.createScopeRelationship("[DIMENSIONS].[" + dimensionName + "]");
+			createDimensionHierarchy("[DIMENSIONS].[" + dimensionName + "]", dateQueryItemPath);
+			createScopeRelationship("[DIMENSIONS].[" + dimensionName + "]");
 		
 	// level year
-			FactorySVC.modifyHierarchyName("[DIMENSIONS].[" + dimensionName + "]", dateQueryItemName,dateQueryItemName + " (By month)");
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "YEAR");
+			modifyHierarchyName("[DIMENSIONS].[" + dimensionName + "]", dateQueryItemName,dateQueryItemName + " (By month)");
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "YEAR");
 			String exp = "_year(" + dateQueryItemPath + ")";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", dateQueryItemName, "YEAR_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", dateQueryItemName, "YEAR_KEY", exp);
 			exp = "_year (" + dateQueryItemPath + ")";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", "YEAR", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR].[YEAR]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR].[YEAR]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", "YEAR", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR].[YEAR]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR].[YEAR]");
 
 	//level quarter	
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "QUARTER");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "QUARTER");
 			exp = "if (_month (  " + dateQueryItemPath + " ) in (1,2,3)) then (1)  else (\n" + 
 			"if (_month (  " + dateQueryItemPath + " ) in (4,5,6)) then (2)  else (\n" + 
 			"if (_month (  " + dateQueryItemPath + " ) in (7,8,9)) then (3)  else (\n" + 
 			"if (_month (  " + dateQueryItemPath + " ) in (10,11,12)) then (4)  else (0)\n" + 
 			")))";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER]", dateQueryItemName, "QUARTER_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER]", dateQueryItemName, "QUARTER_KEY", exp);
 			exp = "_year (" + dateQueryItemPath + ") + '/' +\n" + 
 					"cast (if (_month (  " + dateQueryItemPath + " ) in (1,2,3)) then (1)  else (\n" + 
 					"if (_month (  " + dateQueryItemPath + " ) in (4,5,6)) then (2)  else (\n" + 
 					"if (_month (  " + dateQueryItemPath + " ) in (7,8,9)) then (3)  else (\n" + 
 					"if (_month (  " + dateQueryItemPath + " ) in (10,11,12)) then (4)  else (0)\n" + 
 					"))),varchar)";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER]", "QUARTER", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER].[QUARTER]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER].[QUARTER]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER]", "QUARTER", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER].[QUARTER]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER].[QUARTER]");
 
 	// level month
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "MONTH");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "MONTH");
 			exp = "_month (" + dateQueryItemPath + ")";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", dateQueryItemName, "MONTH_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", dateQueryItemName, "MONTH_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(7))";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", "MONTH", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH].[MONTH]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH].[MONTH]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", "MONTH", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH].[MONTH]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH].[MONTH]");
 
 	// level day
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "DAY");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "DAY");
 			exp =  "_day (" + dateQueryItemPath + ")";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", dateQueryItemName, "DAY_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", dateQueryItemName, "DAY_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(10))";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", "DAY", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY].[DAY]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY].[DAY]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", "DAY", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY].[DAY]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY].[DAY]");
 							
 	// level AM/PM
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "AM/PM");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "AM/PM");
 			exp = "if (_hour (  " + dateQueryItemPath + " ) in_range {0:11}) then (1)  else (2)";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", dateQueryItemName, "AM/PM_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", dateQueryItemName, "AM/PM_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(10)) + ' ' +\n" + 
 					"if (_hour (  " + dateQueryItemPath + " ) in_range {0:11}) then ('AM')  else ('PM')";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", "AM/PM", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM].[AM/PM]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM].[AM/PM]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", "AM/PM", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM].[AM/PM]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM].[AM/PM]");
 
 	// level hour
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "HOUR");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "HOUR");
 			exp = "_hour (  " + dateQueryItemPath + " )";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", dateQueryItemName, "HOUR_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", dateQueryItemName, "HOUR_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(13))";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", "HOUR", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR].[HOUR]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR].[HOUR]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", "HOUR", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR].[HOUR]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR].[HOUR]");
 
 	// level date
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "DATE");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "DATE");
 			exp = dateQueryItemPath;
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE]", dateQueryItemName, "DATE_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE]", dateQueryItemName, "DATE_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(19))";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE]", "DATE", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE].[DATE]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE].[DATE]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE]", "DATE", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE].[DATE]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE].[DATE]");
 
 			
 	// hierarchy by week
-			FactorySVC.addDimensionHierarchy("[DIMENSIONS].[" + dimensionName + "]", dateQueryItemPath);
-			FactorySVC.modifyHierarchyName("[DIMENSIONS].[" + dimensionName + "]", dateQueryItemName,dateQueryItemName + " (By week)");
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "YEAR");
+			addDimensionHierarchy("[DIMENSIONS].[" + dimensionName + "]", dateQueryItemPath);
+			modifyHierarchyName("[DIMENSIONS].[" + dimensionName + "]", dateQueryItemName,dateQueryItemName + " (By week)");
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "YEAR");
 			exp = "_year(" + dateQueryItemPath + ")";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR]", dateQueryItemName, "YEAR_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR]", dateQueryItemName, "YEAR_KEY", exp);
 			exp = "_year (" + dateQueryItemPath + ")";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR]", "YEAR", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR].[YEAR]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR].[YEAR]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR]", "YEAR", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR].[YEAR]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR].[YEAR]");
 
 	//level week	
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "WEEK");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "WEEK");
 			exp = "_week_of_year (" + dateQueryItemPath + ")";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", dateQueryItemName, "WEEK_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", dateQueryItemName, "WEEK_KEY", exp);
 			exp = "cast(_year (" + dateQueryItemPath + ") ,varchar(4))+ '/' +\n" + 
 					"if (_week_of_year (" + dateQueryItemPath + ") < 10 ) then ('0') else ('') + \n" + 
 					"cast(_week_of_year (" + dateQueryItemPath + "),varchar(2))";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", "WEEK", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK].[WEEK]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK].[WEEK]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", "WEEK", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK].[WEEK]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK].[WEEK]");
 
 	//level day_of_week	
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "DAY_OF_WEEK");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "DAY_OF_WEEK");
 			exp = "_day_of_week (" + dateQueryItemPath + ",1)";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", dateQueryItemName, "DAY_OF_WEEK_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", dateQueryItemName, "DAY_OF_WEEK_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(10)) + ' ' +\n" + 
 					"if (_day_of_week (" + dateQueryItemPath + ",1) = 1)\n" + 
 					"then ('Mon') else (\n" + 
@@ -1378,45 +1359,45 @@ public class FactorySVC {
 					"if (_day_of_week (" + dateQueryItemPath + ",1) = 6)\n" + 
 					"then ('Sat') else ('Sun')\n" + 
 					")))))";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", "DAY_OF_WEEK", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK].[DAY_OF_WEEK]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK].[DAY_OF_WEEK]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", "DAY_OF_WEEK", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK].[DAY_OF_WEEK]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK].[DAY_OF_WEEK]");
 
 	// level AM/PM
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "AM/PM");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "AM/PM");
 			exp = "if (_hour (  " + dateQueryItemPath + " ) in_range {0:11}) then (1)  else (2)";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", dateQueryItemName, "AM/PM_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", dateQueryItemName, "AM/PM_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(10)) + ' ' +\n" + 
 					"if (_hour (  " + dateQueryItemPath + " ) in_range {0:11}) then ('AM')  else ('PM')";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", "AM/PM", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM].[AM/PM]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM].[AM/PM]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", "AM/PM", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM].[AM/PM]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM].[AM/PM]");
 
 	// level hour
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "HOUR");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "HOUR");
 			exp = "_hour (  " + dateQueryItemPath + " )";
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", dateQueryItemName, "HOUR_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", dateQueryItemName, "HOUR_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(13))";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", "HOUR", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR].[HOUR]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR].[HOUR]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", "HOUR", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR].[HOUR]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR].[HOUR]");
 
 	// level date
-			FactorySVC.addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
-			FactorySVC.modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "DATE");
+			addHierarchyLevel("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", "[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			modifyLevelName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "DATE");
 			exp = dateQueryItemPath;
-			FactorySVC.modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE]", dateQueryItemName, "DATE_KEY", exp);
+			modifyLevelQueryItemName("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE]", dateQueryItemName, "DATE_KEY", exp);
 			exp = "cast (" + dateQueryItemPath + ",varchar(19))";
-			FactorySVC.createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE]", "DATE", exp);
-			FactorySVC.createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE].[DATE]");
-			FactorySVC.createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE].[DATE]");
+			createHierarchyLevelQueryItem("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE]", "DATE", exp);
+			createDimensionRole_MC("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE].[DATE]");
+			createDimensionRole_MD("[DIMENSIONS].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE].[DATE]");
 
 		
 	}
 	
-	public static void recursiveParserQI(Document document, String spath, String locale, Map <String, String> map, String qsFinal) {
+	public void recursiveParserQI(Document document, String spath, String locale, Map <String, String> map, String qsFinal) {
 		
 //		s = "/project/namespace/namespace[1]/namespace[1]/querySubject[1]";
 		int i = 1;
@@ -1454,7 +1435,7 @@ public class FactorySVC {
 		}
 	}
 	
-	public static void recursiveParserQS(Document document, String spath, String locale, Map<String, String> map) {
+	public void recursiveParserQS(Document document, String spath, String locale, Map<String, String> map) {
 		
 		
 //		spath = "/project/namespace/namespace[1]/namespace[1]";
@@ -1492,7 +1473,7 @@ public class FactorySVC {
 		}
 	}
 	
-	public static void createPackage(String packageName, String packageDescription, String packageScreenTip, String[] locales) {
+	public void createPackage(String packageName, String packageDescription, String packageScreenTip, String[] locales) {
 		
 		try {
 
@@ -1505,7 +1486,7 @@ public class FactorySVC {
 			String securityViewsPath = securityViews + ".[" + packageName + "]";
 			String packagesPath = "[].[packages]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/createPackage.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createPackage.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			// action 1
@@ -1556,18 +1537,18 @@ public class FactorySVC {
 			ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"10\"]/inputparams/param[1]/value");
 			ElemSecurityViewsPath.setText(securityViewsPath);
 
-//			System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			System.out.println(document.asXML());
+			csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
 			}
 		}
 	
-	public static void publishPackage(String packageName, String folder) {
+	public void publishPackage(String packageName, String folder) {
 		
 		// create a folder in the public folders
 		//folder = "/content/folder[@name='Folder DDTool']";
-		FactorySVC.createPublicFolder(folder);
+		csvc.createPublicFolder(folder);
 
 		try {
 
@@ -1579,7 +1560,7 @@ public class FactorySVC {
 			String packagesPath = "[].[packages]";
 			String packagePath = packagesPath + ".[" + packageName + "]";
 
-			File xmlFile = new File("/root/ddtool/WebContent/res/templates/publishPackage.xml");
+			File xmlFile = new File(ConfigProperties.PathToXML + "/publishPackage.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			// transaction 1
@@ -1597,7 +1578,7 @@ public class FactorySVC {
 			ElemPackageName.setText(packageName);
 			
 	//		System.out.println(document.asXML());
-			CognosSVC.executeModel(document);
+			csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
 			}

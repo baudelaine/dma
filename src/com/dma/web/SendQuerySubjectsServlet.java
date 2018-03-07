@@ -41,8 +41,6 @@ import com.dma.web .Relation;
 import com.dma.properties.ConfigProperties;
 import com.dma.svc.CognosSVC;
 import com.dma.svc.FactorySVC;
-import com.dma.svc.ProjectSVC;
-import com.dma.svc.TaskerSVC;
 import com.dma.web.RelationShip;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,8 +64,9 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 	Map<String, QuerySubject> query_subjects;
 	Map<String, String> labelMap;
 	String cognosModelsPath = null;
+	CognosSVC csvc = new CognosSVC();
+	FactorySVC fsvc = new FactorySVC(csvc);
 
-	
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -87,14 +86,9 @@ public class SendQuerySubjectsServlet extends HttpServlet {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         
-        Map<String, Object> parms = Tools.fromJSON(request.getInputStream());
-		
-		String projectName = (String) parms.get("projectName");
-		String data = (String) parms.get("data");
-        
 
 //        QuerySubject[] qsArray = mapper.readValue(br, QuerySubject[].class);
-        List<QuerySubject> qsList = Arrays.asList(mapper.readValue(data, QuerySubject[].class));
+        List<QuerySubject> qsList = Arrays.asList(mapper.readValue(br, QuerySubject[].class));
         
         query_subjects = new HashMap<String, QuerySubject>();
         Map<String, Integer> recurseCount = new HashMap<String, Integer>();
@@ -118,15 +112,28 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 		
 		query_subjects = (Map<String, QuerySubject>) request.getSession().getAttribute("query_subjects");
 		
-		System.out.println("query_subjects.size=" + query_subjects.size());
+		System.out.println("+++++++++++ query_subjects.size=" + query_subjects.size());
 		
 		List<Object> result = new ArrayList<Object>();
 
 		try{
 			
-	        TaskerSVC.start();
-			TaskerSVC.IICInitNameSpace();
-			TaskerSVC.Import();
+	        //start();
+			csvc.logon();
+			String modelName = "modelTest2";
+			csvc.openModel(modelName);
+			fsvc.setLocale();
+			
+			//IICInitNameSpace();
+			fsvc.createNamespace("PHYSICAL", "Model");
+			fsvc.createNamespace("PHYSICALUSED", "Model");
+			fsvc.createNamespace("AUTOGENERATION", "Model");
+			fsvc.createNamespace("FINAL", "AUTOGENERATION");
+			fsvc.createNamespace("REF", "AUTOGENERATION");
+			fsvc.createNamespace("DATA", "AUTOGENERATION");
+			
+			//Import();
+			fsvc.DBImport("PHYSICAL", "DEV", "DANONE");
 			
 			gRefMap = new HashMap<String, Integer>();
 			
@@ -138,16 +145,16 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				
 				if (query_subject.getValue().getType().equalsIgnoreCase("Final")){
 					
-					FactorySVC.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + query_subject.getValue().getTable_name() + "]");
-					FactorySVC.renameQuerySubject("[PHYSICALUSED].[" + query_subject.getValue().getTable_name() + "]", "FINAL_" + query_subject.getValue().getTable_alias());
+					fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + query_subject.getValue().getTable_name() + "]");
+					fsvc.renameQuerySubject("[PHYSICALUSED].[" + query_subject.getValue().getTable_name() + "]", "FINAL_" + query_subject.getValue().getTable_alias());
 					
-					FactorySVC.createQuerySubject("PHYSICALUSED", "FINAL", "FINAL_" + query_subject.getValue().getTable_alias(), query_subject.getValue().getTable_alias());
+					fsvc.createQuerySubject("PHYSICALUSED", "FINAL", "FINAL_" + query_subject.getValue().getTable_alias(), query_subject.getValue().getTable_alias());
 					
-					FactorySVC.createQuerySubject("FINAL", "DATA", query_subject.getValue().getTable_alias() , query_subject.getValue().getTable_alias());
+					fsvc.createQuerySubject("FINAL", "DATA", query_subject.getValue().getTable_alias() , query_subject.getValue().getTable_alias());
 					//tooltip
 					String desc = "";
 					if(query_subject.getValue().getDescription() != null) {desc = ": " + query_subject.getValue().getDescription();}
-					FactorySVC.createScreenTip("querySubject", "[DATA].[" + query_subject.getValue().getTable_alias() + "]" , query_subject.getValue().getTable_name() + desc );
+					fsvc.createScreenTip("querySubject", "[DATA].[" + query_subject.getValue().getTable_alias() + "]" , query_subject.getValue().getTable_name() + desc );
 					//end tooltip
 					
 					for(Relation rel: query_subject.getValue().getRelations()){
@@ -176,9 +183,9 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 							}
 							gRefMap.put(pkAlias, i + 1);
 				
-							FactorySVC.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
-							FactorySVC.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
-							FactorySVC.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
+							fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
+							fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
+							fsvc.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
 		
 							RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
 							// changer en qs + refobj
@@ -215,19 +222,19 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 								gDirName = "." + rel.getSeqs().get(0).getColumn_name();
 							}
 							String gFieldNameReorder = rel.getSeqs().get(0).getColumn_name();
-							FactorySVC.createSubFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName);
+							fsvc.createSubFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName);
 							//tooltip
 							desc = "";
 							if(query_subjects.get(pkAlias + "Ref").getDescription() != null) {desc = ": " + query_subjects.get(pkAlias + "Ref").getDescription();}
-							FactorySVC.createScreenTip("queryItemFolder", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
+							fsvc.createScreenTip("queryItemFolder", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
 
 							if(rel.getKey_type().equalsIgnoreCase("F")){
-								FactorySVC.ReorderSubFolderBefore("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldNameReorder + "]");
+								fsvc.ReorderSubFolderBefore("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldNameReorder + "]");
 							}
 							
 							for(Field field: query_subjects.get(pkAlias + "Ref").getFields()){
 								
-								FactorySVC.createQueryItemInFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
+								fsvc.createQueryItemInFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
 								//add label
 								if(field.getLabel() == null || field.getLabel().equals(""))
 								{label = field.getField_name();} else {label = field.getLabel();
@@ -237,13 +244,13 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 								//add tooltip
 								desc = "";
 								if(field.getDescription() != null) {desc = ": " + field.getDescription();}
-								FactorySVC.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
+								fsvc.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
 								//end tooltip
 								//change property query item
-								FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+								fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
 								if (!field.getDisplayType().toLowerCase().equals("value"))
 								{
-									FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
+									fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
 									
 								}
 								//end change
@@ -267,13 +274,13 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					//add tooltip
 					desc = "";
 					if(field.getDescription() != null) {desc = ": " + field.getDescription();}	
-					FactorySVC.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", query_subject.getValue().getTable_name() + "." + field.getField_name() + desc);
+					fsvc.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", query_subject.getValue().getTable_name() + "." + field.getField_name() + desc);
 					//end tooltip
 					//change property query item
-					FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+					fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
 					if (!field.getDisplayType().toLowerCase().equals("value"))
 					{
-						FactorySVC.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
+						fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
 					}
 					//end change
 					}
@@ -281,8 +288,12 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				}
 				
 			}
-			TaskerSVC.IICCreateRelation(rsList);
-			ProjectSVC.addLocale("en");
+			//IICCreateRelation(rsList);
+			for(RelationShip rs: rsList){
+				fsvc.createRelationship(rs);
+			}
+			
+			fsvc.addLocale("en");
 
 	/*
 			for(Entry<String, String> map: labelMap.entrySet()){
@@ -293,18 +304,24 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			
 			// tests
 			
-			CognosSVC.executeAllActions();
+			csvc.executeAllActions();
 			// fin tests
 		
-			TaskerSVC.stop();
+			//stop();
+			csvc.saveModel();
+			csvc.closeModel();
+			csvc.logoff();
+			System.out.println("END COGNOS API");
 			
 			// code parser xml for labels
 			
 			System.out.println("START XML MODIFICATION");
 			try {
-			
-				Path input = Paths.get(ConfigProperties.modelXML);
-				Path output = Paths.get(ConfigProperties.modelXML);
+				
+				String modelSharedPath = ConfigProperties.modelsSharedFolder + "/" + modelName + "/model.xml";
+							
+				Path input = Paths.get(modelSharedPath);
+				Path output = Paths.get(modelSharedPath);
 				String datas = null;
 				String inputSearch = "xmlns=\"http://www.developer.cognos.com/schemas/bmt/60/12\"";
 				String outputSearch = "queryMode=\"dynamic\"";
@@ -344,7 +361,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				namespace = (Element) document.selectSingleNode(spath + "/namespace[" + k + "]/name");
 				}
 				spath = spath + "/namespace[" + k + "]";
-				FactorySVC.recursiveParserQS(document, spath, "en", labelMap);
+				fsvc.recursiveParserQS(document, spath, "en", labelMap);
 
 				try {
 	
@@ -364,15 +381,30 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-/*			//publication
-			TaskerSVC.start();
-			String[] locales = {"en"};
-			ProjectSVC.changePropertyFixIDDefaultLocale();
-			FactorySVC.createPackage(ConfigProperties.PackageName, ConfigProperties.PackageName, ConfigProperties.PackageName, locales);
-//			FactorySVC.publishPackage(ConfigProperties.PackageName,"/content");
-			TaskerSVC.stop();
-*/			// fin code xml for labels
 			System.out.println("END XML MODIFICATION");
+			
+			//publication
+			System.out.println("Create and Publish Package");	
+			
+			//start
+			csvc = new CognosSVC();
+			fsvc = new FactorySVC(csvc);
+			csvc.logon();
+			csvc.openModel(modelName);
+			fsvc.setLocale();
+			
+			String[] locales = {"en"};
+			fsvc.changePropertyFixIDDefaultLocale();
+			fsvc.createPackage(modelName, modelName, modelName, locales);
+			fsvc.publishPackage(modelName,"/content");
+			
+			csvc.executeAllActions();
+			
+			csvc.saveModel();
+			csvc.closeModel();
+			csvc.logoff();
+			
+			
 			System.out.println("FIN DU MAIN");
 
 			
@@ -422,9 +454,9 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					}
 					gRefMap.put(pkAlias, i + 1);
 	
-					FactorySVC.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
-					FactorySVC.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
-					FactorySVC.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
+					fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
+					fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
+					fsvc.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
 					
 					//seq
 					String gFieldName = "";
@@ -445,21 +477,21 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					String gFieldNameReorder = gDirName.substring(1) + "." + rel.getSeqs().get(0).getColumn_name();
 					String rep = qsFinal + ".[" + gDirName + "]";
 					
-					FactorySVC.createSubFolderInSubFolderIIC(rep, gDirNameCurrent);
+					fsvc.createSubFolderInSubFolderIIC(rep, gDirNameCurrent);
 					
 					//add tooltip
 					String desc = "";
 					if(query_subjects.get(pkAlias + "Ref").getDescription() != null) {desc = ": " + query_subjects.get(pkAlias + "Ref").getDescription();}
-					FactorySVC.createScreenTip("queryItemFolder", qsFinal + ".[" + gDirNameCurrent + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
+					fsvc.createScreenTip("queryItemFolder", qsFinal + ".[" + gDirNameCurrent + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
 					//end tooltip
 					
 					if(rel.getKey_type().equalsIgnoreCase("F")){
-						FactorySVC.ReorderSubFolderBefore(qsFinal + ".[" + gDirNameCurrent + "]", qsFinal + ".[" + gFieldNameReorder + "]");
+						fsvc.ReorderSubFolderBefore(qsFinal + ".[" + gDirNameCurrent + "]", qsFinal + ".[" + gFieldNameReorder + "]");
 					}
 					
 					for(Field field: query_subjects.get(pkAlias + "Ref").getFields()){
 						
-						FactorySVC.createQueryItemInFolder(qsFinal, gDirNameCurrent, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
+						fsvc.createQueryItemInFolder(qsFinal, gDirNameCurrent, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
 						
 						//add label
 						if(field.getLabel() == null || field.getLabel().equals(""))
@@ -470,13 +502,13 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 						// add tooltip
 						desc = "";
 						if(field.getDescription() != null) {desc = ": " + field.getDescription();}
-						FactorySVC.createScreenTip("queryItem", qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
+						fsvc.createScreenTip("queryItem", qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
 						// end tooltip
 						//change property query item
-						FactorySVC.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+						fsvc.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
 						if (!field.getDisplayType().toLowerCase().equals("value"))
 						{
-							FactorySVC.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
+							fsvc.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
 							
 						}
 						//end change
