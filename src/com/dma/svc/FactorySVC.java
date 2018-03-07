@@ -1537,7 +1537,7 @@ public class FactorySVC {
 			ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"10\"]/inputparams/param[1]/value");
 			ElemSecurityViewsPath.setText(securityViewsPath);
 
-			System.out.println(document.asXML());
+//			System.out.println(document.asXML());
 			csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());

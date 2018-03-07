@@ -1747,7 +1747,7 @@ function Publish(){
     		data: JSON.stringify(parms),
 
     		success: function(data) {
-    			$('#DatasTable').bootstrapTable('load', data);
+    			// $('#DatasTable').bootstrapTable('load', data);
           console.log(data);
     		},
     		error: function(data) {

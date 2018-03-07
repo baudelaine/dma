@@ -70,8 +70,8 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 	List<RelationShip> rsList;
 	Map<String, QuerySubject> query_subjects;
 	Map<String, String> labelMap;
-	CognosSVC csvc = new CognosSVC();
-	FactorySVC fsvc = new FactorySVC(csvc);
+	CognosSVC csvc;
+	FactorySVC fsvc;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -179,6 +179,8 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			try{
 				
 		        //start();
+				csvc = new CognosSVC();
+				fsvc = new FactorySVC(csvc);
 				csvc.logon();
 				String modelName = projectName;
 				csvc.openModel(modelName);
@@ -470,7 +472,6 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				result.put("status", "OK");
 				result.put("message", projectName + " published sucessfully.");
 				result.put("troubleshooting", "");
-				result.put("data", data);
 				
 				}
 				catch(Exception e){
