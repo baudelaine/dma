@@ -1742,7 +1742,7 @@ function Publish(){
 
       $.ajax({
     		type: 'POST',
-    		url: "Test",
+    		url: "SendQuerySubjects",
     		dataType: 'json',
     		data: JSON.stringify(parms),
 

@@ -71,7 +71,7 @@ public class TestServlet extends HttpServlet {
 		Path cognosModelsPath = Paths.get((String) request.getSession().getAttribute("cognosModelsPath"));
 		if(!Files.isWritable(cognosModelsPath)){
 			result.put("status", "KO");
-			result.put("reason", "cognosModelsPath '" + cognosModelsPath + "' not writeable." );
+			result.put("message", "cognosModelsPath '" + cognosModelsPath + "' not writeable." );
 			result.put("troubleshooting", "Check that '" + cognosModelsPath + "' exists on server and is writable.");
 		}
 		
@@ -91,7 +91,7 @@ public class TestServlet extends HttpServlet {
 		Path zip = Paths.get(getServletContext().getRealPath("/res/model.zip"));
 		if(!Files.exists(zip)){
 			result.put("status", "KO");
-			result.put("reason", "Generic model '" + zip + "' not found." );
+			result.put("message", "Generic model '" + zip + "' not found." );
 			result.put("troubleshooting", "Check that '" + zip + "' exists on server.");
 		}
 		
@@ -121,7 +121,7 @@ public class TestServlet extends HttpServlet {
 		if(Files.exists(cpf)){
 			Files.move(cpf, renamedCpf);
 			result.put("status", "OK");
-			result.put("reason", renamedCpf + " found in " + projectPath + ".");
+			result.put("message", renamedCpf + " found in " + projectPath + ".");
 			result.put("troubleshooting", "");
 		}
 		    

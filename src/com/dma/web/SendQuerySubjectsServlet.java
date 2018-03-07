@@ -1,5 +1,6 @@
 package com.dma.web;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,8 +18,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 import java.util.Map.Entry;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -50,6 +53,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
@@ -63,7 +70,6 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 	List<RelationShip> rsList;
 	Map<String, QuerySubject> query_subjects;
 	Map<String, String> labelMap;
-	String cognosModelsPath = null;
 	CognosSVC csvc = new CognosSVC();
 	FactorySVC fsvc = new FactorySVC(csvc);
 
@@ -82,13 +88,14 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
-		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
-        ObjectMapper mapper = new ObjectMapper();
+		Map<String, Object> parms = Tools.fromJSON(request.getInputStream());
+		
+		String projectName = (String) parms.get("projectName");
+		String data = (String) parms.get("data");
+		
+		ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        
-
-//        QuerySubject[] qsArray = mapper.readValue(br, QuerySubject[].class);
-        List<QuerySubject> qsList = Arrays.asList(mapper.readValue(br, QuerySubject[].class));
+        List<QuerySubject> qsList = Arrays.asList(mapper.readValue(data, QuerySubject[].class));
         
         query_subjects = new HashMap<String, QuerySubject>();
         Map<String, Integer> recurseCount = new HashMap<String, Integer>();
@@ -98,326 +105,384 @@ public class SendQuerySubjectsServlet extends HttpServlet {
         	recurseCount.put(qs.getTable_alias(), 0);
         }
         
-//        if(br != null){
-//            while((json = br.readLine()) != null){
-//	            System.out.println("json="+json);
-//	            QuerySubject query_subject = mapper.readValue(json, QuerySubject.class);
-//	            
-//            }
-//        }
-        
         request.getSession().setAttribute("query_subjects", query_subjects);
         
-        cognosModelsPath = (String) request.getSession().getAttribute("cognosModelsPath");
-		
 		query_subjects = (Map<String, QuerySubject>) request.getSession().getAttribute("query_subjects");
 		
-		System.out.println("+++++++++++ query_subjects.size=" + query_subjects.size());
+		System.out.println("query_subjects.size=" + query_subjects.size());
 		
-		List<Object> result = new ArrayList<Object>();
-
-		try{
-			
-	        //start();
-			csvc.logon();
-			String modelName = "modelTest2";
-			csvc.openModel(modelName);
-			fsvc.setLocale();
-			
-			//IICInitNameSpace();
-			fsvc.createNamespace("PHYSICAL", "Model");
-			fsvc.createNamespace("PHYSICALUSED", "Model");
-			fsvc.createNamespace("AUTOGENERATION", "Model");
-			fsvc.createNamespace("FINAL", "AUTOGENERATION");
-			fsvc.createNamespace("REF", "AUTOGENERATION");
-			fsvc.createNamespace("DATA", "AUTOGENERATION");
-			
-			//Import();
-			fsvc.DBImport("PHYSICAL", "DEV", "DANONE");
-			
-			gRefMap = new HashMap<String, Integer>();
-			
-			rsList = new ArrayList<RelationShip>();
-
-			labelMap = new HashMap<String, String>();
-			
-			for(Entry<String, QuerySubject> query_subject: query_subjects.entrySet()){
-				
-				if (query_subject.getValue().getType().equalsIgnoreCase("Final")){
-					
-					fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + query_subject.getValue().getTable_name() + "]");
-					fsvc.renameQuerySubject("[PHYSICALUSED].[" + query_subject.getValue().getTable_name() + "]", "FINAL_" + query_subject.getValue().getTable_alias());
-					
-					fsvc.createQuerySubject("PHYSICALUSED", "FINAL", "FINAL_" + query_subject.getValue().getTable_alias(), query_subject.getValue().getTable_alias());
-					
-					fsvc.createQuerySubject("FINAL", "DATA", query_subject.getValue().getTable_alias() , query_subject.getValue().getTable_alias());
-					//tooltip
-					String desc = "";
-					if(query_subject.getValue().getDescription() != null) {desc = ": " + query_subject.getValue().getDescription();}
-					fsvc.createScreenTip("querySubject", "[DATA].[" + query_subject.getValue().getTable_alias() + "]" , query_subject.getValue().getTable_name() + desc );
-					//end tooltip
-					
-					for(Relation rel: query_subject.getValue().getRelations()){
-						if(rel.isFin()){
-					
-							RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[FINAL].[" + rel.getPktable_alias() + "]");
-							// changer en qs + refobj
-							RS.setExpression(rel.getRelationship());
-							RS.setCard_left_min("one");
-							RS.setCard_left_max("many");
+		Map<String, Object> result = new HashMap<String, Object>();
 		
-							RS.setCard_right_min("one");
-							RS.setCard_right_max("one");
-							RS.setParentNamespace("FINAL");
-							rsList.add(RS);					
-					
-						}
-						if(rel.isRef()){
-							
-							String pkAlias = rel.getPktable_alias();
-							Integer i = gRefMap.get(pkAlias);
-							
-							if(i == null){
-								gRefMap.put(pkAlias, new Integer(0));
-								i = gRefMap.get(pkAlias);
-							}
-							gRefMap.put(pkAlias, i + 1);
-				
-							fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
-							fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
-							fsvc.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
+		// START SETUP COGNOS ENVIRONMENT
 		
-							RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
-							// changer en qs + refobj
-							String exp = rel.getRelationship();
-							String fixedExp = StringUtils.replace(exp, "[REF].[" + rel.getPktable_alias() + "]", "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
-							RS.setExpression(fixedExp);
-							RS.setCard_left_min("one");
-							RS.setCard_left_max("many");
+		Path cognosModelsPath = Paths.get((String) request.getSession().getAttribute("cognosModelsPath"));
+		if(!Files.isWritable(cognosModelsPath)){
+			result.put("status", "KO");
+			result.put("message", "cognosModelsPath '" + cognosModelsPath + "' not writeable." );
+			result.put("troubleshooting", "Check that '" + cognosModelsPath + "' exists on server and is writable.");
+		}
 		
-							RS.setCard_right_min("one");
-							RS.setCard_right_max("one");
-							RS.setParentNamespace("AUTOGENERATION");
-							rsList.add(RS);
-							
-							String gFieldName = "";
-							String gDirName = "";
-							String label = "";
-							
-							//seq
-							if(rel.getKey_type().equalsIgnoreCase("P") || rel.isNommageRep()){
-//								gFieldName = rel.getPktable_alias();
-//								gDirName = "." + rel.getPktable_alias();
-								gFieldName = pkAlias;
-								gDirName = "." + pkAlias;
-								// add labels to map
-								if(query_subjects.get(pkAlias + "Ref").getLabel() == null || query_subjects.get(pkAlias + "Ref").getLabel().equals(""))
-								{label = pkAlias;} else {label = query_subjects.get(pkAlias + "Ref").getLabel();
-								}
-								labelMap.put(query_subject.getValue().getTable_alias() + gDirName , label);
-								//end labels
-							}
-							else{
-								gFieldName = rel.getSeqs().get(0).getColumn_name();
-								gDirName = "." + rel.getSeqs().get(0).getColumn_name();
-							}
-							String gFieldNameReorder = rel.getSeqs().get(0).getColumn_name();
-							fsvc.createSubFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName);
-							//tooltip
-							desc = "";
-							if(query_subjects.get(pkAlias + "Ref").getDescription() != null) {desc = ": " + query_subjects.get(pkAlias + "Ref").getDescription();}
-							fsvc.createScreenTip("queryItemFolder", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
-
-							if(rel.getKey_type().equalsIgnoreCase("F")){
-								fsvc.ReorderSubFolderBefore("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldNameReorder + "]");
-							}
-							
-							for(Field field: query_subjects.get(pkAlias + "Ref").getFields()){
-								
-								fsvc.createQueryItemInFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
-								//add label
-								if(field.getLabel() == null || field.getLabel().equals(""))
-								{label = field.getField_name();} else {label = field.getLabel();
-								}
-								labelMap.put(query_subject.getValue().getTable_alias() + "." + gFieldName + "." + field.getField_name(), label);
-								// end label
-								//add tooltip
-								desc = "";
-								if(field.getDescription() != null) {desc = ": " + field.getDescription();}
-								fsvc.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
-								//end tooltip
-								//change property query item
-								fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
-								if (!field.getDisplayType().toLowerCase().equals("value"))
-								{
-									fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
-									
-								}
-								//end change
-							}
-							
-							
-							for(QuerySubject qs: qsList){
-					        	recurseCount.put(qs.getTable_alias(), 0);
-					        }
-							
-							f1(pkAlias, pkAlias + i, gDirName, "[DATA].[" + query_subject.getValue().getTable_alias() + "]", query_subject.getValue().getTable_alias(), recurseCount);
-						}
-
-					}
-					//add label map qs
-					labelMap.put(query_subject.getValue().getTable_alias(), query_subject.getValue().getLabel());
-					
-					//add label map fields
-					for(Field field: query_subject.getValue().getFields()) {
-						labelMap.put(query_subject.getValue().getTable_alias() + "." + field.getField_name(), field.getLabel());
-					//add tooltip
-					desc = "";
-					if(field.getDescription() != null) {desc = ": " + field.getDescription();}	
-					fsvc.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", query_subject.getValue().getTable_name() + "." + field.getField_name() + desc);
-					//end tooltip
-					//change property query item
-					fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
-					if (!field.getDisplayType().toLowerCase().equals("value"))
-					{
-						fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
-					}
-					//end change
-					}
-					// end label		
-				}
-				
-			}
-			//IICCreateRelation(rsList);
-			for(RelationShip rs: rsList){
-				fsvc.createRelationship(rs);
-			}
-			
-			fsvc.addLocale("en");
-
-	/*
-			for(Entry<String, String> map: labelMap.entrySet()){
-				System.out.println(map.getKey() + " * * * * * " + map.getValue());
-			}
-	*/		
-			
-			
-			// tests
-			
-			csvc.executeAllActions();
-			// fin tests
+		Path projectPath = Paths.get(cognosModelsPath + "/" + projectName);
 		
-			//stop();
-			csvc.saveModel();
-			csvc.closeModel();
-			csvc.logoff();
-			System.out.println("END COGNOS API");
-			
-			// code parser xml for labels
-			
-			System.out.println("START XML MODIFICATION");
-			try {
-				
-				String modelSharedPath = ConfigProperties.modelsSharedFolder + "/" + modelName + "/model.xml";
-							
-				Path input = Paths.get(modelSharedPath);
-				Path output = Paths.get(modelSharedPath);
-				String datas = null;
-				String inputSearch = "xmlns=\"http://www.developer.cognos.com/schemas/bmt/60/12\"";
-				String outputSearch = "queryMode=\"dynamic\"";
-				String outputReplace = outputSearch + " " + inputSearch;  
-				
-				Charset charset = StandardCharsets.UTF_8;
-				if(Files.exists(input)){
-					datas = new String(Files.readAllBytes(input), charset);
-				}
+		if(Files.exists(projectPath)){
+			Files.walk(Paths.get(projectPath.toString()))
+            .map(Path::toFile)
+            .sorted((o1, o2) -> -o1.compareTo(o2))
+            .forEach(File::delete);
+		}
+		
+		Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwxrwx");
+		FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(perms);
+		Files.createDirectories(projectPath, attrs);
+		
+		Path zip = Paths.get(getServletContext().getRealPath("/res/model.zip"));
+		if(!Files.exists(zip)){
+			result.put("status", "KO");
+			result.put("message", "Generic model '" + zip + "' not found." );
+			result.put("troubleshooting", "Check that '" + zip + "' exists on server.");
+		}
+		
+		
+		BufferedOutputStream dest = null;
+		int BUFFER = Long.bitCount(Files.size(zip));
+		ZipInputStream zis = new ZipInputStream(new BufferedInputStream(Files.newInputStream(zip))); 
+		ZipEntry entry;
+		while((entry = zis.getNextEntry()) != null) {
+			System.out.println("Extracting: " + entry);
+            int count;
+            byte datas[] = new byte[BUFFER];
+            // write the files to the disk
+            FileOutputStream fos = new FileOutputStream(projectPath + "/" + entry.getName());
+            dest = new BufferedOutputStream(fos, BUFFER);
+            while ((count = zis.read(datas, 0, BUFFER)) 
+              != -1) {
+               dest.write(datas, 0, count);
+            }
+            dest.flush();
+            dest.close();
+        }
+		zis.close();
+		
+		Path cpf = Paths.get(projectPath + "/model.cpf");
+		Path renamedCpf = Paths.get(projectPath + "/" + projectName + ".cpf"); 
+		if(Files.exists(cpf)){
+			Files.move(cpf, renamedCpf);
+			result.put("status", "OK");
+			result.put("message", renamedCpf + " found in " + projectPath + ".");
+			result.put("troubleshooting", "");
+		}
+		
+		// END SETUP COGNOS ENVIRONMENT
 
-				datas = StringUtils.replace(datas, inputSearch, "");
-				
-				// modifs
-				
-//				File xmlFile = new File(ConfigProperties.modelXML);
-				SAXReader reader = new SAXReader();
-				Document document = reader.read(new ByteArrayInputStream(datas.getBytes(StandardCharsets.UTF_8)));
-				
-				String namespaceName = "AUTOGENERATION";
-				String spath = "/project/namespace/namespace";
-				int k=1;
-				
-				Element namespace = (Element) document.selectSingleNode(spath + "[" + k + "]/name");			
-				while(!namespace.getStringValue().equals(namespaceName) && namespace != null)
-				{
-				k++;
-				namespace = (Element) document.selectSingleNode(spath + "[" + k + "]/name");
-				}
-				namespaceName = "DATA";
-				spath = spath + "[" + k + "]";
-							
-				k=1;
-				namespace = (Element) document.selectSingleNode(spath + "/namespace[" + k + "]/name");
-				while(!namespace.getStringValue().equals(namespaceName) && namespace!=null)
-				{
-				k++;
-				namespace = (Element) document.selectSingleNode(spath + "/namespace[" + k + "]/name");
-				}
-				spath = spath + "/namespace[" + k + "]";
-				fsvc.recursiveParserQS(document, spath, "en", labelMap);
+		if(((String) result.get("status")).equalsIgnoreCase("OK")){
 
-				try {
+			try{
+				
+		        //start();
+				csvc.logon();
+				String modelName = projectName;
+				csvc.openModel(modelName);
+				fsvc.setLocale();
+				
+				//IICInitNameSpace();
+				fsvc.createNamespace("PHYSICAL", "Model");
+				fsvc.createNamespace("PHYSICALUSED", "Model");
+				fsvc.createNamespace("AUTOGENERATION", "Model");
+				fsvc.createNamespace("FINAL", "AUTOGENERATION");
+				fsvc.createNamespace("REF", "AUTOGENERATION");
+				fsvc.createNamespace("DATA", "AUTOGENERATION");
+				
+				//Import();
+				fsvc.DBImport("PHYSICAL", "DEV", "DANONE");
+				
+				gRefMap = new HashMap<String, Integer>();
+				
+				rsList = new ArrayList<RelationShip>();
 	
-					datas = document.asXML();
-
-					datas = StringUtils.replace(datas, outputSearch, outputReplace);
-					Files.write(output, datas.getBytes());
-
-				} catch (IOException e) {
+				labelMap = new HashMap<String, String>();
+				
+				for(Entry<String, QuerySubject> query_subject: query_subjects.entrySet()){
+					
+					if (query_subject.getValue().getType().equalsIgnoreCase("Final")){
+						
+						fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + query_subject.getValue().getTable_name() + "]");
+						fsvc.renameQuerySubject("[PHYSICALUSED].[" + query_subject.getValue().getTable_name() + "]", "FINAL_" + query_subject.getValue().getTable_alias());
+						
+						fsvc.createQuerySubject("PHYSICALUSED", "FINAL", "FINAL_" + query_subject.getValue().getTable_alias(), query_subject.getValue().getTable_alias());
+						
+						fsvc.createQuerySubject("FINAL", "DATA", query_subject.getValue().getTable_alias() , query_subject.getValue().getTable_alias());
+						//tooltip
+						String desc = "";
+						if(query_subject.getValue().getDescription() != null) {desc = ": " + query_subject.getValue().getDescription();}
+						fsvc.createScreenTip("querySubject", "[DATA].[" + query_subject.getValue().getTable_alias() + "]" , query_subject.getValue().getTable_name() + desc );
+						//end tooltip
+						
+						for(Relation rel: query_subject.getValue().getRelations()){
+							if(rel.isFin()){
+						
+								RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[FINAL].[" + rel.getPktable_alias() + "]");
+								// changer en qs + refobj
+								RS.setExpression(rel.getRelationship());
+								RS.setCard_left_min("one");
+								RS.setCard_left_max("many");
+			
+								RS.setCard_right_min("one");
+								RS.setCard_right_max("one");
+								RS.setParentNamespace("FINAL");
+								rsList.add(RS);					
+						
+							}
+							if(rel.isRef()){
+								
+								String pkAlias = rel.getPktable_alias();
+								Integer i = gRefMap.get(pkAlias);
+								
+								if(i == null){
+									gRefMap.put(pkAlias, new Integer(0));
+									i = gRefMap.get(pkAlias);
+								}
+								gRefMap.put(pkAlias, i + 1);
+					
+								fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
+								fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
+								fsvc.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
+			
+								RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
+								// changer en qs + refobj
+								String exp = rel.getRelationship();
+								String fixedExp = StringUtils.replace(exp, "[REF].[" + rel.getPktable_alias() + "]", "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
+								RS.setExpression(fixedExp);
+								RS.setCard_left_min("one");
+								RS.setCard_left_max("many");
+			
+								RS.setCard_right_min("one");
+								RS.setCard_right_max("one");
+								RS.setParentNamespace("AUTOGENERATION");
+								rsList.add(RS);
+								
+								String gFieldName = "";
+								String gDirName = "";
+								String label = "";
+								
+								//seq
+								if(rel.getKey_type().equalsIgnoreCase("P") || rel.isNommageRep()){
+	//								gFieldName = rel.getPktable_alias();
+	//								gDirName = "." + rel.getPktable_alias();
+									gFieldName = pkAlias;
+									gDirName = "." + pkAlias;
+									// add labels to map
+									if(query_subjects.get(pkAlias + "Ref").getLabel() == null || query_subjects.get(pkAlias + "Ref").getLabel().equals(""))
+									{label = pkAlias;} else {label = query_subjects.get(pkAlias + "Ref").getLabel();
+									}
+									labelMap.put(query_subject.getValue().getTable_alias() + gDirName , label);
+									//end labels
+								}
+								else{
+									gFieldName = rel.getSeqs().get(0).getColumn_name();
+									gDirName = "." + rel.getSeqs().get(0).getColumn_name();
+								}
+								String gFieldNameReorder = rel.getSeqs().get(0).getColumn_name();
+								fsvc.createSubFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName);
+								//tooltip
+								desc = "";
+								if(query_subjects.get(pkAlias + "Ref").getDescription() != null) {desc = ": " + query_subjects.get(pkAlias + "Ref").getDescription();}
+								fsvc.createScreenTip("queryItemFolder", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
+	
+								if(rel.getKey_type().equalsIgnoreCase("F")){
+									fsvc.ReorderSubFolderBefore("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldNameReorder + "]");
+								}
+								
+								for(Field field: query_subjects.get(pkAlias + "Ref").getFields()){
+									
+									fsvc.createQueryItemInFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
+									//add label
+									if(field.getLabel() == null || field.getLabel().equals(""))
+									{label = field.getField_name();} else {label = field.getLabel();
+									}
+									labelMap.put(query_subject.getValue().getTable_alias() + "." + gFieldName + "." + field.getField_name(), label);
+									// end label
+									//add tooltip
+									desc = "";
+									if(field.getDescription() != null) {desc = ": " + field.getDescription();}
+									fsvc.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
+									//end tooltip
+									//change property query item
+									fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+									if (!field.getDisplayType().toLowerCase().equals("value"))
+									{
+										fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
+										
+									}
+									//end change
+								}
+								
+								
+								for(QuerySubject qs: qsList){
+						        	recurseCount.put(qs.getTable_alias(), 0);
+						        }
+								
+								f1(pkAlias, pkAlias + i, gDirName, "[DATA].[" + query_subject.getValue().getTable_alias() + "]", query_subject.getValue().getTable_alias(), recurseCount);
+							}
+	
+						}
+						//add label map qs
+						labelMap.put(query_subject.getValue().getTable_alias(), query_subject.getValue().getLabel());
+						
+						//add label map fields
+						for(Field field: query_subject.getValue().getFields()) {
+							labelMap.put(query_subject.getValue().getTable_alias() + "." + field.getField_name(), field.getLabel());
+						//add tooltip
+						desc = "";
+						if(field.getDescription() != null) {desc = ": " + field.getDescription();}	
+						fsvc.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", query_subject.getValue().getTable_name() + "." + field.getField_name() + desc);
+						//end tooltip
+						//change property query item
+						fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+						if (!field.getDisplayType().toLowerCase().equals("value"))
+						{
+							fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
+						}
+						//end change
+						}
+						// end label		
+					}
+					
+				}
+				//IICCreateRelation(rsList);
+				for(RelationShip rs: rsList){
+					fsvc.createRelationship(rs);
+				}
+				
+				fsvc.addLocale("en");
+	
+		/*
+				for(Entry<String, String> map: labelMap.entrySet()){
+					System.out.println(map.getKey() + " * * * * * " + map.getValue());
+				}
+		*/		
+				
+				
+				// tests
+				
+				csvc.executeAllActions();
+				// fin tests
+			
+				//stop();
+				csvc.saveModel();
+				csvc.closeModel();
+				csvc.logoff();
+				System.out.println("END COGNOS API");
+				
+				// code parser xml for labels
+				
+				System.out.println("START XML MODIFICATION");
+				try {
+					
+					String modelSharedPath = projectPath + "/model.xml";
+								
+					Path input = Paths.get(modelSharedPath);
+					Path output = Paths.get(modelSharedPath);
+					String datas = null;
+					String inputSearch = "xmlns=\"http://www.developer.cognos.com/schemas/bmt/60/12\"";
+					String outputSearch = "queryMode=\"dynamic\"";
+					String outputReplace = outputSearch + " " + inputSearch;  
+					
+					Charset charset = StandardCharsets.UTF_8;
+					if(Files.exists(input)){
+						datas = new String(Files.readAllBytes(input), charset);
+					}
+	
+					datas = StringUtils.replace(datas, inputSearch, "");
+					
+					// modifs
+					
+	//				File xmlFile = new File(ConfigProperties.modelXML);
+					SAXReader reader = new SAXReader();
+					Document document = reader.read(new ByteArrayInputStream(datas.getBytes(StandardCharsets.UTF_8)));
+					
+					String namespaceName = "AUTOGENERATION";
+					String spath = "/project/namespace/namespace";
+					int k=1;
+					
+					Element namespace = (Element) document.selectSingleNode(spath + "[" + k + "]/name");			
+					while(!namespace.getStringValue().equals(namespaceName) && namespace != null)
+					{
+					k++;
+					namespace = (Element) document.selectSingleNode(spath + "[" + k + "]/name");
+					}
+					namespaceName = "DATA";
+					spath = spath + "[" + k + "]";
+								
+					k=1;
+					namespace = (Element) document.selectSingleNode(spath + "/namespace[" + k + "]/name");
+					while(!namespace.getStringValue().equals(namespaceName) && namespace!=null)
+					{
+					k++;
+					namespace = (Element) document.selectSingleNode(spath + "/namespace[" + k + "]/name");
+					}
+					spath = spath + "/namespace[" + k + "]";
+					fsvc.recursiveParserQS(document, spath, "en", labelMap);
+	
+					try {
+		
+						datas = document.asXML();
+	
+						datas = StringUtils.replace(datas, outputSearch, outputReplace);
+						Files.write(output, datas.getBytes());
+	
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					// fin test writer
+					
+				} catch (DocumentException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				System.out.println("END XML MODIFICATION");
 				
-				// fin test writer
+				//publication
+				System.out.println("Create and Publish Package");	
 				
-			} catch (DocumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("END XML MODIFICATION");
-			
-			//publication
-			System.out.println("Create and Publish Package");	
-			
-			//start
-			csvc = new CognosSVC();
-			fsvc = new FactorySVC(csvc);
-			csvc.logon();
-			csvc.openModel(modelName);
-			fsvc.setLocale();
-			
-			String[] locales = {"en"};
-			fsvc.changePropertyFixIDDefaultLocale();
-			fsvc.createPackage(modelName, modelName, modelName, locales);
-			fsvc.publishPackage(modelName,"/content");
-			
-			csvc.executeAllActions();
-			
-			csvc.saveModel();
-			csvc.closeModel();
-			csvc.logoff();
-			
-			
-			System.out.println("FIN DU MAIN");
+				//start
+				csvc = new CognosSVC();
+				fsvc = new FactorySVC(csvc);
+				csvc.logon();
+				csvc.openModel(modelName);
+				fsvc.setLocale();
+				
+				String[] locales = {"en"};
+				fsvc.changePropertyFixIDDefaultLocale();
+				fsvc.createPackage(modelName, modelName, modelName, locales);
+				fsvc.publishPackage(modelName,"/content");
+				
+				csvc.executeAllActions();
+				
+				csvc.saveModel();
+				csvc.closeModel();
+				csvc.logoff();
+				
+				
+				System.out.println("FIN DU MAIN");
 
+				result.put("status", "OK");
+				result.put("message", projectName + " published sucessfully.");
+				result.put("troubleshooting", "");
+				result.put("data", data);
+				
+				}
+				catch(Exception e){
+					e.printStackTrace(System.err);
+				}
+			
+			}
 			
 			//response to the browser
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
 			response.getWriter().write(Tools.toJSON(result));
-			
-		}
-		catch(Exception e){
-			e.printStackTrace(System.err);
-		}
-		
 		
 	}
 
