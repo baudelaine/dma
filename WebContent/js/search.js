@@ -482,7 +482,11 @@ function ChooseTable(table, sort) {
     var tables = Object.values(dbmd);
 
     console.log(tables);
-    console.log(sort);
+    console.log(tables);
+    if(!sort){
+      sort = "3";
+      console.log('Default to sort ' + sort);
+    }
 
     switch(sort){
       case "0":

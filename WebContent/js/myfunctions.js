@@ -18,6 +18,7 @@ var $modelListModal = $('#modModelList');
 var $projectFileModal = $('#modProjectFile');
 // var url = "js/PROJECT.json";
 var qs2rm = {qs: "", row: "", qsList: [], ids2rm: {}};
+var newRelation;
 
 var relationCols = [];
 // relationCols.push({field:"checkbox", checkbox: "true"});
@@ -129,7 +130,8 @@ fieldCols.push({field:"displayType", title: "DisplayType", editable:{
 $(document)
 .ready(function() {
   localStorage.setItem('dbmd', null);
-  ChooseTable($tableList);
+  GetDBMDFromCache();
+
   buildTable($datasTable, qsCols, datas, true);
 
 })
@@ -319,17 +321,18 @@ $datasTable.on('expand-row.bs.table', function (index, row, $detail) {
 $newRowModal.on('show.bs.modal', function (e) {
   // do something...
 	// ChooseQuerySubject($('#modQuerySubject'));
-  $('#modPKTables').empty();
+  $('#modRelationship').val('');
+  $('#modPKTable').empty();
   $('#modPKColumn').empty();
   $('#modKeyType').empty();
   $('#modPKColumn').selectpicker('refresh');
 
   if(activeTab == "Final"){
-    $('#modKeyType').append('<option value="F">F</option>');
+    $('#modKeyType').append('<option value="F">Foreign</option>');
   }
   if(activeTab.match("Reference|Security")){
-    $('#modKeyType').append('<option value="F">F</option>');
-    $('#modKeyType').append('<option value="P">P</option>');
+    $('#modKeyType').append('<option value="F">Foreign</option>');
+    $('#modKeyType').append('<option value="P">Primary</option>');
   }
   $('#modKeyType').selectpicker('refresh');
 
@@ -340,7 +343,7 @@ $newRowModal.on('show.bs.modal', function (e) {
   //   $('#modPKTables').append(option);
   // });
   // $('#modPKTables').selectpicker('refresh');
-	ChooseTable($('#modPKTables'));
+	ChooseTable($('#modPKTable'));
   // $(this)
   // .find('.modal-body')
   // .load("sqel.html", function(){
@@ -377,37 +380,9 @@ $projectFileModal.on('shown.bs.modal', function() {
 
 });
 
-$('#modKeyType').change(function () {
-  updateKeyName();
-});
-
-function updateKeyName(){
-  var keyType = $('#modKeyType').find("option:selected").val();
-  var newText = '';
-  if(keyType == "P"){
-    newText += "PK_";
-  }
-  if(keyType == "F"){
-    newText += "FK_";
-  }
-  // newText +=  $('#modPKTableAlias').val() + '_' + $('#modQuerySubject').text().split(" - ")[0] + '_' + $('#modQuerySubject').text().split(" - ")[1];
-  newText +=  $('#modPKTableAlias').val() + '_' + $('#modQuerySubject').text().split(" - ")[0];
-  $('#modKeyName').val(newText);
-}
-
-$('#modPKTables').change(function () {
+$('#modPKTable').change(function () {
     var selectedText = $(this).find("option:selected").val();
-		$('#modPKTableAlias').val(selectedText);
-    updateKeyName();
-    // var relationship = $('#modRelationship').text() + "[" + selectedText + "].[]";
-    // $('#modRelationship').val(relationship);
     ChooseField($('#modPKColumn'), selectedText);
-});
-
-$('#modPKTableAlias').change(function () {
-  updateKeyName();
-    // var relationship = $('#modRelationship').text() + "[" + $('#modPKTableAlias').val() + "].[]";
-    // $('#modRelationship').val(relationship);
 });
 
 window.operateRelationEvents = {
@@ -560,20 +535,81 @@ function indexFormatter(value, row, index) {
 //   return 1;
 // }
 
-function modValidate(){
+function modAppendToRelationship(){
 
-  if ($("#modPKTables").find("option:selected").text() == 'Choose a pktable...') {
-    showalert("modValidate()", "No pktable selected.", "alert-warning", "bottom");
+  if(!validNewRelation()){
     return;
+  }
+
+  var relation = newRelation;
+  var seq = {};
+  var seqs;
+  if(!relation){
+    seq.key_seq = 1;
+    var seqs = [];
+    var relation = {};
+    relation.seqs = [];
+    relation.table_name = $('#modQuerySubject').text().split(" - ")[2];
+    relation.table_alias = $('#modQuerySubject').text().split(" - ")[0];
+    relation.type = $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
+    relation.pktable_name = $('#modPKTable').find("option:selected").val();
+    relation.pktable_alias = $('#modPKTable').find("option:selected").val();
+    relation.key_name = $('#modKeyType').val() + 'K_' + $('#modQuerySubject').text().split(" - ")[0] + '_' + $('#modPKTable').find("option:selected").val();
+    relation.key_type = $('#modKeyType').val();
+  }
+  else{
+    seq.key_seq = relation.seqs.length + 1;
+  }
+  seq.column_name = $('#modColumn').find("option:selected").val();
+  seq.table_name = $('#modQuerySubject').text().split(" - ")[2];
+  seq.pkcolumn_name = $('#modPKColumn').find("option:selected").val();
+  seq.pktable_name = $('#modPKTable').find("option:selected").val();
+  relation.key_name = $('#modKeyType').val() + 'K_' + $('#modQuerySubject').text().split(" - ")[0] + '_' + $('#modPKTable').find("option:selected").val();
+  relation.seqs.push(seq);
+
+  newRelation = relation;
+  console.log(newRelation);
+  modWriteRelationship();
+}
+
+function modWriteRelationship(){
+  var ta = $('#modRelationship');
+  var relation = newRelation;
+  if(relation){
+    var output = "";
+    $.each(relation.seqs, function(index, obj){
+        output += '[' + relation.type + '].[' + relation.table_alias + '].[' + obj.column_name + '] = ['+ obj.pktable_name + '].[' + obj.pkcolumn_name + '] AND ';
+    });
+    output = output.substring(0, output.lastIndexOf(' AND '));
+    console.log(output);
+    relation.relationship = output;
+    ta.val(output);
+  }
+}
+
+function validNewRelation(){
+
+  if ($("#modPKTable").find("option:selected").text() == 'Choose a pktable...') {
+    showalert("modValidate()", "No pktable selected.", "alert-warning", "bottom");
+    return false;
   }
 
   if ($("#modPKColumn").find("option:selected").text() == 'Choose a pkcolumn...') {
     showalert("modValidate()", "No pkcolumn selected.", "alert-warning", "bottom");
-    return;
+    return false;
   }
 
   if ($("#modColumn").find("option:selected").text() == 'Choose a column...') {
     showalert("modValidate()", "No column selected.", "alert-warning", "bottom");
+    return false;
+  }
+
+  return true;
+}
+
+function modValidate(){
+
+  if(!validNewRelation()){
     return;
   }
 
@@ -581,38 +617,26 @@ function modValidate(){
     showalert("modValidate()", "$activeSubDatasTable not initialized", "alert-danger", "bottom");
   }
 
-  var relation = {};
-  var seq = {};
 
-  relation.ref = null;
-  relation.table_name = $('#modQuerySubject').text().split(" - ")[2];
-  relation.table_alias = $('#modQuerySubject').text().split(" - ")[0];
-  relation.type = $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
-  relation.key_name = $('#modKeyName').val();
+  modAppendToRelationship();
+
+  var relation = newRelation;
+
   relation.fk_name = "";
   relation.pk_name = "";
-  relation.key_type = $('#modKeyType').find("option:selected").text();
-  relation.pktable_name = $('#modPKTables').find("option:selected").val();
-  relation.pktable_alias = $('#modPKTableAlias').val();
   relation.fin = false;
   relation.ref = false;
   relation.sec = false;
   relation.tra = false;
   relation.withPK = false;
-  seq.column_name = $('#modColumn').find("option:selected").val();
-  seq.pkcolumn_name = $('#modPKColumn').find("option:selected").val();
-  seq.key_seq = 1;
-  relation.seqs = [];
-  relation.seqs.push(seq);
+  relation.key_name = $('#modKeyType').val() + 'K_' + $('#modQuerySubject').text().split(" - ")[0] + '_' + $('#modPKTable').find("option:selected").val();
+
   relation._id = $('#modKeyName').val() + '_' + $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
-  relation.relationship = "[" + $('#modQuerySubject').text().split(" - ")[1].toUpperCase() + "].[" + $('#modQuerySubject').text().split(" - ")[0] +
-    "].[" + seq.column_name + "] = [" + relation.pktable_alias + "].[" + seq.pkcolumn_name + "]";
 
   var relationLabel = getLabel(relation.pktable_name);
   relation.relationLabel = relationLabel;
   var description = getDescription(relation.pktable_name);
   relation.description = description;
-
 
   var data = $datasTable.bootstrapTable("getData");
 
@@ -631,6 +655,8 @@ function modValidate(){
   AddRow($activeSubDatasTable, relation);
 
   $newRowModal.modal('toggle');
+
+  newRelation = null;
 
 }
 
@@ -1163,12 +1189,10 @@ function buildTable($el, cols, data) {
             if($activeSubDatasTable != undefined){
               $newRowModal.modal('toggle');
               console.log(row);
-              var qs = row.table_alias + ' - ' + row.type + ' - ' + row.table_name;
+              var qs = row.table_alias + ' - ' + row.type + ' - ' + row.table_name + ' - ' + row.label;
               // $('#modQuerySubject').selectpicker('val', qs);
 
               $('#modQuerySubject').text(qs);
-              $('#modKeyName').val("");
-              $('#modPKTableAlias').val("");
               ChooseField($('#modColumn'), row._id);
             }
           }
@@ -1472,6 +1496,7 @@ function SortOnStats(){
       ],
       callback: function (result) {
           ChooseTable($tableList, result);
+          ChooseTable($('#modPKTable'), result);
       }
   });
 
@@ -1490,7 +1515,10 @@ function ChooseTable(table, sort) {
     var tables = Object.values(dbmd);
 
     console.log(tables);
-    console.log(sort);
+    if(!sort){
+      sort = "3";
+      console.log('Default to sort ' + sort);
+    }
 
     switch(sort){
       case "0":
@@ -1538,6 +1566,7 @@ function ChooseTable(table, sort) {
 
   }
   else {
+      console.log("GetTables");
       $.ajax({
       type: 'POST',
       url: "GetTables",
@@ -1567,7 +1596,13 @@ function ChooseField(table, id){
         if(field.pk){
           icon = "<i class='glyphicon glyphicon-star'></i>";
         }
-        table.append('<option class="fontsize" value="' + field.field_name + '" data-subtext="' + icon + '">' + field.field_name + '</option>');
+        var label = getLabel(obj.table_name, field.field_name);
+        var subText = icon;
+        if(label){
+          subText += ' - ' + label;
+        }
+
+        table.append('<option class="fontsize" value="' + field.field_name + '" data-subtext="' + subText + '">' + field.field_name + '</option>');
       });
       table.selectpicker('refresh');
     }
@@ -1596,7 +1631,17 @@ function ChooseField(table, id){
               if(detail.pk){
                 icon = "<i class='glyphicon glyphicon-star'></i>";
               }
-              table.append('<option class="fontsize" value"' + detail.field_name + '" data-subtext="' + icon + '">' + detail.field_name + '</option>');
+              if(detail.index && !detail.pk){
+                icon = "<i class='glyphicon glyphicon-star-empty'></i>";
+              }
+
+              var label = getLabel(id, detail.field_name);
+              var subText = icon;
+              if(label){
+                subText += ' - ' + label;
+              }
+
+              table.append('<option class="fontsize" value"' + detail.field_name + '" data-subtext="' + subText + '">' + detail.field_name + '</option>');
             });
             table.selectpicker('refresh');
             showalert("ChooseField()", "ChooseField was successfull.", "alert-success", "bottom");
@@ -1912,7 +1957,26 @@ function ExpandAll(){
   $datasTable.bootstrapTable('expandAllRows');
 }
 
-// function refreshTable($table){
-// 	var data = $table.bootstrapTable("getData");
-// 	$table.bootstrapTable('load', data);
-// }
+function GetDBMDFromCache(){
+
+    $.when(
+      $.ajax({
+        type: 'POST',
+        url: "GetDBMDFromCache",
+        dataType: 'json',
+        async: true,
+        success: function(data) {
+          // dbmd = data;
+        }
+      })
+    )
+    .then(
+      function(data){
+        dbmd = data;
+        console.log("Got dbmd");
+        localStorage.setItem('dbmd', JSON.stringify(dbmd));
+        ChooseTable($tableList);
+      }
+    );
+
+}
