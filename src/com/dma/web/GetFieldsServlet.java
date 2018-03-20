@@ -42,12 +42,14 @@ public class GetFieldsServlet extends HttpServlet {
 		ResultSet rst = null;
 		List<Field> result = new ArrayList<Field>();
 		String schema = "";
+		Map<String, Object> dbmd = null;
 
 		try {
 			
 			String table = request.getParameter("table");
 			con = (Connection) request.getSession().getAttribute("con");
 			schema = (String) request.getSession().getAttribute("schema");
+			dbmd = (Map<String, Object>) request.getSession().getAttribute("dbmd");
 			
 		    DatabaseMetaData metaData = con.getMetaData();
 		    
@@ -71,6 +73,13 @@ public class GetFieldsServlet extends HttpServlet {
 	        
 	        rst = metaData.getColumns(con.getCatalog(), schema, table, "%");
 	        
+	        Map<String, Object> table_labels = null;
+	        Map<String, Object> columns = null;
+	        if(dbmd != null){
+				table_labels = (Map<String, Object>) dbmd.get(table);
+				columns = (Map<String, Object>) table_labels.get("columns");
+	        }
+	        
 	        while (rst.next()) {
 	        	String field_name = rst.getString("COLUMN_NAME");
 	        	String field_type = rst.getString("TYPE_NAME");
@@ -88,6 +97,11 @@ public class GetFieldsServlet extends HttpServlet {
 	        	if(indexes.contains(rst.getString("COLUMN_NAME"))){
 	        		field.setIndex(true);
 	        	}
+	        	if(columns != null){
+	    			Map<String, Object> column = (Map<String, Object>) columns.get(field_name); 
+	    			field.setLabel((String) column.get("column_remarks"));
+	    			field.setDescription((String) column.get("column_description"));
+	    		}
 	        	result.add(field);
 	        }
 		    

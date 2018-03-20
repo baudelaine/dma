@@ -38,6 +38,7 @@ relationCols.push({field:"sec", title: "sec", formatter: "boolFormatter", align:
 relationCols.push({field:"tra", title: "tra", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"nommageRep", title: "RepTableName", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"leftJoin", title: "Left Join", formatter: "boolFormatter", align: "center"});
+relationCols.push({field:"rightJoin", title: "Right Join", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"duplicate", title: '<i class="glyphicon glyphicon-duplicate"></i>', formatter: "duplicateFormatter", align: "center"});
 relationCols.push({field:"remove", title: '<i class="glyphicon glyphicon-trash"></i>', formatter: "removeFormatter", align: "center"});
 // relationCols.push({field:"operate", title: "operate", formatter: "operateRelationFormatter", align: "center", events: "operateRelationEvents"});
@@ -775,6 +776,7 @@ function buildSubTable($el, cols, data, parentData){
           case "hidden":
           case "timezone":
           case "leftJoin":
+          case "rightJoin":
             console.log(field);
             console.log(value);
             console.log(row);
@@ -1596,7 +1598,7 @@ function ChooseField(table, id){
         if(field.pk){
           icon = "<i class='glyphicon glyphicon-star'></i>";
         }
-        var label = getLabel(obj.table_name, field.field_name);
+        var label = field.label;
         var subText = icon;
         if(label){
           subText += ' - ' + label;
@@ -1635,7 +1637,7 @@ function ChooseField(table, id){
                 icon = "<i class='glyphicon glyphicon-star-empty'></i>";
               }
 
-              var label = getLabel(id, detail.field_name);
+              var label = detail.label;
               var subText = icon;
               if(label){
                 subText += ' - ' + label;

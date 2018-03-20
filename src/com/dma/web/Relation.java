@@ -24,6 +24,7 @@ public class Relation {
 	boolean tra = false;
 	boolean nommageRep = false;
 	boolean leftJoin = false;
+	boolean rightJoin = false;
 	String relationship = "";
 	String where = "";
 	String key_type = "";
@@ -178,6 +179,12 @@ public class Relation {
 	}
 	public void setLeftJoin(boolean leftJoin) {
 		this.leftJoin = leftJoin;
+	}
+	public boolean isRightJoin() {
+		return rightJoin;
+	}
+	public void setRightJoin(boolean rightJoin) {
+		this.rightJoin = rightJoin;
 	}
 	
 }
