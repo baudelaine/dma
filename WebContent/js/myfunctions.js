@@ -573,6 +573,32 @@ function modAppendToRelationship(){
   modWriteRelationship();
 }
 
+function modBuildRelation(){
+  var ta = $('#modRelationship');
+  var alias = '[' + $('#modQuerySubject').text().split(" - ")[0] + ']';
+  var type = '[' + $('#modQuerySubject').text().split(" - ")[1].toUpperCase() + ']';
+  var table = '[' + $('#modQuerySubject').text().split(" - ")[2] + ']';
+  var pktable = '[' + $('#modPKTable').find("option:selected").val() + ']';
+  var column = '[' + $('#modColumn').find("option:selected").val() + ']';
+  var pkcolumn = '[' + $('#modPKColumn').find("option:selected").val() + ']';
+
+  var output = ta.val();
+  if(ta.val() != ''){
+    output += ' AND ';
+  }
+  output += type + '.' + alias + '.' + column + ' = ' + pktable + '.' + pkcolumn;
+
+  ta.val(output);
+
+  var exp = type;
+  var regex = new RegExp(exp, 'g');
+  var matches = output.match(regex);
+  console.log(matches);
+
+  // [FINAL].[PROJECT].[PROJNO] = [DEPARTMENT].[DEPTNO]
+
+}
+
 function modWriteRelationship(){
   var ta = $('#modRelationship');
   var relation = newRelation;
@@ -1510,7 +1536,7 @@ function ChooseTable(table, sort) {
 
   var dbmd = localStorage.getItem('dbmd');
 
-  if('null' != dbmd){
+  if('null' != dbmd && '{}' != dbmd){
     console.log("dbmd loaded from cache...");
     dbmd = JSON.parse(localStorage.getItem('dbmd'));
 
@@ -1591,12 +1617,13 @@ function ChooseField(table, id){
   var datas = $datasTable.bootstrapTable('getData');
   $.each(datas, function(i, obj){
     if(obj._id == id){
-      console.log("!!!!!!!!!!" + obj._id);
       $.each(obj.fields, function(j, field){
         var icon = "";
-        console.log("field.pk="+field.pk);
         if(field.pk){
           icon = "<i class='glyphicon glyphicon-star'></i>";
+        }
+        if(field.index && !field.pk){
+          icon = "<i class='glyphicon glyphicon-star-empty'></i>";
         }
         var label = field.label;
         var subText = icon;
@@ -1611,7 +1638,6 @@ function ChooseField(table, id){
   });
 
   if( table.has('option').length == 0 ) {
-    console.log("!!!!!!!!!! NO VALUE FOUND FOR " + id);
     $.ajax({
         type: 'POST',
         url: "GetFields",
@@ -1619,17 +1645,8 @@ function ChooseField(table, id){
         data: "table=" + id,
 
         success: function(data) {
-            console.log(data);
-            // var fields = Object.values(data);
-            // console.log(fields);
-            // fields.sort(function(a, b) {
-            //   // return parseInt(b.FKCount) - parseInt(a.FKCount);
-            //   return b.PK - a.PK;
-            // });
-            // console.log(fields);
             $.each(data, function(index, detail){
               var icon = "";
-              console.log("data.pk="+detail.pk);
               if(detail.pk){
                 icon = "<i class='glyphicon glyphicon-star'></i>";
               }
@@ -1646,7 +1663,7 @@ function ChooseField(table, id){
               table.append('<option class="fontsize" value"' + detail.field_name + '" data-subtext="' + subText + '">' + detail.field_name + '</option>');
             });
             table.selectpicker('refresh');
-            showalert("ChooseField()", "ChooseField was successfull.", "alert-success", "bottom");
+            // showalert("ChooseField()", "ChooseField was successfull.", "alert-success", "bottom");
         },
         error: function(data) {
             console.log(data);
@@ -1977,6 +1994,7 @@ function GetDBMDFromCache(){
         dbmd = data;
         console.log("Got dbmd");
         localStorage.setItem('dbmd', JSON.stringify(dbmd));
+        console.log(dbmd);
         ChooseTable($tableList);
       }
     );

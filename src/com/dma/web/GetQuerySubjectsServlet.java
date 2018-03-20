@@ -173,6 +173,15 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 
         if(rst != null){rst.close();}
         
+        rst = metaData.getIndexInfo(con.getCatalog(), schema, table, false, true);
+	    Set<String> indexes = new HashSet<String>();
+	    
+	    while (rst.next()) {
+	    	indexes.add(rst.getString("COLUMN_NAME"));
+	    }
+
+        if(rst != null){rst.close();}
+        
 		List<Field> result = new ArrayList<Field>();
 		
         rst = metaData.getColumns(con.getCatalog(), schema, table, "%");
@@ -197,6 +206,9 @@ public class GetQuerySubjectsServlet extends HttpServlet {
         	field.set_id(field_name + field_type);
         	if(pks.contains(rst.getString("COLUMN_NAME"))){
     			field.setPk(true);
+    		}
+        	if(indexes.contains(rst.getString("COLUMN_NAME"))){
+    			field.setIndex(true);
     		}
     		if(columns != null){
     			Map<String, Object> column = (Map<String, Object>) columns.get(field_name); 

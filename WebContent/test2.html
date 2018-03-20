@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+
+  <script>
+
+  var str = "[FINAL].[PROJECT].[PROJNO] = [DEPARTMENT].[DEPTNO] AND [FINAL].[PROJECT].[PROJNAME] = [DEPARTMENT].[DEPTNAME] AND [FINAL].[PROJECT].[DEPTNO] = [DEPARTMENT].[MGRNO] AND [FINAL].[PROJECT].[RESPEMP] = [DEPARTMENT].[ADMRDEPT]";
+
+  var type = "Final";
+  var alias = "PROJECT";
+
+  var exp = "\\[" + type + "\\]\.\\[" + alias + "\\]\.\\[(.*?)\\]";
+
+  var regexp = new RegExp(exp, "gi");
+
+  var match;
+  var matches = [];
+
+  while(match = regexp.exec(str)){
+    matches.push(match[1]);
+  };
+
+  console.log(matches);
+
+  </script>
+
+</body>
+</html>

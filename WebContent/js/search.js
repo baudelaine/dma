@@ -239,7 +239,7 @@ function checkDBMD(){
 
   var dbmd = localStorage.getItem('dbmd');
 
-  if(dbmd != 'null'){
+  if(dbmd != 'null' && dbmd != '{}'){
     dbmd = JSON.parse(localStorage.getItem('dbmd'));
     console.log("dbmd loaded from cache...");
     GetDBMD($('#searchTable'));
@@ -273,7 +273,7 @@ function GetDBMD(table) {
 
   var dbmd = localStorage.getItem('dbmd');
 
-  if(dbmd != 'null'){
+  if(dbmd != 'null' && dbmd != '{}'){
     dbmd = JSON.parse(localStorage.getItem('dbmd'));
     console.log("dbmd loaded from cache...");
     loadDBMD(dbmd);
