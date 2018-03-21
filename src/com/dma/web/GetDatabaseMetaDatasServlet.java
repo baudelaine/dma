@@ -153,58 +153,56 @@ public class GetDatabaseMetaDatasServlet extends HttpServlet {
 						
 					}
 			    	
-			    	if(recCount > 0){
-				    	String table_type = rst0.getString("TABLE_TYPE");
-				    	String table_remarks = rst0.getString("REMARKS");
-				    	String table_schema = rst0.getString("TABLE_SCHEM");
-				    	Map<String, Object> table = new HashMap<String, Object>();
-				    	table.put("table_name", table_name);
-				    	table.put("table_schema", table_schema);
-				    	table.put("table_type", table_type);
-				    	table.put("table_remarks", table_remarks);
-				    	table.put("table_recCount", recCount);
-				    	table.put("table_description", "");
-			    		table.put("table_primaryKeyFieldsCount", pks.size());
-			    		table.put("table_importedKeysCount", FKSet.size());
-			    		table.put("table_importedKeysSeqCount", FKSeqCount);
-			    		table.put("table_exportedKeysCount", PKSet.size());
-			    		table.put("table_exportedKeysSeqCount", PKSeqCount);
-			    		table.put("table_indexesCount", indexes.size());
-			    		String stats = "(" + pks.size() + ") (" + FKSet.size() + ") (" + FKSeqCount + ") (" + PKSet.size() +
-			    				") (" + PKSeqCount + ") (" +  indexes.size() + ") (" + recCount + ")";  
-				    	table.put("table_stats", stats);
-					    
-					    ResultSet rst1 = metaData.getColumns(con.getCatalog(), schema, table_name, "%");
-					    Map<String, Object> fields = new HashMap<String, Object>();
-					    while(rst1.next()){
-						    Map<String, Object> field = new HashMap<>();
-					    	field.put("column_name", rst1.getString("COLUMN_NAME"));
-					    	field.put("column_type", rst1.getString("TYPE_NAME"));
-					    	field.put("column_remarks", rst1.getString("REMARKS"));
-				        	field.put("column_size", rst1.getInt("COLUMN_SIZE"));
-					    	field.put("column_description", null);
-				        	if(pks.contains(rst1.getString("COLUMN_NAME"))){
-				    			field.put("column_isPrimaryKey", true);
-				    		}
-				        	else{
-				    			field.put("column_isPrimaryKey", false);
-				        	}
-				        	if(indexes.contains(rst1.getString("COLUMN_NAME"))){
-				        		field.put("column_isIndexed", true);
-				        	}
-				        	else{
-				        		field.put("column_isIndexed", false);
-				        	}
-					    	
-				        	field.put("column_isNullable", rst1.getString("IS_NULLABLE"));
-					    	field.put("column_isFiltered", false);
-					    	field.put("filtered", false);
-						    fields.put(rst1.getString("COLUMN_NAME"), field);
-					    }
-					    if(rst1 != null){rst1.close();}
-					    table.put("columns", fields);
-					    result.put(table_name, table);
-			    	}
+			    	String table_type = rst0.getString("TABLE_TYPE");
+			    	String table_remarks = rst0.getString("REMARKS");
+			    	String table_schema = rst0.getString("TABLE_SCHEM");
+			    	Map<String, Object> table = new HashMap<String, Object>();
+			    	table.put("table_name", table_name);
+			    	table.put("table_schema", table_schema);
+			    	table.put("table_type", table_type);
+			    	table.put("table_remarks", table_remarks);
+			    	table.put("table_recCount", recCount);
+			    	table.put("table_description", "");
+		    		table.put("table_primaryKeyFieldsCount", pks.size());
+		    		table.put("table_importedKeysCount", FKSet.size());
+		    		table.put("table_importedKeysSeqCount", FKSeqCount);
+		    		table.put("table_exportedKeysCount", PKSet.size());
+		    		table.put("table_exportedKeysSeqCount", PKSeqCount);
+		    		table.put("table_indexesCount", indexes.size());
+		    		String stats = "(" + pks.size() + ") (" + FKSet.size() + ") (" + FKSeqCount + ") (" + PKSet.size() +
+		    				") (" + PKSeqCount + ") (" +  indexes.size() + ") (" + recCount + ")";  
+			    	table.put("table_stats", stats);
+				    
+				    ResultSet rst1 = metaData.getColumns(con.getCatalog(), schema, table_name, "%");
+				    Map<String, Object> fields = new HashMap<String, Object>();
+				    while(rst1.next()){
+					    Map<String, Object> field = new HashMap<>();
+				    	field.put("column_name", rst1.getString("COLUMN_NAME"));
+				    	field.put("column_type", rst1.getString("TYPE_NAME"));
+				    	field.put("column_remarks", rst1.getString("REMARKS"));
+			        	field.put("column_size", rst1.getInt("COLUMN_SIZE"));
+				    	field.put("column_description", null);
+			        	if(pks.contains(rst1.getString("COLUMN_NAME"))){
+			    			field.put("column_isPrimaryKey", true);
+			    		}
+			        	else{
+			    			field.put("column_isPrimaryKey", false);
+			        	}
+			        	if(indexes.contains(rst1.getString("COLUMN_NAME"))){
+			        		field.put("column_isIndexed", true);
+			        	}
+			        	else{
+			        		field.put("column_isIndexed", false);
+			        	}
+				    	
+			        	field.put("column_isNullable", rst1.getString("IS_NULLABLE"));
+				    	field.put("column_isFiltered", false);
+				    	field.put("filtered", false);
+					    fields.put(rst1.getString("COLUMN_NAME"), field);
+				    }
+				    if(rst1 != null){rst1.close();}
+				    table.put("columns", fields);
+				    result.put(table_name, table);
 				    
 			    }		    
 			    

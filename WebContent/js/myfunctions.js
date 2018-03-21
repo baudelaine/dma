@@ -574,28 +574,50 @@ function modAppendToRelationship(){
 }
 
 function modBuildRelation(){
-  var ta = $('#modRelationship');
-  var alias = '[' + $('#modQuerySubject').text().split(" - ")[0] + ']';
-  var type = '[' + $('#modQuerySubject').text().split(" - ")[1].toUpperCase() + ']';
-  var table = '[' + $('#modQuerySubject').text().split(" - ")[2] + ']';
-  var pktable = '[' + $('#modPKTable').find("option:selected").val() + ']';
-  var column = '[' + $('#modColumn').find("option:selected").val() + ']';
-  var pkcolumn = '[' + $('#modPKColumn').find("option:selected").val() + ']';
 
-  var output = ta.val();
-  if(ta.val() != ''){
+  validNewRelation();
+
+  var relations = $('#modRelationship');
+  var alias = $('#modQuerySubject').text().split(" - ")[0];
+  var type = $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
+  var table = $('#modQuerySubject').text().split(" - ")[2];
+  var pktable = $('#modPKTable').find("option:selected").val();
+  var column = $('#modColumn').find("option:selected").val();
+  var pkcolumn = $('#modPKColumn').find("option:selected").val();
+
+  var output = relations.val();
+  if(relations.val() != ''){
     output += ' AND ';
   }
-  output += type + '.' + alias + '.' + column + ' = ' + pktable + '.' + pkcolumn;
+  output += '[' + type + '].[' + alias + '].[' + column + '] = [' + pktable + '].[' + pkcolumn + ']';
 
-  ta.val(output);
+  relations.val(output);
 
-  var exp = type;
-  var regex = new RegExp(exp, 'g');
-  var matches = output.match(regex);
-  console.log(matches);
+}
 
-  // [FINAL].[PROJECT].[PROJNO] = [DEPARTMENT].[DEPTNO]
+function modAddRelation(){
+
+  var alias = $('#modQuerySubject').text().split(" - ")[0];
+  var type = $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
+  var relations = $('#modRelationship').val();
+  // var relations = "[FINAL].[SDIDATA].[SDCID] = [S_BATCH].[S_BATCHID] AND [FINAL].[SDIDATA].[KEYID1] = [S_BATCH].[BATCHDESC] AND [FINAL].[SDIDATA].[KEYID2] = [S_BATCH].[CREATEDT]";
+
+  var typeAliasExp = "\\[" + type + "\\]\.\\[" + alias + "\\]\.\\[(.*?)\\]";
+
+  var typeAliasRegexp = new RegExp(typeAliasExp, "gi");
+
+  var typeAliasMatch;
+  var typeAliasMatches = [];
+
+  while(typeAliasMatch = typeAliasRegexp.exec(relations)){
+    typeAliasMatches.push(typeAliasMatch[1]);
+  };
+
+  console.log(typeAliasMatches);
+
+  if(typeAliasMatches.length < 1){
+    showalert("modAddRelation()", "Relations does not match [" + type + "].[" + alias + "].[(.*?)] pattern.", "alert-warning", "bottom");
+  }
 
 }
 
