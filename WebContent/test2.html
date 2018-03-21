@@ -8,10 +8,9 @@
 
   var str = "[FINAL].[PROJECT].[PROJNO] = [DEPARTMENT].[DEPTNO] AND [FINAL].[PROJECT].[PROJNAME] = [DEPARTMENT].[DEPTNAME] AND [FINAL].[PROJECT].[DEPTNO] = [DEPARTMENT].[MGRNO] AND [FINAL].[PROJECT].[RESPEMP] = [DEPARTMENT].[ADMRDEPT]";
 
-  var pktable = "Final";
-  var pkcolumn = "PROJECT";
+  var pktable = "DEPARTMENTRR";
 
-  var exp = "\s=\s{1,}\\[" + type + "\\]\.\\[" + alias + "\\]\.\\[(.*?)\\]";
+  var exp = "\\s{1,}=\\s{1,}\\[(.*?)\\]\.\\[(.*?)\\]";
 
   var regexp = new RegExp(exp, "gi");
 
@@ -22,9 +21,7 @@
     matches.push(match[1]);
   };
 
-  console.log(matches);
-
-  console.log(type.join('[]'));
+  console.log(matches[0]);
 
   </script>
 
