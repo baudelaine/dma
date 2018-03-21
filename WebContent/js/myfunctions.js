@@ -657,8 +657,8 @@ function modAddRelation(){
 
             relation.key_name = $('#modKeyType').val() + 'K_' + $('#modQuerySubject').text().split(" - ")[0] + '_' + pktable;
 
-            relation.table_name = $('#modQuerySubject').text().split(" - ")[2];
-            relation.table_alias = $('#modQuerySubject').text().split(" - ")[0];
+            // relation.table_name = $('#modQuerySubject').text().split(" - ")[2];
+            // relation.table_alias = $('#modQuerySubject').text().split(" - ")[0];
             relation.type = $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
             relation.pktable_name = pktable;
             relation.pktable_alias = pktable;
@@ -671,6 +671,12 @@ function modAddRelation(){
             relation.sec = false;
             relation.tra = false;
             relation.withPK = false;
+            relation.recCountPercent = 0;
+            relation.nommageRep = false;
+            relation.leftJoin = false;
+            relation.rightJoin = false;
+            relation.linker = false;
+            relation.linker_ids = "";
             relation._id = relation.key_name + '_' + $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
             relation.label = getLabel(relation.pktable_name);
             relation.description = getDescription(relation.pktable_name);
