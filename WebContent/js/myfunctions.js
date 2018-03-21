@@ -575,6 +575,7 @@ function modAddRelation(){
   };
 
   var column = columnMatches[0];
+  console.log(columnMatches);
 
   var isValid = false;
   for(var i = 1; i < selectColumn.length; i++){
@@ -588,7 +589,7 @@ function modAddRelation(){
     return;
   }
 
-  var pktableExp = "\\s{1,}=\\s{1,}\\[(.*?)\\]\.\\[.*?\\]";
+  var pktableExp = "\\s{0,}=\\s{0,}\\[(.*?)\\]\.\\[.*?\\]";
 
   var pktableRegexp = new RegExp(pktableExp, "gi");
 
@@ -613,7 +614,7 @@ function modAddRelation(){
     return;
   }
 
-  var pkcolumnExp = "\\s{1,}=\\s{1,}\\[.*?\\]\.\\[(.*?)\\]";
+  var pkcolumnExp = "\\s{0,}=\\s{0,}\\[.*?\\]\.\\[(.*?)\\]";
 
   var pkcolumnRegexp = new RegExp(pkcolumnExp, "gi");
 
