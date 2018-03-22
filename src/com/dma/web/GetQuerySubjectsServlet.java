@@ -151,8 +151,10 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 		if(dbmd != null){
 			@SuppressWarnings("unchecked")
 			Map<String, Object> o = (Map<String, Object>) dbmd.get(table);
-			result.setLabel((String) o.get("table_remarks"));
-			result.setDescription((String) o.get("table_description"));
+			if(o != null){
+				result.setLabel((String) o.get("table_remarks"));
+				result.setDescription((String) o.get("table_description"));
+			}
 		}
         
         return result;
@@ -190,7 +192,9 @@ public class GetQuerySubjectsServlet extends HttpServlet {
         Map<String, Object> columns = null;
         if(dbmd != null){
 			table_labels = (Map<String, Object>) dbmd.get(table);
-			columns = (Map<String, Object>) table_labels.get("columns");
+			if(table_labels != null){
+				columns = (Map<String, Object>) table_labels.get("columns");
+			}
         }
 		
         while (rst.next()) {

@@ -818,12 +818,20 @@ function buildSubTable($el, cols, data, parentData){
             }
 
             if(value == false){
+              console.log(allowNommageRep);
               // interdire de cocher n fois pour un même pkAlias dans un qs donné
               $.each($el.bootstrapTable("getData"), function(i, obj){
-                console.log(obj);
-                console.log(obj.pktable_alias + " -> " + obj.nommageRep);
-                if((obj.pktable_alias == row.pktable_alias) && obj.nommageRep){
-                  allowNommageRep = false;
+                if(obj.pktable_alias == row.pktable_alias){
+                  console.log(obj);
+                  console.log(obj.pktable_alias + " -> " + obj.nommageRep);
+                  console.log(row);
+                  console.log(row.pktable_alias + " -> " + row.nommageRep);
+                  if(obj.sec && activeTab.match("Security") && obj.nommageRep){
+                    allowNommageRep = false;
+                  }
+                  if(obj.ref && activeTab.match("Reference") && obj.nommageRep){
+                    allowNommageRep = false;
+                  }
                 }
               });
 
@@ -847,8 +855,12 @@ function buildSubTable($el, cols, data, parentData){
             newRow.pktable_alias = "";
             newRow.fin = false;
             newRow.ref = false;
+            newRow.sec = false;
+            newRow.tra = false;
             newRow.relationship = newRow.relationship.replace(/\s{1,}=\s{1,}\[FINAL\]\./g, " = ");
             newRow.relationship = newRow.relationship.replace(/\s{1,}=\s{1,}\[REF\]\./g, " = ");
+            newRow.relationship = newRow.relationship.replace(/\s{1,}=\s{1,}\[SEC\]\./g, " = ");
+            newRow.relationship = newRow.relationship.replace(/\s{1,}=\s{1,}\[TRA\]\./g, " = ");
             newRow.relationship = newRow.relationship.split("[" + row.pktable_alias + "]").join("[]");
             newRow.nommageRep = false;
             if(newRow.key_type == "F"){
