@@ -534,7 +534,9 @@ function indexFormatter(value, row, index) {
 
 function modBuildRelation(){
 
-  validNewRelation();
+  if(!validNewRelation()){
+    return;
+  }
 
   var relations = $('#modRelationship');
   var alias = $('#modQuerySubject').text().split(" - ")[0];
@@ -557,142 +559,78 @@ function modBuildRelation(){
 function modAddRelation(){
 
   var alias = $('#modQuerySubject').text().split(" - ")[0];
+  var table = $('#modQuerySubject').text().split(" - ")[2];
   var type = $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
+  var key_type = $('#modKeyType').val();
   var relations = $('#modRelationship').val();
-  // var relations = "[FINAL].[SDIDATA].[SDCID] = [S_BATCH].[S_BATCHID] AND [FINAL].[SDIDATA].[KEYID1] = [S_BATCH].[BATCHDESC] AND [FINAL].[SDIDATA].[KEYID2] = [S_BATCH].[CREATEDT]";
-  var selectColumn = document.getElementById('modColumn');
-  var selectPKTable = document.getElementById('modPKTable');
 
-  var columnExp = "\\[" + type + "\\]\.\\[" + alias + "\\]\.\\[(.*?)\\]\\s{1,}";
+  var exp = "\\[" + type + "\\]\.\\[" + alias + "\\]\.\\[([A-Z0-9_]*?)\\][^\\[]*?\\[([A-Z0-9_]*?)\\]\.\\[([A-Z0-9_]*?)\\]";
+  // var exp = "\\s{0,}=\\s{0,}\\[(.*?)\\]\.\\[(.*?)\\]";
 
-  var columnRegexp = new RegExp(columnExp, "gi");
+  var regexp = new RegExp(exp, "gi");
 
-  var columnMatch;
-  var columnMatches = [];
+  var match;
+  var colMatches = [];
+  var pkTabMatches = [];
+  var pkColMatches = [];
 
-  while(columnMatch = columnRegexp.exec(relations)){
-    columnMatches.push(columnMatch[1]);
+  while(match = regexp.exec(relations)){
+    colMatches.push(match[1]);
+    pkTabMatches.push(match[2]);
+    pkColMatches.push(match[3]);
   };
 
-  var column = columnMatches[0];
-  console.log(columnMatches);
+  console.log(colMatches);
+  console.log(pkTabMatches);
+  console.log(pkColMatches);
 
-  var isValid = false;
-  for(var i = 1; i < selectColumn.length; i++){
-    if(selectColumn[i].value == column){
-      isValid = true;
-    }
-  }
-
-  if(!column || column == '' || !isValid){
-    showalert("modAddRelation()", "No valid column found. Relations does not match " + columnExp + " pattern.", "alert-warning", "bottom");
+  if(colMatches.length == 0){
+    showalert("modAddRelation()", "No valid relation found in Relations textarea.<br>Relations does not match " + exp + " pattern.", "alert-warning", "bottom");
     return;
   }
-
-  var pktableExp = "\\s{0,}=\\s{0,}\\[(.*?)\\]\.\\[.*?\\]";
-
-  var pktableRegexp = new RegExp(pktableExp, "gi");
-
-  var pktableMatch;
-  var pktableMatches = [];
-
-  while(pktableMatch = pktableRegexp.exec(relations)){
-    pktableMatches.push(pktableMatch[1]);
-  };
-
-  var pktable = pktableMatches[0];
-
-  isValid = false;
-  for(var i = 1; i < modPKTable.length; i++){
-    if(modPKTable[i].value == pktable){
-      isValid = true;
-    }
-  }
-
-  if(!pktable || pktable == '' || !isValid){
-    showalert("modAddRelation()", "No valid pktable found. Relations does not match " + pktableExp + " pattern.", "alert-warning", "bottom");
-    return;
-  }
-
-  var pkcolumnExp = "\\s{0,}=\\s{0,}\\[.*?\\]\.\\[(.*?)\\]";
-
-  var pkcolumnRegexp = new RegExp(pkcolumnExp, "gi");
-
-  var pkcolumnMatch;
-  var pkcolumnMatches = [];
-
-  while(pkcolumnMatch = pkcolumnRegexp.exec(relations)){
-    pkcolumnMatches.push(pkcolumnMatch[1]);
-  };
-
-  var pkcolumn = pkcolumnMatches[0];
-  console.log(pkcolumn);
-
-  isValid = false;
 
   $.ajax({
       type: 'POST',
-      url: "GetFields",
+      url: "GetNewRelation",
       dataType: 'json',
-      data: "table=" + pktable,
-
 
       success: function(data){
-        $.each(data, function(i, obj){
-          if(obj.field_name == pkcolumn){
-            console.log(obj.field_name + " == " + pkcolumn);
-            isValid = true;
+          var relation = data;
 
+          $.each(colMatches, function(i, obj){
             var seq = {};
-            var seqs = [];
-            seq.key_seq = 1;
-
-            seq.column_name = column;
-            seq.table_name = $('#modQuerySubject').text().split(" - ")[2];
-            seq.pktable_name = pktable;
-            seq.pkcolumn_name = pkcolumn;
-
-            var relation = {};
-            relation.seqs = [];
+            seq.key_seq = i + 1;
+            seq.table_name = table;
+            seq.pktable_name = pkTabMatches[i];
+            seq.column_name = colMatches[i]
+            seq.pkcolumn_name = pkColMatches[i];
             relation.seqs.push(seq);
+          })
 
-            relation.key_name = $('#modKeyType').val() + 'K_' + $('#modQuerySubject').text().split(" - ")[0] + '_' + pktable;
+          $.each(relation.seqs, function(i, seq){
+            if(relation.where != ''){
+              relation.where += ' AND ';
+            }
+            relation.where += seq.table_name + '.' + seq.column_name + ' = ' + seq.pktable_name + '.' + seq.pkcolumn_name;
+          })
 
-            // relation.table_name = $('#modQuerySubject').text().split(" - ")[2];
-            // relation.table_alias = $('#modQuerySubject').text().split(" - ")[0];
-            relation.type = $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
-            relation.pktable_name = pktable;
-            relation.pktable_alias = pktable;
-            relation.key_name = $('#modKeyType').val() + 'K_' + $('#modQuerySubject').text().split(" - ")[0] + '_' + pktable;
-            relation.key_type = $('#modKeyType').val();
-            relation.fk_name = "";
-            relation.pk_name = "";
-            relation.fin = false;
-            relation.ref = false;
-            relation.sec = false;
-            relation.tra = false;
-            relation.withPK = false;
-            relation.recCountPercent = 0;
-            relation.nommageRep = false;
-            relation.leftJoin = false;
-            relation.rightJoin = false;
-            relation.linker = false;
-            relation.linker_ids = "";
-            relation._id = relation.key_name + '_' + $('#modQuerySubject').text().split(" - ")[1].toUpperCase();
-            relation.label = getLabel(relation.pktable_name);
-            relation.description = getDescription(relation.pktable_name);
-            relation.relationship = $('#modRelationship').val();
+          relation.relationship = relations;
+          relation.type = type;
+          relation.table_name = table;
+          relation.table_alias = alias;
+          relation.pktable_name = pkTabMatches[0];
+          relation.pktable_alias = pkTabMatches[0];
+          relation.key_type = key_type;
+          relation.key_name = key_type + 'K_' + alias + '_' + pkTabMatches[0];
+          relation._id = relation.key_name + '_' + type;
 
-            modWriteRelation(relation);
-            return;
-          }
-        });
-        if(!isValid){
-          showalert("modAddRelation()", "No valid pkcolumn found. Relations does not match " + pkcolumnExp + " pattern.", "alert-warning", "bottom");
-        }
+          console.log(relation);
+
+          modWriteRelation(relation);
       },
       error: function(data) {
           console.log(data);
+          showalert("GetNewRelation()", "Error when getting new relation from server.", "alert-warning", "bottom");
       }
   });
 
@@ -1084,6 +1022,7 @@ $("#removeKeysModal").on('hidden.bs.modal', function (e) {
 
 function PrepareRemoveKeys(o, qs){
 
+        RemoveFilter();
         var indexes2rm = [];
         var row = o;
         var ids2rm = {};
@@ -1132,7 +1071,7 @@ function PrepareRemoveKeys(o, qs){
         qs2rm.qsList = indexes2rm;
         qs2rm.ids2rm = ids2rm;
 
-
+        ApplyFilter();
 }
 
 function RemoveKeys(row, qs){

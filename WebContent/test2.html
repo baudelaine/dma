@@ -6,22 +6,30 @@
 
   <script>
 
-  var str = "[FINAL].[PROJECT].[PROJNO]=[DEPARTMENT].[DEPTNO] AND [FINAL].[PROJECT].[PROJNAME] = [DEPARTMENT].[DEPTNAME] AND [FINAL].[PROJECT].[DEPTNO] = [DEPARTMENT].[MGRNO] AND [FINAL].[PROJECT].[RESPEMP] = [DEPARTMENT].[ADMRDEPT]";
+  var str = "substring([FINAL].[PROJECT].[PROJNO_33],4)=substring([DEPARTMENT_ZZ].[DEPTNO],5) AND [FINAL].[PROJECT].[PROJNAME] like [DEPARTMENT].[DEPTNAME] AND [FINAL].[PROJECT].[DEPTNO] = [DEPARTMENT].[MGRNO] AND [FINAL].[PROJECT].[RESPEMP] = [DEPARTMENT].[ADMRDEPT]";
 
-  var pktable = "DEPARTMENT";
+  var type = "FINAL";
+  var alias = "PROJECT";
 
-  var exp = "\\s{0,}=\\s{0,}\\[(.*?)\\]\.\\[(.*?)\\]";
+  var exp = "\\[" + type + "\\]\.\\[" + alias + "\\]\.\\[([A-Z0-9_]*?)\\][^\\[]*?\\[([A-Z0-9_]*?)\\]\.\\[([A-Z0-9_]*?)\\]";
+  // var exp = "\\s{0,}=\\s{0,}\\[(.*?)\\]\.\\[(.*?)\\]";
 
   var regexp = new RegExp(exp, "gi");
 
   var match;
-  var matches = [];
+  var colMatches = [];
+  var pkTabMatches = [];
+  var pkColMatches = [];
 
   while(match = regexp.exec(str)){
-    matches.push(match[1]);
+    colMatches.push(match[1]);
+    pkTabMatches.push(match[2]);
+    pkColMatches.push(match[3]);
   };
 
-  console.log(matches);
+  console.log(colMatches);
+  console.log(pkTabMatches);
+  console.log(pkColMatches);
 
   </script>
 
