@@ -361,6 +361,10 @@ function GetLabelsQueries(){
 
 function GetLabels(){
 
+  if(!CheckIfTableSelected()){
+    return;
+  }
+
   var parms = {};
   parms.tables = $('#searchSelect').val();
   parms.tlQuery = $('#tableLabel').val();

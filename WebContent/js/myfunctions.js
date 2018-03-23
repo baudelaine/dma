@@ -1892,7 +1892,7 @@ function GetModelList(){
       });
       console.log("modelList");
       console.log(modelList);
-			showalert("GetModelList()", "Model list get successfull.", "alert-success", "bottom");
+			// showalert("GetModelList()", "Model list get successfull.", "alert-success", "bottom");
 
 		},
 		error: function(data) {
@@ -1922,7 +1922,7 @@ function OpenModel(id){
 
 		success: function(data) {
       $datasTable.bootstrapTable("load", data);
-			showalert("OpenModel()", "Model opened successfully.", "alert-success", "bottom");
+			// showalert("OpenModel()", "Model opened successfully.", "alert-success", "bottom");
 
 		},
 		error: function(data) {
