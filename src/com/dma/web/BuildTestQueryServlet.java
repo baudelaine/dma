@@ -77,7 +77,7 @@ public class BuildTestQueryServlet extends HttpServlet {
 			String query = (String) parms.get("query");
 			String type = (String) parms.get("type");
 			List<String> tables = (List<String>) parms.get("tables");
-			String tableInClause = "('" + StringUtils.join(tables.get(0), "','") + "')";
+			String tableInClause = "('" + StringUtils.join(tables.iterator(), "','") + "')";
 			
 			switch(type){
 			
