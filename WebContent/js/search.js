@@ -185,7 +185,7 @@ function BuildTestQuery(query, type, tables){
 
 		success: function(query) {
       console.log(query);
-      WatchContent(query);
+      WatchContent(query.query);
 		},
 		error: function(data) {
 			ShowAlert("BuildTestQuery()", "Getting test query failed.", "alert-danger", "bottom");

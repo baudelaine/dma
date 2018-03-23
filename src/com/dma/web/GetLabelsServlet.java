@@ -146,6 +146,7 @@ public class GetLabelsServlet extends HttpServlet {
 						stmt = con.prepareStatement(clQuery);
 						stmt.setString(1, table);
 						rst = stmt.executeQuery();
+						
 						while(rst.next()){
 							cols.put(rst.getString(2).toUpperCase(), rst.getString(3));
 						}
