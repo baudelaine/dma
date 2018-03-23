@@ -98,7 +98,7 @@ public class GetLabelsServlet extends HttpServlet {
 					stmt = con.prepareStatement(tlQuery);
 					rst = stmt.executeQuery();
 					while(rst.next()){
-						tlMap.put(rst.getString(1).toUpperCase(), rst.getString(2));
+						tlMap.put(rst.getString("Table_Name").toUpperCase(), rst.getString("Table_Label"));
 					}
 					rst.close();
 					stmt.close();					
@@ -112,7 +112,7 @@ public class GetLabelsServlet extends HttpServlet {
 					System.out.println("tdQuery=" + tdQuery);
 					rst = stmt.executeQuery();
 					while(rst.next()){
-						tdMap.put(rst.getString(1).toUpperCase(), rst.getString(2));
+						tdMap.put(rst.getString("Table_Name").toUpperCase(), rst.getString("Table_Description"));
 					}
 					rst.close();
 					stmt.close();					
@@ -148,7 +148,7 @@ public class GetLabelsServlet extends HttpServlet {
 						rst = stmt.executeQuery();
 						
 						while(rst.next()){
-							cols.put(rst.getString(2).toUpperCase(), rst.getString(3));
+							cols.put(rst.getString("Column_Name").toUpperCase(), rst.getString("Column_Label"));
 						}
 						rst.close();
 						stmt.close();
@@ -166,7 +166,7 @@ public class GetLabelsServlet extends HttpServlet {
 						stmt.setString(1, table);
 						rst = stmt.executeQuery();
 						while(rst.next()){
-							cols.put(rst.getString(2).toUpperCase(), rst.getString(3));
+							cols.put(rst.getString("Column_Name").toUpperCase(), rst.getString("Column_Description"));
 						}
 						rst.close();
 						stmt.close();
