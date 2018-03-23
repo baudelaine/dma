@@ -31,14 +31,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Servlet implementation class GetTablesServlet
  */
-@WebServlet("/GetSQLQuery")
-public class GetSQLQueryServlet extends HttpServlet {
+@WebServlet("/BuildTestQuery")
+public class BuildTestQueryServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public GetSQLQueryServlet() {
+    public BuildTestQueryServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -75,38 +75,42 @@ public class GetSQLQueryServlet extends HttpServlet {
 			}
 
 			String query = (String) parms.get("query");
+			String type = (String) parms.get("type");
+			List<String> tables = (List<String>) parms.get("tables");
+			String tableInClause = "('" + StringUtils.join(tables.get(0), "','") + "')";
+			
+			switch(type){
+			
+				case "table": 
+					
+					if(!query.isEmpty() && StringUtils.countMatches(query, "(?)") == 1){
+						query = StringUtils.replace(query, "(?)", tableInClause);
+					}
+					break;
+					
+				case "column":
+					
+					if(!query.isEmpty() && StringUtils.countMatches(query, "(?)") == 1 && StringUtils.countMatches(query, " ? ") == 1){
+						List<String> fields = new ArrayList<String>();
+						
+						DatabaseMetaData metaData = con.getMetaData();
+						rst = metaData.getColumns(con.getCatalog(), schema, tables.get(0), "%");
+						while(rst.next()){
+							fields.add(rst.getString("COLUMN_NAME"));
+						}
+						rst.close();
+
+						String columnInClause = "('" + StringUtils.join(fields.iterator(), "','") + "')";
+						query = StringUtils.replace(query, "?", tables.get(0));
+						query = StringUtils.replace(query, "(?)", columnInClause);
+
+					}
+					break;
+					
+			}
+			
 			results.put("query", query);
-			results.put("schema", schema);
-			
-			System.out.println("query=" + query);
-			
-			stmt = con.prepareStatement(query);
-			stmt.setMaxRows(20);
-			rst = stmt.executeQuery();
-			ResultSetMetaData rsmd = rst.getMetaData();
-			int colCount = rsmd.getColumnCount();
-
-			List<String> column_names = new ArrayList<String>();
-			
-			for(int colid = 1; colid <= colCount; colid++){
-				column_names.add(rsmd.getColumnLabel(colid));
-			}
-			
-			results.put("columns", column_names);
-			
-			List<Object> recs = new ArrayList<Object>();
-			int i = 0;
-			while(rst.next()){
-				Map<String, Object> rec = new HashMap<String, Object>();
-				for(int colid = 1; colid <= colCount; colid++){
-					rec.put(column_names.get(colid -1), rst.getObject(colid));
-				}
-				recs.add(rec);
-			}
-			rst.close();
-			stmt.close();					
-
-			results.put("result", recs);
+			System.out.println("results=" + results);
 			
 		    response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");

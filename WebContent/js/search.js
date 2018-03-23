@@ -1,3 +1,4 @@
+var queriesList = [];
 var searchCols = [];
 searchCols.push({field:"table_name", title: "Table<br>Name", sortable: true, searchable: false});
 searchCols.push({field:"table_type", title: "Table<br>Type", sortable: true, searchable: false});
@@ -98,19 +99,103 @@ $('#dynamicModal').on('shown.bs.modal', function(){
     });
     list += '</div></form><script>';
     list += '$("#searchlist").btsListFilter("#searchinput", {itemChild: "span", initial: false, casesensitive: false,});';
-    list += '$(".list-group a").click(function(){console.log($(this).attr("id")); WatchContent($(this).attr("id"))})';
+    list += '$(".list-group a").click(function(){console.log($(this).attr("id")); WatchContent("select * from " + $(this).attr("id"))})';
     list += '</script>';
     $(this).find('.modal-header').find('.modal-title').append(title);
     $(this).find('.modal-body').append(list);
 
 });
 
+$('#modQueriesList').on('shown.bs.modal', function() {
+  $(this).find('.modal-body').empty();
+  var list = '<div class="container-fluid"><div class="row"><form role="form"><div class="form-group">';
+  list += '<input id="searchinput" class="form-control" type="search" placeholder="Search..." /></div>';
+  list += '<div id="searchlist" class="list-group">';
+
+  $.each(queriesList, function(index, object){
+    list += '<a href="#" class="list-group-item" onClick="OpenQueries(' + object.id + '); return false;"><span>' + object.name + '</span></a>';
+  });
+  list += '</div></form><script>$("#searchlist").btsListFilter("#searchinput", {itemChild: "span", initial: false, casesensitive: false});</script>';
+  $(this).find('.modal-body').append(list);
+});
+
+tableLabelQuery.addEventListener('click', function(event){
+  var query = $("#tableLabel").val();
+  var type = 'table';
+  var tables = $('#searchSelect').val();
+  if(CheckIfTableSelected()){
+    BuildTestQuery(query, type, tables);
+  }
+  event.preventDefault();
+}, false);
+
+tableDescriptionQuery.addEventListener('click', function(event){
+  var query = $("#tableDescription").val();
+  var type = 'table';
+  var tables = $('#searchSelect').val();
+  if(CheckIfTableSelected()){
+    BuildTestQuery(query, type, tables);
+  }
+  event.preventDefault();
+}, false);
+
+columnLabelQuery.addEventListener('click', function(event){
+  var query = $("#columnLabel").val();
+  var type = 'column';
+  var tables = $('#searchSelect').val();
+  if(CheckIfTableSelected()){
+    BuildTestQuery(query, type, tables);
+  }
+  event.preventDefault();
+}, false);
+
+columnDescriptionQuery.addEventListener('click', function(event){
+  var query = $("#columnDescription").val();
+  var type = 'column';
+  var tables = $('#searchSelect').val();
+  if(CheckIfTableSelected()){
+    BuildTestQuery(query, type, tables);
+  }
+  event.preventDefault();
+}, false);
+
 function openDynamicModal(){
   $('#dynamicModal').modal('toggle');
 }
 
-function WatchContent(table){
-  var query = "select * from " + table;
+function CheckIfTableSelected(){
+  if($('#searchSelect').val().length == 0){
+    ShowAlert("CheckIfTableSelected()", "No table selected in 'Choose table(s)...'.", "alert-warning", "bottom");
+    return false;
+  }
+  return true;
+}
+
+function BuildTestQuery(query, type, tables){
+
+  var parms = {query: query, type: type, tables: tables};
+
+  console.log(parms);
+
+  $.ajax({
+		type: 'POST',
+		url: "BuildTestQuery",
+		dataType: 'json',
+    data: JSON.stringify(parms),
+
+		success: function(query) {
+      console.log(query);
+      WatchContent(query);
+		},
+		error: function(data) {
+			ShowAlert("BuildTestQuery()", "Getting test query failed.", "alert-danger", "bottom");
+		}
+	});
+
+}
+
+function WatchContent(query){
+  // var query = "select * from " + table;
   console.log(query);
   var parms = {query: query};
   localStorage.setItem('SQLQuery', JSON.stringify(parms));
@@ -119,8 +204,135 @@ function WatchContent(table){
 
 function OpenQueryModal(){
   $('#queryModal').modal('toggle');
-  GetLabelsQueries();
+  // GetLabelsQueries();
 }
+
+function OpenQueries(id){
+
+  var queriesName;
+
+  $.each(queriesList, function(i, obj){
+    if(obj.id == id){
+      queriesName = obj.name;
+    }
+  });
+
+  console.log("queriesName=" + queriesName);
+
+	$.ajax({
+		type: 'POST',
+		url: "OpenQueries",
+		dataType: 'json',
+    data: "queries=" + queriesName,
+
+		success: function(queries) {
+      console.log(queries);
+      $('#tableLabel').val(queries.tlQuery);
+      $('#tableDescription').val(queries.tdQuery);
+      $('#columnLabel').val(queries.clQuery);
+      $('#columnDescription').val(queries.cdQuery);
+      // showalert("OpenQueries()", "Queries opened successfully.", "alert-success", "bottom");
+
+		},
+		error: function(data) {
+			showalert("OpenQueries()", "Opening queries failed.", "alert-danger", "bottom");
+		}
+	});
+
+  $('#modQueriesList').modal('toggle');
+
+}
+
+
+function GetQueriesList(){
+
+  $('#modQueriesList').modal('toggle');
+
+	$.ajax({
+		type: 'POST',
+		url: "GetQueriesList",
+		dataType: 'json',
+
+		success: function(data) {
+      queriesList = data;
+      data.sort(function(a, b) {
+        return b - a;
+      });
+      console.log("queriesList");
+      console.log(queriesList);
+			// ShowAlert("GetQueriesList()", "Queries list get successfull.", "alert-success", "bottom");
+
+		},
+		error: function(data) {
+			ShowAlert("GetQueriesList()", "Getting queries list failed.", "alert-danger", "bottom");
+		}
+	});
+
+}
+
+function SaveQueries(){
+
+  var backupName;
+
+  var vide = true;
+
+  if($("#tableLabel").val().trim().length > 1) {
+    vide = false;
+  }
+  if($("#tableDescription").val().trim().length > 1) {
+    vide = false;
+  }
+  if($("#columnLabel").val().trim().length > 1) {
+    vide = false;
+  }
+  if($("#columnDescription").val().trim().length > 1) {
+    vide = false;
+  }
+
+  console.log(vide);
+
+  if(vide){
+    ShowAlert("SaveQueries()", "Nothing to save.", "alert-warning", "bottom");
+    return;
+  }
+
+
+  bootbox.prompt({
+    size: "small",
+    title: "Enter backup name",
+    callback: function(result){
+       /* result = String containing user input if OK clicked or null if Cancel clicked */
+      backupName = result;
+      if(!backupName){
+        return;
+      }
+
+      var queries = {};
+      queries.tlQuery = $('#tableLabel').val();
+      queries.tdQuery = $('#tableDescription').val();
+      queries.clQuery = $('#columnLabel').val();
+      queries.cdQuery = $('#columnDescription').val();
+
+      var parms = {backupName: backupName, data: queries};
+
+     	$.ajax({
+     		type: 'POST',
+     		url: "SaveQueries",
+     		dataType: 'json',
+     		data: JSON.stringify(parms),
+
+     		success: function(data) {
+     			ShowAlert("SaveQueries()", "Queries saved successfully.", "alert-success", "bottom");
+     		},
+     		error: function(data) {
+     			ShowAlert("SaveQueries()", "Saving Queries failed.", "alert-danger", "bottom");
+     		}
+     	});
+    }
+  });
+
+}
+
 
 function GetLabelsQueries(){
 

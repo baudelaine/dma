@@ -1900,7 +1900,6 @@ function GetModelList(){
 		}
 	});
 
-
 }
 
 function OpenModel(id){
@@ -1932,7 +1931,6 @@ function OpenModel(id){
 	});
 
   $modelListModal.modal('toggle');
-
 
 }
 

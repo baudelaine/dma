@@ -44,6 +44,7 @@
 
 		</table>
 
+		<!-- dynamic modal -->
 		<div class="modal fade" id="dynamicModal" tabindex="-1" role="dialog" aria-labelledby="dynamicModalLabel">
 		  <div class="modal-dialog" role="document">
 		    <div class="modal-content">
@@ -61,39 +62,143 @@
 		    </div>
 		  </div>
 		</div>
-		<!-- modelList modal -->
+		<!-- dynamic modal -->
 
-		<!-- modelList modal -->
+		<!-- queriesList modal -->
 		<div class="modal fade" id="queryModal" tabindex="-1" role="dialog" aria-labelledby="queryModalLabel">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="queryModalLabel">Paste SQL queries for labels and descriptions</h4>
+						<h4 class="modal-title" id="queryModalLabel">SQL queries for labels and descriptions</h4>
 					</div>
 					<div class="modal-body">
 						<form>
 		          <div class="form-group">
 		            <label for="tableLabel" class="col-form-label">Table Label</label>
-		            <textarea class="form-control" id="tableLabel"></textarea>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#tableLabelSyntax" aria-expanded="false" aria-controls="collapseExample">SQL syntax</a>
+								<div class="collapse" id="tableLabelSyntax">
+								  <div class="well well-sm">
+								    SELECT ... AS Table_Name, ... AS Table_Label FROM ... IN (?)
+								  </div>
+								</div>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#tableLabelAboutParameter" aria-expanded="false" aria-controls="collapseExample">About parameter(s)</a>
+								<div class="collapse" id="tableLabelAboutParameter">
+								  <div class="well well-sm">
+								    (?) stand for table(s) selected in 'Choose table(s)'.
+								  </div>
+								</div>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#tableLabelEG" aria-expanded="false" aria-controls="collapseExample">e.g.</a>
+								<div class="collapse" id="tableLabelEG">
+								  <div class="well well-sm">
+								    <strong>SELECT</strong> systable.tableid <strong>AS Table_Name,</strong> singular <strong>AS Table_Label FROM</strong> systable join sdc on sdc.tableid = systable.tableid where systable.tableid <strong>IN (?)</strong>
+										<br><br><span class="glyphicon glyphicon-alert" aria-hidden="true"> Everything in <strong>bold</strong> is <strong>mandatory</strong>.</span>
+								  </div>
+								</div>
+								<button type="button" id="tableLabelQuery" class="btn btn-default btn-xs" data-toggle="tooltip" title="Run query."><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+		            <textarea class="form-control" id="tableLabel" rows="4"></textarea>
 		          </div>
 							<div class="form-group">
 		            <label for="tableDescription" class="col-form-label">Table Description</label>
-		            <textarea class="form-control" id="tableDescription"></textarea>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#tableDescriptionSyntax" aria-expanded="false" aria-controls="collapseExample">SQL syntax</a>
+								<div class="collapse" id="tableDescriptionSyntax">
+								  <div class="well well-sm">
+								    SELECT ... AS Table_Name, ... AS Table_Description FROM ... IN (?)
+								  </div>
+								</div>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#tableDescriptionAboutParameter" aria-expanded="false" aria-controls="collapseExample">About parameter(s)</a>
+								<div class="collapse" id="tableDescriptionAboutParameter">
+								  <div class="well well-sm">
+								    (?) stand for table(s) selected in 'Choose table(s)'.
+								  </div>
+								</div>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#tableDescriptionEG" aria-expanded="false" aria-controls="collapseExample">e.g.</a>
+								<div class="collapse" id="tableDescriptionEG">
+								  <div class="well well-sm">
+								    <strong>SELECT</strong> systable.tableid <strong>AS Table_Name,</strong> tabledoc <strong>AS Table_Description FROM</strong> systable join sdc on sdc.tableid = systable.tableid where systable.tableid <strong>IN (?)</strong>
+										<br><br><span class="glyphicon glyphicon-alert" aria-hidden="true"> Everything in <strong>bold</strong> is <strong>mandatory</strong>.</span>
+								  </div>
+								</div>
+								<button type="button" id="tableDescriptionQuery" class="btn btn-default btn-xs" data-toggle="tooltip" title="Run query."><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+		            <textarea class="form-control" id="tableDescription" rows="4"></textarea>
 		          </div>
 							<div class="form-group">
 		            <label for="columnLabel" class="col-form-label">Column Label</label>
-		            <textarea class="form-control" id="columnLabel"></textarea>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#columnLabelSyntax" aria-expanded="false" aria-controls="collapseExample">SQL syntax</a>
+								<div class="collapse" id="columnLabelSyntax">
+								  <div class="well well-sm">
+								    SELECT ... AS Table_Name, ... AS Column_Name, ... AS Column_Label FROM ... = ? ... IN (?)
+								  </div>
+								</div>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#columnLabelAboutParameter" aria-expanded="false" aria-controls="collapseExample">About parameter(s)</a>
+								<div class="collapse" id="columnLabelAboutParameter">
+								  <div class="well well-sm">
+										? stand for each table selected in 'Choose table(s)'.<br>
+								    (?) stand for all columns from each table(s) selected in 'Choose table(s)'.
+								  </div>
+								</div>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#columnLabelEG" aria-expanded="false" aria-controls="collapseExample">e.g.</a>
+								<div class="collapse" id="columnLabelEG">
+								  <div class="well well-sm">
+										<strong>SELECT</strong> tableid <strong>AS Table_Name,</strong> columnid <strong>AS Column_Name,</strong> columnlabel <strong>AS Column_Label FROM</strong> syscolumn where tableid <strong>= ?</strong> and columnid <strong>IN (?)</strong>
+										<br><br><span class="glyphicon glyphicon-alert" aria-hidden="true"> Everything in <strong>bold</strong> is <strong>mandatory</strong>.</span>
+								  </div>
+								</div>
+								<button type="button" id="columnLabelQuery" class="btn btn-default btn-xs" data-toggle="tooltip" title="Run query."><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+		            <textarea class="form-control" id="columnLabel" rows="4"></textarea>
 		          </div>
 							<div class="form-group">
 		            <label for="columnDescription" class="col-form-label">Column Description</label>
-		            <textarea class="form-control" id="columnDescription"></textarea>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#columnDescriptionSyntax" aria-expanded="false" aria-controls="collapseExample">SQL syntax</a>
+								<div class="collapse" id="columnDescriptionSyntax">
+								  <div class="well well-sm">
+								    SELECT ... AS Table_Name, ... AS Column_Name, ... AS Column_Description FROM ... = ? ... IN (?)
+								  </div>
+								</div>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#columnDescriptionAboutParameter" aria-expanded="false" aria-controls="collapseExample">About parameter(s)</a>
+								<div class="collapse" id="columnDescriptionAboutParameter">
+								  <div class="well well-sm">
+										? stand for each table selected in 'Choose table(s)'.<br>
+								    (?) stand for all columns from each table(s) selected in 'Choose table(s)'.
+								  </div>
+								</div>
+								<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#columnDescriptionEG" aria-expanded="false" aria-controls="collapseExample">e.g.</a>
+								<div class="collapse" id="columnDescriptionEG">
+								  <div class="well well-sm">
+										<strong>SELECT</strong> tableid <strong>AS Table_Name,</strong> columnid <strong>AS Column_Name,</strong> columndoc <strong>AS Column_Description FROM</strong> syscolumn where tableid <strong>= ?</strong> and columnid <strong>IN (?)</strong>
+										<br><br><span class="glyphicon glyphicon-alert" aria-hidden="true"> Everything in <strong>bold</strong> is <strong>mandatory</strong>.</span>
+								  </div>
+								</div>
+								<button type="button" id="columnDescriptionQuery" class="btn btn-default btn-xs" data-toggle="tooltip" title="Run query."><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+		            <textarea class="form-control" id="columnDescription" rows="4"></textarea>
 		          </div>
         		</form>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-primary" onclick="GetLabels()"><span class="glyphicon glyphicon-ok aria-hidden="true"></button>
-						<button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove aria-hidden="true"></button>
+						<button type="button" onclick="SaveQueries()" class="btn btn-default" data-toggle="tooltip" title="Save queries to server."><span class="glyphicon glyphicon-save-file" aria-hidden="true"></span></button>
+						<button type="button" onclick="GetQueriesList()" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Open queries from server."><span class="glyphicon glyphicon-open-file" aria-hidden="true"></span></button>
+						<button type="button" class="btn btn-primary" onclick="GetLabels()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></button>
+						<button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- queriesList modal -->
+
+		<!-- modelList modal -->
+		<div class="modal fade" id="modQueriesList" tabindex="-1" role="dialog" aria-labelledby="mymodQueriesList">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">Queries(s) available(s) on server</h4>
+					</div>
+					<div class="modal-body">
+
+					</div>
+					<div class="modal-footer">
+						<!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary">Save changes</button> -->
 					</div>
 				</div>
 			</div>

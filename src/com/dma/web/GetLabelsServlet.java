@@ -71,6 +71,8 @@ public class GetLabelsServlet extends HttpServlet {
 			dbEngine = (String) request.getSession().getAttribute("dbEngine");
 			if((dbEngine).equalsIgnoreCase("ORA")){
 				con.createStatement().execute("alter session set current_schema=" + schema);
+				con.createStatement().execute("ALTER SESSION SET NLS_SORT=BINARY_CI");
+				con.createStatement().execute("ALTER SESSION SET NLS_COMP=LINGUISTIC");
 			}
 
 			List<String> tables = (List<String>) parms.get("tables");
@@ -84,9 +86,9 @@ public class GetLabelsServlet extends HttpServlet {
 				
 				String tableInClause = "('" + StringUtils.join(tables.iterator(), "','") + "')";
 				
-				if(dbEngine.equalsIgnoreCase("ORA")){
-					tableInClause = tableInClause.toLowerCase();
-				}
+//				if(dbEngine.equalsIgnoreCase("ORA")){
+//					tableInClause = tableInClause.toLowerCase();
+//				}
 	
 				String tlQuery = (String) parms.get("tlQuery");
 				System.out.println("tlQuery=" + tlQuery);
@@ -130,10 +132,10 @@ public class GetLabelsServlet extends HttpServlet {
 					rst.close();
 
 					String columnInClause = "('" + StringUtils.join(fields.iterator(), "','") + "')";
-					if(dbEngine.equalsIgnoreCase("ORA")){
-						columnInClause = columnInClause.toLowerCase();
-						table = table.toLowerCase();
-					}
+//					if(dbEngine.equalsIgnoreCase("ORA")){
+//						columnInClause = columnInClause.toLowerCase();
+//						table = table.toLowerCase();
+//					}
 					
 					String clQuery = (String) parms.get("clQuery");
 					if(!clQuery.isEmpty() && StringUtils.countMatches(clQuery, "(?)") == 1 && StringUtils.countMatches(clQuery, " ? ") == 1){

@@ -1,9 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="css/bootstrap.min.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
 
+  <a class="btn btn-primary" role="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+  Link with href
+</a>
+<!-- <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+  Button with data-target
+</button> -->
+<div class="collapse" id="collapseExample">
+  <div class="well">
+    ...
+  </div>
+</div>
+
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
   <script>
 
   var str = "substring([FINAL].[PROJECT].[PROJNO_33],4)=substring([DEPARTMENT_ZZ].[DEPTNO],5) AND [FINAL].[PROJECT].[PROJNAME] like [DEPARTMENT].[DEPTNAME] AND [FINAL].[PROJECT].[DEPTNO] = [DEPARTMENT].[MGRNO] AND [FINAL].[PROJECT].[RESPEMP] = [DEPARTMENT].[ADMRDEPT]";
