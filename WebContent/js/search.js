@@ -173,6 +173,10 @@ function CheckIfTableSelected(){
 
 function BuildTestQuery(query, type, tables){
 
+  if(tables.length > 20){
+    tables = tables.slice(0, 20);
+  }
+
   var parms = {query: query, type: type, tables: tables};
 
   console.log(parms);
