@@ -183,12 +183,18 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			try{
 				
 		        //start();
+				String cognosDataSource = (String) request.getSession().getAttribute("cognosDataSource");
+				String cognosSchema = (String) request.getSession().getAttribute("cognosSchema");
+				String cognosDefaultLocale = (String) request.getSession().getAttribute("cognosDefaultLocale");
+				String cognosLocales = (String) request.getSession().getAttribute("cognosLocales");
+				System.out.println("cognosLocales=" + cognosLocales);
+
 				csvc = new CognosSVC();
 				fsvc = new FactorySVC(csvc);
 				csvc.logon();
 				String modelName = projectName;
 				csvc.openModel(modelName);
-				fsvc.setLocale();
+				fsvc.setLocale(cognosDefaultLocale);
 				
 				//IICInitNameSpace();
 				fsvc.createNamespace("PHYSICAL", "Model");
@@ -202,7 +208,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				fsvc.createNamespace("DATA", "AUTOGENERATION");
 				
 				//Import();
-				fsvc.DBImport("PHYSICAL", "DEV", "DANONE");
+				fsvc.DBImport("PHYSICAL", cognosDataSource, cognosSchema);
 				
 				gRefMap = new HashMap<String, Integer>();
 				
@@ -629,7 +635,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					namespace = (Element) document.selectSingleNode(spath + "/namespace[" + k + "]/name");
 					}
 					spath = spath + "/namespace[" + k + "]";
-					fsvc.recursiveParserQS(document, spath, "en", labelMap);
+					fsvc.recursiveParserQS(document, spath, cognosLocales, labelMap);
 	
 					try {
 		
@@ -659,9 +665,9 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				fsvc = new FactorySVC(csvc);
 				csvc.logon();
 				csvc.openModel(modelName);
-				fsvc.setLocale();
+				fsvc.setLocale(cognosDefaultLocale);
 				
-				String[] locales = {"en"};
+				String[] locales = {cognosLocales};
 				fsvc.changePropertyFixIDDefaultLocale();
 				fsvc.createPackage(modelName, modelName, modelName, locales);
 //				fsvc.publishPackage(modelName,"/content");

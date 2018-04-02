@@ -52,6 +52,10 @@ public class SessionListener implements HttpSessionListener {
     	try {
     		
     		String cognosModelsPath = (String) ic.lookup("CognosModelsPath"); 
+    		String cognosDataSource = (String) ic.lookup("CognosDataSource"); 
+    		String cognosSchema = (String) ic.lookup("CognosSchema"); 
+    		String cognosDefaultLocale = (String) ic.lookup("CognosDefaultLocale"); 
+    		String cognosLocales = (String) ic.lookup("CognosLocales"); 
     		
     		String dbEngine = (String) ic.lookup("DBEngine");
     		if(dbEngine.equalsIgnoreCase("DB2400")){
@@ -94,6 +98,10 @@ public class SessionListener implements HttpSessionListener {
 			s.setAttribute("query", query);
 			s.setAttribute("query_subjects", query_subjects);
 			s.setAttribute("cognosModelsPath", cognosModelsPath);
+			s.setAttribute("cognosDataSource", cognosDataSource);
+			s.setAttribute("cognosSchema", cognosSchema);
+			s.setAttribute("cognosDefaultLocale", cognosDefaultLocale);
+			s.setAttribute("cognosLocales", cognosLocales);
 			System.out.println("SessionId " + s.getId() + " is now connected to " + jndiName + " using shema " + schema);
 			
 			withRecCount = (Boolean) ic.lookup("WithRecCount");

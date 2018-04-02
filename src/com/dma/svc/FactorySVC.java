@@ -71,7 +71,7 @@ public class FactorySVC {
 
 	}
 
-	public void setLocale() {
+	public void setLocale(String cognosDefaultLocale) {
 		try {
 			File xmlFile = new File(ConfigProperties.PathToXML + "/setLocale.xml");
 
@@ -82,10 +82,10 @@ public class FactorySVC {
 			Node n1 = document.selectSingleNode("//action[@type='SetActiveLocale']/inputparams/param/value");
 			Node n2 = document.selectSingleNode("//action[@type='SetDefaultLocale']/inputparams/param/value");
 
-			n1.setText(ConfigProperties.ActiveLocale);
-			n2.setText(ConfigProperties.DefaultLocale);
+			n1.setText(cognosDefaultLocale);
+			n2.setText(cognosDefaultLocale);
 			
-			System.out.println("setLocale " + "ActiveLocale=" + ConfigProperties.ActiveLocale + " DefaultLocale=" + ConfigProperties.DefaultLocale);
+			System.out.println("setLocale " + "ActiveLocale=" + cognosDefaultLocale + " DefaultLocale=" + cognosDefaultLocale);
 			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
