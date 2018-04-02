@@ -567,7 +567,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					}
 				}
 				
-				fsvc.addLocale("en");
+				fsvc.addLocale(cognosLocales);
 	
 		/*
 				for(Entry<String, String> map: labelMap.entrySet()){
