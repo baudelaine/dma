@@ -71,7 +71,7 @@ qsCols.push({field:"index", title: "index", formatter: "indexFormatter", sortabl
 qsCols.push({field:"table_name", title: "table_name", sortable: true});
 qsCols.push({field:"table_alias", title: "table_alias", editable: false, sortable: true});
 qsCols.push({field:"type", title: "type", sortable: true});
-qsCols.push({field:"visible", title: "visible", formatter: "boolFormatter", align: "center", sortable: false});
+// qsCols.push({field:"visible", title: "visible", formatter: "boolFormatter", align: "center", sortable: false});
 qsCols.push({field:"filter", title: "filter", editable: {type: "textarea"}, sortable: true});
 qsCols.push({field:"label", title: "label", editable: {type: "textarea"}, sortable: true});
 qsCols.push({field:"description", title: "Description", sortable: false, editable: {type: "textarea", rows: 4}});
@@ -108,12 +108,12 @@ fieldCols.push({field:"index", title: "index", formatter: "indexFormatter", sort
 fieldCols.push({field:"field_name", title: "field_name", sortable: true });
 fieldCols.push({field:"label", title: "label", editable: {type: "text"}, sortable: true});
 fieldCols.push({field:"description", title: "Description", sortable: false, editable: {type: "textarea", rows: 4}});
-fieldCols.push({field:"traduction", title: "traduction", formatter: "boolFormatter", align: "center", sortable: false});
+// fieldCols.push({field:"traduction", title: "traduction", formatter: "boolFormatter", align: "center", sortable: false});
 fieldCols.push({field:"hidden", title: "Hidden", formatter: "boolFormatter", align: "center", sortable: false});
 // fieldCols.push({field:"field_type", title: "field_type", editable: false, sortable: true});
 // fieldCols.push({field:"field_size", title: "field_size", editable: false, sortable: true});
 // fieldCols.push({field:"nullable", title: "nullable", editable: false, sortable: true});
-fieldCols.push({field:"timezone", title: "timezone", formatter: "boolFormatter", align: "center", sortable: false});
+// fieldCols.push({field:"timezone", title: "timezone", formatter: "boolFormatter", align: "center", sortable: false});
 fieldCols.push({field:"icon", title: "Icon", editable:{
   type: "select",
   value: "Attribute",
@@ -1034,7 +1034,7 @@ $("#removeKeysModal").on('hidden.bs.modal', function (e) {
 
 function PrepareRemoveKeys(o, qs){
 
-        RemoveFilter();
+        // RemoveFilter();
         var indexes2rm = [];
         var row = o;
         var ids2rm = {};
@@ -1083,7 +1083,7 @@ function PrepareRemoveKeys(o, qs){
         qs2rm.qsList = indexes2rm;
         qs2rm.ids2rm = ids2rm;
 
-        ApplyFilter();
+        // ApplyFilter();
 }
 
 function RemoveKeys(row, qs){
@@ -1273,6 +1273,11 @@ function buildTable($el, cols, data) {
 }
 
 function updateCell($table, index, field, newValue){
+
+  console.log($table);
+  console.log(index);
+  console.log(field);
+  console.log(newValue);
 
   $table.bootstrapTable("updateCell", {
     index: index,
