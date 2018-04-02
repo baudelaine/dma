@@ -70,6 +70,10 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 	List<RelationShip> rsList;
 	Map<String, QuerySubject> query_subjects;
 	Map<String, String> labelMap;
+	Map<String, String> toolTipMap;
+	Map<String, String> filterMap;
+	Map<String, String> filterMapApply;
+	List<QuerySubject> qsList = null;
 	CognosSVC csvc;
 	FactorySVC fsvc;
 
@@ -95,7 +99,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 		
 		ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        List<QuerySubject> qsList = Arrays.asList(mapper.readValue(data, QuerySubject[].class));
+        qsList = Arrays.asList(mapper.readValue(data, QuerySubject[].class));
         
         query_subjects = new HashMap<String, QuerySubject>();
         Map<String, Integer> recurseCount = new HashMap<String, Integer>();
@@ -192,6 +196,9 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				fsvc.createNamespace("AUTOGENERATION", "Model");
 				fsvc.createNamespace("FINAL", "AUTOGENERATION");
 				fsvc.createNamespace("REF", "AUTOGENERATION");
+				fsvc.createNamespace("SEC", "AUTOGENERATION");
+				fsvc.createNamespace("FILTER_FINAL", "AUTOGENERATION");
+				fsvc.createNamespace("FILTER_REF", "AUTOGENERATION");
 				fsvc.createNamespace("DATA", "AUTOGENERATION");
 				
 				//Import();
@@ -200,8 +207,11 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				gRefMap = new HashMap<String, Integer>();
 				
 				rsList = new ArrayList<RelationShip>();
-	
+
 				labelMap = new HashMap<String, String>();
+				toolTipMap = new HashMap<String, String>();
+				filterMap = new HashMap<String, String>();
+				filterMapApply = new HashMap<String, String>();
 				
 				for(Entry<String, QuerySubject> query_subject: query_subjects.entrySet()){
 					
@@ -211,8 +221,18 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 						fsvc.renameQuerySubject("[PHYSICALUSED].[" + query_subject.getValue().getTable_name() + "]", "FINAL_" + query_subject.getValue().getTable_alias());
 						
 						fsvc.createQuerySubject("PHYSICALUSED", "FINAL", "FINAL_" + query_subject.getValue().getTable_alias(), query_subject.getValue().getTable_alias());
-						
-						fsvc.createQuerySubject("FINAL", "DATA", query_subject.getValue().getTable_alias() , query_subject.getValue().getTable_alias());
+						//ajout filter
+						if (!query_subject.getValue().getFilter().equals(""))
+						{
+							fsvc.createQuerySubject("FINAL", "FILTER_FINAL", query_subject.getValue().getTable_alias() , query_subject.getValue().getTable_alias());
+							filterMap.put(query_subject.getValue().getTable_alias(), query_subject.getValue().getFilter());
+							filterMapApply.put(query_subject.getValue().getTable_alias(), "[FILTER_FINAL].[" + query_subject.getValue().getTable_alias() + "]");
+							
+							fsvc.createQuerySubject("FILTER_FINAL", "DATA", query_subject.getValue().getTable_alias() , query_subject.getValue().getTable_alias());
+						} else {
+							fsvc.createQuerySubject("FINAL", "DATA", query_subject.getValue().getTable_alias() , query_subject.getValue().getTable_alias());
+						}
+						//end filter
 						//tooltip
 						String desc = "";
 						if(query_subject.getValue().getDescription() != null) {desc = ": " + query_subject.getValue().getDescription();}
@@ -221,14 +241,24 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 						
 						for(Relation rel: query_subject.getValue().getRelations()){
 							if(rel.isFin()){
-						
+								
 								RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[FINAL].[" + rel.getPktable_alias() + "]");
 								// changer en qs + refobj
 								RS.setExpression(rel.getRelationship());
-								RS.setCard_left_min("one");
+								if (rel.isRightJoin())
+								{
+									RS.setCard_left_min("zero");
+								} else {
+									RS.setCard_left_min("one");
+								}
 								RS.setCard_left_max("many");
 			
-								RS.setCard_right_min("one");
+								if (rel.isLeftJoin())
+								{
+									RS.setCard_right_min("zero");
+								} else {
+									RS.setCard_right_min("one");
+								}
 								RS.setCard_right_max("one");
 								RS.setParentNamespace("FINAL");
 								rsList.add(RS);					
@@ -248,19 +278,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 								fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
 								fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
 								fsvc.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
-			
-								RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
-								// changer en qs + refobj
-								String exp = rel.getRelationship();
-								String fixedExp = StringUtils.replace(exp, "[REF].[" + rel.getPktable_alias() + "]", "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
-								RS.setExpression(fixedExp);
-								RS.setCard_left_min("one");
-								RS.setCard_left_max("many");
-			
-								RS.setCard_right_min("one");
-								RS.setCard_right_max("one");
-								RS.setParentNamespace("AUTOGENERATION");
-								rsList.add(RS);
+								
 								
 								String gFieldName = "";
 								String gDirName = "";
@@ -268,8 +286,6 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 								
 								//seq
 								if(rel.getKey_type().equalsIgnoreCase("P") || rel.isNommageRep()){
-	//								gFieldName = rel.getPktable_alias();
-	//								gDirName = "." + rel.getPktable_alias();
 									gFieldName = pkAlias;
 									gDirName = "." + pkAlias;
 									// add labels to map
@@ -283,20 +299,131 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 									gFieldName = rel.getSeqs().get(0).getColumn_name();
 									gDirName = "." + rel.getSeqs().get(0).getColumn_name();
 								}
+							
+								//filtre
+								String filterNameSpaceSource = "[REF]";
+								//String filterReset = "";
+								if (!query_subjects.get(pkAlias + "Ref").getFilter().equals(""))
+								{
+									//traitement language filter DDtool -> Separé par ; = diffrentes clauses pour ce QSRef
+									//séparé par :  Partie 0 du tableau = emplacement QS, Partie 1 = clause filtre
+									// Remplacer % par chemin partiel startwith, contains, 
+									// remplacer * par le chemin en cours dans l'emplacement et dans la clause.
+									
+									fsvc.createQuerySubject("REF", "FILTER_REF", pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
+									
+									String filterArea = query_subjects.get(pkAlias + "Ref").getFilter();
+									String allClauses[] = StringUtils.split(filterArea, ";");
+									
+									Boolean exit = false;
+									for (int x=0; x < 3 && !exit; x++) {
+										for (int y=0; y < allClauses.length && !exit; y++) {
+											if(allClauses[y].contains(":")) {
+												String pathFilter[] = StringUtils.split(allClauses[y], ":");
+												String pathRefQs = pathFilter[0].trim();
+												String filterRefQs = pathFilter[1];
+												//replace *-j dans lexpression du filtre
+												String actualPath = query_subject.getValue().getTable_alias() + gDirName;
+												String actualPathTable[] = StringUtils.split(actualPath, ".");
+												if(filterRefQs.contains("*-")){
+													Boolean rok = false;
+													for (int z=1; z<100 && !rok;z++){
+														if(filterRefQs.contains("*-" + String.valueOf(z))) {
+															String pathReplace = "";
+															for (int k=0;k < actualPathTable.length - z; k++) {
+																pathReplace = pathReplace + actualPathTable[k];
+																if (k != actualPathTable.length - z - 1) {
+																	pathReplace = pathReplace + ".";
+																}
+															}
+															if(!filterRefQs.contains("*-")){
+																rok = true;
+															}
+															filterRefQs = StringUtils.replace(filterRefQs, "*-" + String.valueOf(z), pathReplace);
+														}
+													}
+												}
+												//replace * dans l'expression du filtre
+												filterRefQs = StringUtils.replace(filterRefQs, "*", query_subject.getValue().getTable_alias() + gDirName);										
+												if (pathRefQs.equals("[" + query_subject.getValue().getTable_alias() + gDirName + "]")) {
+													
+													filterMap.put(query_subject.getValue().getTable_alias() + gDirName, filterRefQs);
+													//set path and pkalias + i correspondancies
+													filterMapApply.put(query_subject.getValue().getTable_alias() + gDirName, "[FILTER_REF].[" + pkAlias + String.valueOf(i) + "]");
+													exit=true;
+												}
+											}
+										}
+										//remmplacement %
+										if(!exit && x == 0) {
+											String actualPath = query_subject.getValue().getTable_alias() + gDirName;
+											for (int y=0; y < allClauses.length; y++) {
+												if(allClauses[y].contains(":")) {
+													String pathFilter[] = StringUtils.split(allClauses[y], ":");
+													String pathRefQs = pathFilter[0].trim();
+													String containPaths[] = StringUtils.split(pathRefQs, "%");
+													if (containPaths.length == 2) {
+														if (actualPath.startsWith(containPaths[0].substring(1))) {
+															filterArea = StringUtils.replace(filterArea, pathRefQs,"[" + actualPath + "]");															
+														}
+													} else if (containPaths.length == 3) {
+														if (actualPath.contains(containPaths[1])) {
+															filterArea = StringUtils.replace(filterArea, pathRefQs, "[" + actualPath + "]");
+														}
+													}
+												}
+											}
+											allClauses = StringUtils.split(filterArea, ";");
+										}
+										//remplacement *
+										if(!exit && x == 1) {
+											filterArea = StringUtils.replace(filterArea, "*-", "ù");
+											filterArea = StringUtils.replace(filterArea, "*", query_subject.getValue().getTable_alias() + gDirName);
+											filterArea = StringUtils.replace(filterArea, "ù", "*-");
+											allClauses = StringUtils.split(filterArea, ";");
+										}
+									}
+									filterNameSpaceSource = "[FILTER_REF]";
+								}
+								//end filtre
+								
+								RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
+								// changer en qs + refobj
+								String exp = rel.getRelationship();
+								String fixedExp = StringUtils.replace(exp, "[REF].[" + rel.getPktable_alias() + "]", "[REF].[" + rel.getPktable_alias()  + String.valueOf(i) + "]");
+								RS.setExpression(fixedExp);
+								if (rel.isRightJoin())
+								{
+									RS.setCard_left_min("zero");
+								} else {
+									RS.setCard_left_min("one");
+								}
+								RS.setCard_left_max("many");
+								
+								if (rel.isLeftJoin())
+								{
+									RS.setCard_right_min("zero");
+								} else {
+									RS.setCard_right_min("one");
+								}
+								RS.setCard_right_max("one");
+								RS.setParentNamespace("AUTOGENERATION");
+								rsList.add(RS);
+								
 								String gFieldNameReorder = rel.getSeqs().get(0).getColumn_name();
 								fsvc.createSubFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName);
 								//tooltip
 								desc = "";
 								if(query_subjects.get(pkAlias + "Ref").getDescription() != null) {desc = ": " + query_subjects.get(pkAlias + "Ref").getDescription();}
 								fsvc.createScreenTip("queryItemFolder", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
-	
+
 								if(rel.getKey_type().equalsIgnoreCase("F")){
 									fsvc.ReorderSubFolderBefore("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gDirName + "]", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldNameReorder + "]");
 								}
 								
 								for(Field field: query_subjects.get(pkAlias + "Ref").getFields()){
 									
-									fsvc.createQueryItemInFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
+									fsvc.createQueryItemInFolder("[DATA].[" + query_subject.getValue().getTable_alias() + "]", gDirName, gFieldName + "." + field.getField_name(), filterNameSpaceSource + ".["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
 									//add label
 									if(field.getLabel() == null || field.getLabel().equals(""))
 									{label = field.getField_name();} else {label = field.getLabel();
@@ -313,7 +440,10 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 									if (!field.getDisplayType().toLowerCase().equals("value"))
 									{
 										fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
-										
+									}
+									if (field.isHidden())
+									{
+										fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + gFieldName + "." + field.getField_name() + "]", "hidden", "true");
 									}
 									//end change
 								}
@@ -324,9 +454,71 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 						        }
 								
 								f1(pkAlias, pkAlias + i, gDirName, "[DATA].[" + query_subject.getValue().getTable_alias() + "]", query_subject.getValue().getTable_alias(), recurseCount);
+
+								//Modify Filters
+								String QSPath = query_subject.getValue().getTable_alias() + gDirName;
+								for(Entry<String, String> map: filterMap.entrySet()){
+									String EntirePath = map.getKey();
+									String filterReplace = map.getValue();
+									if (filterReplace.contains("[REF]") && (QSPath.startsWith(EntirePath) || EntirePath.startsWith(QSPath))) {
+										filterReplace = StringUtils.replace(filterReplace, "[REF].[" + pkAlias + "]", "[REF].[" + pkAlias + String.valueOf(i) + "]");
+										filterMap.put(map.getKey(), filterReplace);
+									}
+								}
+								//end Modify
+								
 							}
-	
-						}
+								
+							//debut sec
+							if(rel.isSec()) {
+								String pkAlias = rel.getPktable_alias();
+								
+								fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
+								fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","SEC_" + query_subject.getValue().getTable_alias() + ".SEC." + pkAlias);
+								fsvc.createQuerySubject("PHYSICALUSED", "SEC","SEC_" + query_subject.getValue().getTable_alias() + ".SEC." + pkAlias, query_subject.getValue().getTable_alias() + ".SEC." + pkAlias);
+
+								RelationShip RS = new RelationShip("[FINAL].[" + query_subject.getValue().getTable_alias() + "]" , "[SEC].[" + query_subject.getValue().getTable_alias() + ".SEC." + pkAlias + "]");
+								// changer en qs + refobj
+								String exp = rel.getRelationship();
+								String fixedExp = StringUtils.replace(exp, "[SEC].[" + rel.getPktable_alias() + "]", "[SEC].[" + query_subject.getValue().getTable_alias() + ".SEC." + pkAlias + "]");
+								RS.setExpression(fixedExp);
+								if (rel.isRightJoin())
+								{
+									RS.setCard_left_min("zero");
+								} else {
+									RS.setCard_left_min("one");
+								}
+								RS.setCard_left_max("many");
+								
+								if (rel.isLeftJoin())
+								{
+									RS.setCard_right_min("zero");
+								} else {
+									RS.setCard_right_min("one");
+								}
+								RS.setCard_right_max("one");
+								RS.setParentNamespace("AUTOGENERATION");
+								rsList.add(RS);
+								
+								String gDirName = "";
+								
+								//seq
+								if(rel.getKey_type().equalsIgnoreCase("P") || rel.isNommageRep()){
+									gDirName = "." + pkAlias;
+								}
+								else{
+									gDirName = "." + rel.getSeqs().get(0).getColumn_name();
+								}
+								
+								for(QuerySubject qs: qsList){
+						        	recurseCount.put(qs.getTable_alias(), 0);
+						        }
+								
+								f2(pkAlias, query_subject.getValue().getTable_alias() + ".SEC." + pkAlias, ".SEC" + gDirName, query_subject.getValue().getTable_alias(), recurseCount);
+								
+							}
+							//fin sec
+						}				
 						//add label map qs
 						labelMap.put(query_subject.getValue().getTable_alias(), query_subject.getValue().getLabel());
 						
@@ -344,15 +536,29 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 						{
 							fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
 						}
+						if (field.isHidden())
+						{
+							fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "hidden", "true");
+							
+						}
 						//end change
 						}
-						// end label		
+						// end label
 					}
 					
 				}
 				//IICCreateRelation(rsList);
 				for(RelationShip rs: rsList){
 					fsvc.createRelationship(rs);
+				}
+				
+				//Filters creation
+				for(Entry<String, String> map: filterMap.entrySet()){
+					
+					String pathRefQS = filterMapApply.get(map.getKey());
+					if (pathRefQS != null) {
+					fsvc.createQuerySubjectFilter(pathRefQS , map.getValue());
+					}
 				}
 				
 				fsvc.addLocale("en");
@@ -458,7 +664,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				String[] locales = {"en"};
 				fsvc.changePropertyFixIDDefaultLocale();
 				fsvc.createPackage(modelName, modelName, modelName, locales);
-				fsvc.publishPackage(modelName,"/content");
+//				fsvc.publishPackage(modelName,"/content");
 				
 				csvc.executeAllActions();
 				
@@ -467,7 +673,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				csvc.logoff();
 				
 				
-				System.out.println("FIN DU MAIN");
+				System.out.println("Model Generation Finished");
 
 				result.put("status", "OK");
 				result.put("message", projectName + " published sucessfully.");
@@ -494,113 +700,336 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
-	
-	protected void f1(String qsAlias, String qsAliasInc, String gDirName, String qsFinal, String qsFinalName, Map<String, Integer> recurseCount){
-			
-			Map<String, Integer> copyRecurseCount = new HashMap<String, Integer>();
-			copyRecurseCount.putAll(recurseCount);
-			
-			QuerySubject query_subject = query_subjects.get(qsAlias + "Ref");
-	
-			int j = copyRecurseCount.get(qsAlias);
-			if(j == query_subject.getRecurseCount()){
-				return;
-			}
-			copyRecurseCount.put(qsAlias, j + 1);
-	
-			for(Relation rel: query_subject.getRelations()){
-				if(rel.isRef()){
-					
-					String pkAlias = rel.getPktable_alias();
-					Integer i = gRefMap.get(pkAlias);
-					
-					if(i == null){
-						gRefMap.put(pkAlias, new Integer(0));
-						i = gRefMap.get(pkAlias);
-					}
-					gRefMap.put(pkAlias, i + 1);
-	
-					fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
-					fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
-					fsvc.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
-					
-					//seq
-					String gFieldName = "";
-					String gDirNameCurrent = "";
-					String label = "";
-					if(rel.getKey_type().equalsIgnoreCase("P") || rel.isNommageRep()){
-						gFieldName = gDirName.substring(1) + "." + pkAlias;
-						gDirNameCurrent = gDirName + "." + pkAlias;
-						if(query_subjects.get(pkAlias + "Ref").getLabel() == null || query_subjects.get(pkAlias + "Ref").getLabel().equals(""))
-						{label = pkAlias;} else {label = query_subjects.get(pkAlias + "Ref").getLabel();
-						}
-						labelMap.put(qsFinalName + gDirNameCurrent, label);
-					}
-					else{
-						gFieldName = gDirName.substring(1) + "." + rel.getSeqs().get(0).getColumn_name();
-						gDirNameCurrent = gDirName + "." + rel.getSeqs().get(0).getColumn_name();
-					}
-					String gFieldNameReorder = gDirName.substring(1) + "." + rel.getSeqs().get(0).getColumn_name();
-					String rep = qsFinal + ".[" + gDirName + "]";
-					
-					fsvc.createSubFolderInSubFolderIIC(rep, gDirNameCurrent);
-					
-					//add tooltip
-					String desc = "";
-					if(query_subjects.get(pkAlias + "Ref").getDescription() != null) {desc = ": " + query_subjects.get(pkAlias + "Ref").getDescription();}
-					fsvc.createScreenTip("queryItemFolder", qsFinal + ".[" + gDirNameCurrent + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
-					//end tooltip
-					
-					if(rel.getKey_type().equalsIgnoreCase("F")){
-						fsvc.ReorderSubFolderBefore(qsFinal + ".[" + gDirNameCurrent + "]", qsFinal + ".[" + gFieldNameReorder + "]");
-					}
-					
-					for(Field field: query_subjects.get(pkAlias + "Ref").getFields()){
-						
-						fsvc.createQueryItemInFolder(qsFinal, gDirNameCurrent, gFieldName + "." + field.getField_name(), "[REF].["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
-						
-						//add label
-						if(field.getLabel() == null || field.getLabel().equals(""))
-						{label = field.getField_name();} else {label = field.getLabel();
-						}
-						labelMap.put(qsFinalName + "." + gFieldName + "." + field.getField_name(), label);
-						// end label
-						// add tooltip
-						desc = "";
-						if(field.getDescription() != null) {desc = ": " + field.getDescription();}
-						fsvc.createScreenTip("queryItem", qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
-						// end tooltip
-						//change property query item
-						fsvc.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
-						if (!field.getDisplayType().toLowerCase().equals("value"))
-						{
-							fsvc.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
-							
-						}
-						//end change
-					}
-					
-					RelationShip RS = new RelationShip("[REF].[" + qsAliasInc + "]" , "[REF].[" + pkAlias + String.valueOf(i) + "]");
-					// changer en qs + refobj
-					String fixedExp = StringUtils.replace(rel.getRelationship(), "[REF].[" + qsAlias + "]", "[REF].[" + qsAliasInc + "]");
-					fixedExp = StringUtils.replace(fixedExp, "[REF].[" + pkAlias + "]", "[REF].[" + pkAlias + String.valueOf(i) + "]");
-					RS.setExpression(fixedExp);
-					RS.setCard_left_min("one");
-					RS.setCard_left_max("many");
-	
-					RS.setCard_right_min("one");
-					RS.setCard_right_max("one");
-					RS.setParentNamespace("REF");
-					rsList.add(RS);
-					
-	
-					f1(pkAlias, pkAlias + String.valueOf(i), gDirNameCurrent, qsFinal, qsFinalName, copyRecurseCount);
-					
-				}
-			}
-			
-			
-			
-		}
 
+	protected void f1(String qsAlias, String qsAliasInc, String gDirName, String qsFinal, String qsFinalName, Map<String, Integer> recurseCount) {
+		
+		Map<String, Integer> copyRecurseCount = new HashMap<String, Integer>();
+		copyRecurseCount.putAll(recurseCount);
+		
+		QuerySubject query_subject = query_subjects.get(qsAlias + "Ref");
+
+		int j = copyRecurseCount.get(qsAlias);
+		if(j == query_subject.getRecurseCount()){
+			return;
+		}
+		copyRecurseCount.put(qsAlias, j + 1);
+
+		for(Relation rel: query_subject.getRelations()){
+			if(rel.isRef()){
+				
+				String pkAlias = rel.getPktable_alias();
+				Integer i = gRefMap.get(pkAlias);
+				
+				if(i == null){
+					gRefMap.put(pkAlias, new Integer(0));
+					i = gRefMap.get(pkAlias);
+				}
+				gRefMap.put(pkAlias, i + 1);
+
+				fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
+				fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","REF_" + pkAlias + String.valueOf(i));
+				fsvc.createQuerySubject("PHYSICALUSED", "REF","REF_" + pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
+				
+				//seq
+				String gFieldName = "";
+				String gDirNameCurrent = "";
+				String label = "";
+				if(rel.getKey_type().equalsIgnoreCase("P") || rel.isNommageRep()){
+					gFieldName = gDirName.substring(1) + "." + pkAlias;
+					gDirNameCurrent = gDirName + "." + pkAlias;
+					if(query_subjects.get(pkAlias + "Ref").getLabel() == null || query_subjects.get(pkAlias + "Ref").getLabel().equals(""))
+					{label = pkAlias;} else {label = query_subjects.get(pkAlias + "Ref").getLabel();
+					}
+					labelMap.put(qsFinalName + gDirNameCurrent, label);
+				}
+				else{
+					gFieldName = gDirName.substring(1) + "." + rel.getSeqs().get(0).getColumn_name();
+					gDirNameCurrent = gDirName + "." + rel.getSeqs().get(0).getColumn_name();
+				}
+				
+				//filtre
+				String filterNameSpaceSource = "[REF]";
+			//	String filterReset = "";
+				if (!query_subjects.get(pkAlias + "Ref").getFilter().equals(""))
+				{
+					//traitement language filter DDtool -> Separé par ; = diffrentes clauses pour ce QSRef
+					//séparé par :  Partie 0 du tableau = emplacement QS, Partie 1 = clause filtre
+					// remplacer * par le chemin en cours dans l'emplacement et dans la clause.
+					
+					fsvc.createQuerySubject("REF", "FILTER_REF", pkAlias + String.valueOf(i), pkAlias + String.valueOf(i));
+					
+					String filterArea = query_subjects.get(pkAlias + "Ref").getFilter();
+					String allClauses[] = StringUtils.split(filterArea, ";");
+					
+					Boolean exit = false;
+					for (int x=0; x < 3 && !exit; x++) {
+						for (int y=0; y < allClauses.length && !exit; y++) {
+							if(allClauses[y].contains(":")) {
+								String pathFilter[] = StringUtils.split(allClauses[y], ":");
+								String pathRefQs = pathFilter[0].trim();
+								String filterRefQs = pathFilter[1];
+								//replace *-j dans lexpression du filtre
+								String actualPath = qsFinalName + gDirNameCurrent;
+								String actualPathTable[] = StringUtils.split(actualPath, ".");
+								if(filterRefQs.contains("*-")){	
+									Boolean rok = false;
+									for (int z=1; z<100 && !rok;z++){
+										if(filterRefQs.contains("*-" + String.valueOf(z))) {
+											String pathReplace = "";
+											for (int k=0;k < actualPathTable.length - z; k++) {
+												pathReplace = pathReplace + actualPathTable[k];
+												if (k != actualPathTable.length - z - 1) {
+													pathReplace = pathReplace + ".";
+												}
+											}
+											if(!filterRefQs.contains("*-")){
+												rok = true;
+											}
+											filterRefQs = StringUtils.replace(filterRefQs, "*-" + String.valueOf(z), pathReplace);
+										}
+									}
+								}
+								//replace * dans l'expression du filtre
+								filterRefQs = StringUtils.replace(filterRefQs, "*", qsFinalName + gDirNameCurrent);										
+								if (pathRefQs.equals("[" + qsFinalName + gDirNameCurrent + "]")) {
+									filterMap.put(qsFinalName + gDirNameCurrent, filterRefQs);
+									//Set filter path dans ref pkalias + i correspondancies
+									filterMapApply.put(qsFinalName + gDirNameCurrent, "[FILTER_REF].[" + pkAlias + String.valueOf(i) + "]");								
+									exit=true;
+								}
+							}
+						}
+						//remmplacement %
+						if(!exit && x == 0) {
+							String actualPath = qsFinalName + gDirNameCurrent;
+							for (int y=0; y < allClauses.length; y++) {
+								if(allClauses[y].contains(":")) {
+									String pathFilter[] = StringUtils.split(allClauses[y], ":");
+									String pathRefQs = pathFilter[0].trim();
+									String containPaths[] = StringUtils.split(pathRefQs, "%");
+									if (containPaths.length == 2) {
+										if (actualPath.startsWith(containPaths[0].substring(1))) {
+											filterArea = StringUtils.replace(filterArea, pathRefQs, "[" + actualPath + "]");
+										}
+									} else if (containPaths.length == 3) {
+										if (actualPath.contains(containPaths[1])) {
+											filterArea = StringUtils.replace(filterArea, pathRefQs, "[" + actualPath + "]");
+										}
+									}
+								}
+							}
+							allClauses = StringUtils.split(filterArea, ";");
+						}
+						//remplacement *
+						if(!exit && x == 1) {
+							filterArea = StringUtils.replace(filterArea, "*-", "ù");
+							filterArea = StringUtils.replace(filterArea, "*", qsFinalName + gDirNameCurrent);
+							filterArea = StringUtils.replace(filterArea, "ù", "*-");
+							allClauses = StringUtils.split(filterArea, ";");
+						}
+					}
+					filterNameSpaceSource = "[FILTER_REF]";
+				}
+				//end filtre
+				
+				String gFieldNameReorder = gDirName.substring(1) + "." + rel.getSeqs().get(0).getColumn_name();
+				String rep = qsFinal + ".[" + gDirName + "]";
+				
+				fsvc.createSubFolderInSubFolderIIC(rep, gDirNameCurrent);
+				
+				//add tooltip
+				String desc = "";
+				if(query_subjects.get(pkAlias + "Ref").getDescription() != null) {desc = ": " + query_subjects.get(pkAlias + "Ref").getDescription();}
+				fsvc.createScreenTip("queryItemFolder", qsFinal + ".[" + gDirNameCurrent + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + desc);
+				//end tooltip
+				
+				if(rel.getKey_type().equalsIgnoreCase("F")){
+					fsvc.ReorderSubFolderBefore(qsFinal + ".[" + gDirNameCurrent + "]", qsFinal + ".[" + gFieldNameReorder + "]");
+				}
+				
+				for(Field field: query_subjects.get(pkAlias + "Ref").getFields()){
+					
+					fsvc.createQueryItemInFolder(qsFinal, gDirNameCurrent, gFieldName + "." + field.getField_name(), filterNameSpaceSource + ".["+ pkAlias + String.valueOf(i) +"].[" + field.getField_name() + "]");
+					
+					//add label
+					if(field.getLabel() == null || field.getLabel().equals(""))
+					{label = field.getField_name();} else {label = field.getLabel();
+					}
+					labelMap.put(qsFinalName + "." + gFieldName + "." + field.getField_name(), label);
+					// end label
+					// add tooltip
+					desc = "";
+					if(field.getDescription() != null) {desc = ": " + field.getDescription();}
+					fsvc.createScreenTip("queryItem", qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", query_subjects.get(pkAlias + "Ref").getTable_name() + "." + field.getField_name() + desc);
+					// end tooltip
+					//change property query item
+					fsvc.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+					if (!field.getDisplayType().toLowerCase().equals("value"))
+					{
+						fsvc.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
+						
+					}
+					if (field.isHidden())
+					{
+						fsvc.changeQueryItemProperty(qsFinal + ".[" + gFieldName + "." + field.getField_name() + "]", "hidden", "true");
+						
+					}
+					//end change
+				}
+				
+				RelationShip RS = new RelationShip("[REF].[" + qsAliasInc + "]" , "[REF].[" + pkAlias + String.valueOf(i) + "]");
+				// changer en qs + refobj
+				String fixedExp = StringUtils.replace(rel.getRelationship(), "[REF].[" + qsAlias + "]", "[REF].[" + qsAliasInc + "]");
+				fixedExp = StringUtils.replace(fixedExp, "[REF].[" + pkAlias + "]", "[REF].[" + pkAlias + String.valueOf(i) + "]");
+				RS.setExpression(fixedExp);
+				if (rel.isRightJoin())
+				{
+					RS.setCard_left_min("zero");
+				} else {
+					RS.setCard_left_min("one");
+				}
+				RS.setCard_left_max("many");
+
+				if (rel.isLeftJoin())
+				{
+					RS.setCard_right_min("zero");
+				} else {
+					RS.setCard_right_min("one");
+				}
+				RS.setCard_right_max("one");
+				RS.setParentNamespace("REF");
+				rsList.add(RS);
+				
+
+				f1(pkAlias, pkAlias + String.valueOf(i), gDirNameCurrent, qsFinal, qsFinalName, copyRecurseCount);
+				
+				//Modify filters
+				String QSPath = qsFinalName + gDirNameCurrent;
+				for(Entry<String, String> map: filterMap.entrySet()){
+					String EntirePath = map.getKey();
+					String filterReplace = map.getValue();
+					if (filterReplace.contains("[REF]") && (QSPath.startsWith(EntirePath) || EntirePath.startsWith(QSPath))) {
+						filterReplace = StringUtils.replace(filterReplace, "[REF].[" + pkAlias + "]", "[REF].[" + pkAlias + String.valueOf(i) + "]");
+						filterMap.put(map.getKey(), filterReplace);
+					}
+				}
+				//end modify
+				
+			}
+			if(rel.isSec()){
+				
+				String pkAlias = rel.getPktable_alias();
+				String qsInitialName = qsFinalName + gDirName + ".SEC";
+				
+				fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
+				fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","SEC_" + qsInitialName + "." + pkAlias);
+				fsvc.createQuerySubject("PHYSICALUSED", "SEC","SEC_" + qsInitialName + "." + pkAlias, qsInitialName + "." + pkAlias);
+
+				RelationShip RS = new RelationShip("[REF].[" + qsAliasInc + "]" , "[SEC].[" + qsInitialName + "." + pkAlias + "]");
+				// changer en qs + refobj
+				String exp = rel.getRelationship();
+				String fixedExp = StringUtils.replace(exp, "[REF].[" + qsAlias + "]", "[REF].[" + qsAliasInc + "]");
+				fixedExp = StringUtils.replace(fixedExp, "[SEC].[" + rel.getPktable_alias() + "]", "[SEC].[" + qsInitialName + "." + pkAlias + "]");
+				RS.setExpression(fixedExp);
+				if (rel.isRightJoin())
+				{
+					RS.setCard_left_min("zero");
+				} else {
+					RS.setCard_left_min("one");
+				}
+				RS.setCard_left_max("many");
+				
+				if (rel.isLeftJoin())
+				{
+					RS.setCard_right_min("zero");
+				} else {
+					RS.setCard_right_min("one");
+				}
+				RS.setCard_right_max("one");
+				RS.setParentNamespace("AUTOGENERATION");
+				rsList.add(RS);
+				
+				String gDirNameSec = "";
+				
+				//seq
+				if(rel.getKey_type().equalsIgnoreCase("P") || rel.isNommageRep()){
+					gDirNameSec = "." + pkAlias;
+				}
+				else{
+					gDirNameSec = "." + rel.getSeqs().get(0).getColumn_name();
+				}
+				
+				Map<String, Integer> recurseCountSec = null;
+				recurseCountSec = new HashMap<String, Integer>();
+				for(QuerySubject qs: qsList){
+		        	recurseCountSec.put(qs.getTable_alias(), 0);
+		        }
+				
+				f2(pkAlias, qsInitialName + "." + pkAlias, gDirNameSec, qsInitialName, recurseCountSec);
+				
+			}
+		}
+	}
+
+	protected void f2(String qsAlias, String qsAliasInc, String gDirName, String qsInitialName, Map<String, Integer> recurseCount){
+		
+		Map<String, Integer> copyRecurseCount = new HashMap<String, Integer>();
+		copyRecurseCount.putAll(recurseCount);
+		
+		QuerySubject query_subject = query_subjects.get(qsAlias + "Sec");
+
+		int j = copyRecurseCount.get(qsAlias);
+		if(j == query_subject.getRecurseCount()){
+			return;
+		}
+		copyRecurseCount.put(qsAlias, j + 1);
+
+		for(Relation rel: query_subject.getRelations()){
+			if(rel.isSec()){
+				
+				String pkAlias = rel.getPktable_alias();
+				
+				//seq
+				String gDirNameCurrent = "";
+				if(rel.getKey_type().equalsIgnoreCase("P") || rel.isNommageRep()){
+					gDirNameCurrent = gDirName + "." + pkAlias;
+							
+				}
+				else{
+					gDirNameCurrent = gDirName + "." + rel.getSeqs().get(0).getColumn_name();
+				}
+				
+				fsvc.copyQuerySubject("[PHYSICALUSED]", "[PHYSICAL].[" + rel.getPktable_name() + "]");	
+				fsvc.renameQuerySubject("[PHYSICALUSED].[" + rel.getPktable_name() + "]","SEC_" + qsInitialName + gDirNameCurrent);
+				fsvc.createQuerySubject("PHYSICALUSED", "SEC","SEC_" + qsInitialName + gDirNameCurrent, qsInitialName + gDirNameCurrent);
+
+				
+				RelationShip RS = new RelationShip("[SEC].[" + qsAliasInc + "]" , "[SEC].[" + qsInitialName + gDirNameCurrent + "]");
+				// changer en qs + refobj
+				String fixedExp = StringUtils.replace(rel.getRelationship(), "[SEC].[" + qsAlias + "]", "[SEC].[" + qsAliasInc + "]");
+				fixedExp = StringUtils.replace(fixedExp, "[SEC].[" + pkAlias + "]", "[SEC].[" + qsInitialName + gDirNameCurrent + "]");
+				RS.setExpression(fixedExp);
+				if (rel.isRightJoin())
+				{
+					RS.setCard_left_min("zero");
+				} else {
+					RS.setCard_left_min("one");
+				}
+				RS.setCard_left_max("many");
+
+				if (rel.isLeftJoin())
+				{
+					RS.setCard_right_min("zero");
+				} else {
+					RS.setCard_right_min("one");
+				}
+				RS.setCard_right_max("one");
+				RS.setParentNamespace("SEC");
+				rsList.add(RS);
+				
+				f2(pkAlias, qsInitialName + gDirNameCurrent, gDirNameCurrent, qsInitialName, copyRecurseCount);
+				
+			}
+		}
+	}
 }

@@ -365,6 +365,40 @@ public class FactorySVC {
 			lg(ex.getMessage());
 		}
 	}
+	
+	public void createQuerySubjectFilter(String qsPath, String Exp) {
+		try {
+			File xmlFile = new File(ConfigProperties.PathToXML + "/createQuerySubjectFilter.xml");
+			SAXReader reader = new SAXReader();
+			Document document = reader.read(xmlFile);
+			
+			//String qsPath = "[DATA].[S_SAMPLETYPE]";
+			//String Exp = "<refobj>[FINAL].[S_SAMPLE].[SAMPLETYPEID]</refobj> = 'Production Sample'";
+			String handle2 = "/O/definition[0]/modelQuery[0]/filters[0]/filterDefinition[0]/expression[0]/O/" + qsPath;
+			String handle3 = "/O/definition[0]/modelQuery[0]/filters[0]/filterDefinition[0]/@apply/O/" + qsPath;
+			String handle4 = "/O/definition[0]/modelQuery[0]/filters[0]/filterDefinition[0]/@application/O/" + qsPath;
+			
+			Element elemQsPath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"1\"]/inputparams/param[1]/value");
+			Element elemHandle2 = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"2\"]/inputparams/param[1]/value");
+			Element elemExp = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"2\"]/inputparams/param[2]/value");
+			Element elemHandle3 = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"3\"]/inputparams/param[1]/value");
+			Element elemHandle4 = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"4\"]/inputparams/param[1]/value");
+			
+			elemQsPath.setText(qsPath);
+			elemHandle2.setText(handle2);
+			elemExp.setText(Exp);
+			elemHandle3.setText(handle3);
+			elemHandle4.setText(handle4);
+			
+//			System.out.println(document.asXML());
+			System.out.println("createQuerySubjectFilter(" + qsPath + ", " + Exp + ")");
+			csvc.executeModel(document);
+
+		} catch (DocumentException ex) {
+			lg(ex.getMessage());
+		}
+	}
+
 
 	public void createQueryItem(String QuerySubject, String Name, String Exp) {
 		try {
@@ -421,7 +455,7 @@ public class FactorySVC {
 			xp.setText(Exp);
 
 			// System.out.println(document.asXML());
-			System.out.println("createQueryItemInFolder(" + QS + ", " + Folder + ", " + Exp + ")");
+//			System.out.println("createQueryItemInFolder(" + QS + ", " + Folder + ", " + Exp + ")");
 			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
@@ -436,7 +470,7 @@ public class FactorySVC {
 			// queryItem/hidden (false, true)
 			// queryItem/usage (attribute, identifier, fact)
 			// queryItem/displayType (value, picture, link)
-//			String handleMappingpath = "queryItem/usage";
+//			String handleMappingpath = "queryItem/hidden";
 //			String handleValue = "/O/hidden[0]/O/[DATA].[S_SAMPLE].[S_SAMPLEID]";
 //			String value = "true";
 
@@ -452,8 +486,8 @@ public class FactorySVC {
 			elemHandleValue.setText(handleValue);
 			elemValue.setText(value);
 
-		//	 System.out.println(document.asXML());
-			System.out.println("changeQueryitemProperty(" + queryItemPath + ", " + property + ", " + value + ")");
+//			 System.out.println(document.asXML());
+//			System.out.println("changeQueryitemProperty(" + queryItemPath + ", " + property + ", " + value + ")");
 			csvc.executeModel(document);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
@@ -697,7 +731,7 @@ public class FactorySVC {
 			elemObjectToolTip.setText(objectToolTip);
 			
 //			System.out.println(document.asXML());
-			System.out.println("createScreenTip(" + objectType + ", " + objectPath + ", " + objectToolTip + ")");
+//			System.out.println("createScreenTip(" + objectType + ", " + objectPath + ", " + objectToolTip + ")");
 			csvc.executeModel(document);
 			} catch (DocumentException ex) {
 				lg(ex.getMessage());
