@@ -183,9 +183,12 @@ public class GetLabelsServlet extends HttpServlet {
 				
 				Map<String, Object> result = null;
 				for(String table: tables){
-					result = (Map<String, Object>) dbmd.get(table);
-					if(result == null){
+					
+					if(dbmd == null){
 						result = new HashMap<String, Object>();
+					}
+					else{
+						result = (Map<String, Object>) dbmd.get(table);
 					}
 					result.put("table_name", table);
 					result.put("table_remarks", tlMap.get(table));
