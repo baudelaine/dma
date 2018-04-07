@@ -1926,6 +1926,9 @@ function OpenModel(id){
 
 		success: function(data) {
       $datasTable.bootstrapTable("load", data);
+      if(activeTab == "Final"){
+        $datasTable.bootstrapTable("filterBy", {type: ['Final']});
+      }
 			// showalert("OpenModel()", "Model opened successfully.", "alert-success", "bottom");
 
 		},
