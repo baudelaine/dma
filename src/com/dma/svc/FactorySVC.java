@@ -32,6 +32,7 @@ import sapphire.util.Logger;
 public class FactorySVC {
 
 	CognosSVC csvc;
+	// Path contextRoot
 	public FactorySVC (CognosSVC csvc)
 	{
 		this.csvc = csvc;

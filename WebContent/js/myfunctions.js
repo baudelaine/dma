@@ -100,8 +100,8 @@ qsCols.push({field:"recurseCount", title: '<i class="glyphicon glyphicon-repeat"
   });
 qsCols.push({field:"addPKRelation", title: '<i class="glyphicon glyphicon-magnet" title="Add PK relation(s)"></i>', formatter: "addPKRelationFormatter", align: "center"});
 qsCols.push({field:"addRelation", title: '<i class="glyphicon glyphicon-plus-sign" title="Add new relation"></i>', formatter: "addRelationFormatter", align: "center"});
-// qsCols.push({field:"linker", formatter: "boolFormatter", title: "linker", align: "center"});
-// qsCols.push({field:"linker_ids", title: "linker_ids"});
+qsCols.push({field:"linker", formatter: "boolFormatter", title: "linker", align: "center"});
+qsCols.push({field:"linker_ids", title: "linker_ids"});
 
 var fieldCols = [];
 fieldCols.push({field:"index", title: "index", formatter: "indexFormatter", sortable: false});
@@ -177,7 +177,7 @@ $navTab.on('show.bs.tab', function(event){
 
 $qsTab.on('shown.bs.tab', function(e) {
   buildTable($datasTable, qsCols, datas, true, fieldCols, "fields");
-  $datasTable.bootstrapTable("filterBy", {type: ['Final', 'Ref']});
+  $datasTable.bootstrapTable("filterBy", {});
   $datasTable.bootstrapTable('showColumn', 'visible');
   $datasTable.bootstrapTable('showColumn', 'filter');
   $datasTable.bootstrapTable('showColumn', 'label');
@@ -190,6 +190,7 @@ $qsTab.on('shown.bs.tab', function(e) {
 
 $finTab.on('shown.bs.tab', function(e) {
   buildTable($datasTable, qsCols, datas, true, relationCols, "relations");
+  $datasTable.bootstrapTable("filterBy", {});
   $datasTable.bootstrapTable("filterBy", {type: ['Final']});
   $datasTable.bootstrapTable('showColumn', 'operate');
   $datasTable.bootstrapTable('hideColumn', 'visible');
@@ -202,12 +203,13 @@ $finTab.on('shown.bs.tab', function(e) {
   // $datasTable.bootstrapTable('showColumn', '_id');
   // $datasTable.bootstrapTable('showColumn', 'linker');
   // $datasTable.bootstrapTable('showColumn', 'linker_ids');
-
 });
 
 $refTab.on('shown.bs.tab', function(e) {
   buildTable($datasTable, qsCols, datas, true, relationCols, "relations");
-  $datasTable.bootstrapTable("filterBy", {type: ['Final', 'Ref']});
+  // $datasTable.bootstrapTable("filterBy", {type: ['Final', 'Ref']});
+  $datasTable.bootstrapTable("filterBy", {});
+
   $datasTable.bootstrapTable('showColumn', 'operate');
   $datasTable.bootstrapTable('hideColumn', 'visible');
   $datasTable.bootstrapTable('hideColumn', 'filter');
@@ -223,7 +225,8 @@ $refTab.on('shown.bs.tab', function(e) {
 
 $secTab.on('shown.bs.tab', function(e) {
   buildTable($datasTable, qsCols, datas, true, relationCols, "relations");
-  $datasTable.bootstrapTable("filterBy", {type: ['Final', 'Ref', 'Sec']});
+  // $datasTable.bootstrapTable("filterBy", {type: ['Final', 'Ref', 'Sec']});
+  $datasTable.bootstrapTable("filterBy", {});
   $datasTable.bootstrapTable('showColumn', 'operate');
   $datasTable.bootstrapTable('hideColumn', 'visible');
   $datasTable.bootstrapTable('hideColumn', 'filter');
@@ -916,21 +919,23 @@ function buildSubTable($el, cols, data, parentData){
             console.log("pkAlias=" + pkAlias);
             console.log(newValue);
             if(value == true){
+
               PrepareRemoveKeys(row, parentData);
               if(qs2rm.qsList.length > 0){
+
                 RemoveKeys(row, parentData);
                 return;
               }
-              if(row.fin && activeTab == "Final"){
-                row.relationship = row.relationship.split("[FINAL]." + pkAlias).join(pkAlias);
-              }
-              if(row.ref && activeTab == "Reference"){
-                row.relationship = row.relationship.split("[REF]." + pkAlias).join(pkAlias);
-              }
-              if(row.ref && activeTab == "Security"){
-                row.relationship = row.relationship.split("[SEC]." + pkAlias).join(pkAlias);
-              }
-              updateCell($el, row.index, field, newValue);
+              // if(row.fin && activeTab == "Final"){
+              //   row.relationship = row.relationship.split("[FINAL]." + pkAlias).join(pkAlias);
+              // }
+              // if(row.ref && activeTab == "Reference"){
+              //   row.relationship = row.relationship.split("[REF]." + pkAlias).join(pkAlias);
+              // }
+              // if(row.ref && activeTab == "Security"){
+              //   row.relationship = row.relationship.split("[SEC]." + pkAlias).join(pkAlias);
+              // }
+              // updateCell($el, row.index, field, newValue);
             }
             if(value == false){
               if(!row.fin && activeTab == "Final"){
@@ -1035,6 +1040,8 @@ $("#removeKeysModal").on('hidden.bs.modal', function (e) {
 function PrepareRemoveKeys(o, qs){
 
         // RemoveFilter();
+        // console.log($datasTable.bootstrapTable("getOptions"))
+        $datasTable.bootstrapTable("filterBy", {});
         var indexes2rm = [];
         var row = o;
         var ids2rm = {};
@@ -1083,6 +1090,8 @@ function PrepareRemoveKeys(o, qs){
         qs2rm.qsList = indexes2rm;
         qs2rm.ids2rm = ids2rm;
 
+        console.log(qs2rm);
+
         // ApplyFilter();
 }
 
@@ -1112,25 +1121,15 @@ function RemoveKeys(row, qs){
         var pkAlias = '[' + row.pktable_alias + ']';
         if(activeTab == "Final"){
           qs2rm.row.relationship = qs2rm.row.relationship.split("[FINAL]." + pkAlias).join(pkAlias);
-          console.log("$activeSubDatasTable");
-          console.log($activeSubDatasTable);
-          if($activeSubDatasTable){
-            updateCell($activeSubDatasTable, qs2rm.row.index, "fin", false);
-          }
+          qs2rm.row.fin = false;
         }
         if(activeTab == "Reference"){
           qs2rm.row.relationship = qs2rm.row.relationship.split("[REF]." + pkAlias).join(pkAlias);
-          if($activeSubDatasTable){
-            updateCell($activeSubDatasTable, qs2rm.row.index, "ref", false);
-          }
+          qs2rm.row.ref = false;
         }
         if(activeTab == "Security"){
           qs2rm.row.relationship = qs2rm.row.relationship.split("[SEC]." + pkAlias).join(pkAlias);
-          console.log("$activeSubDatasTable");
-          console.log($activeSubDatasTable);
-          if($activeSubDatasTable){
-            updateCell($activeSubDatasTable, qs2rm.row.index, "sec", false);
-          }
+          qs2rm.row.sec = false;
         }
 
         $datasTable.bootstrapTable('remove', {
@@ -1794,7 +1793,7 @@ function SetProjectName(){
 function Publish(){
 
   var projectName = "";
-  RemoveFilter();
+  // RemoveFilter();
 	var data = $datasTable.bootstrapTable('getData');
 
   if (data.length == 0) {
@@ -1830,7 +1829,7 @@ function Publish(){
     		}
     	});
 
-      ApplyFilter();
+      // ApplyFilter();
 
     }
   });
@@ -1839,7 +1838,7 @@ function Publish(){
 
 function SaveModel(){
 
-  RemoveFilter();
+  // RemoveFilter();
   var modelName;
 	var data = $datasTable.bootstrapTable('getData');
 
@@ -1874,7 +1873,7 @@ function SaveModel(){
    		}
    	});
 
-    ApplyFilter();
+    // ApplyFilter();
 
     }
   });
