@@ -176,11 +176,11 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			result.put("troubleshooting", "");
 		}
 		
-		String cognosFolder = (String) request.getSession().getAttribute("CognosFolder");
-		String cognosDispatcher = (String) request.getSession().getAttribute("CognosDispatcher");
-		String cognosLogin = (String) request.getSession().getAttribute("CognosLogin");
-		String cognosPassword = (String) request.getSession().getAttribute("CognosPassword");
-		String cognosNamespace = (String) request.getSession().getAttribute("CognosNamespace");
+		String cognosFolder = (String) request.getSession().getAttribute("cognosFolder");
+		String cognosDispatcher = (String) request.getSession().getAttribute("cognosDispatcher");
+		String cognosLogin = (String) request.getSession().getAttribute("cognosLogin");
+		String cognosPassword = (String) request.getSession().getAttribute("cognosPassword");
+		String cognosNamespace = (String) request.getSession().getAttribute("cognosNamespace");
 		String pathToXML = getServletContext().getRealPath("/") + "/res/templates";
 		if(!Files.exists(Paths.get(pathToXML))){
 			result.put("status", "KO");
