@@ -925,18 +925,9 @@ function buildSubTable($el, cols, data, parentData){
               if(qs2rm.qsList.length > 0){
 
                 RemoveKeys(row, parentData);
+                ChangeIcon(row, parentData, "Attribute");
                 return;
               }
-              // if(row.fin && activeTab == "Final"){
-              //   row.relationship = row.relationship.split("[FINAL]." + pkAlias).join(pkAlias);
-              // }
-              // if(row.ref && activeTab == "Reference"){
-              //   row.relationship = row.relationship.split("[REF]." + pkAlias).join(pkAlias);
-              // }
-              // if(row.ref && activeTab == "Security"){
-              //   row.relationship = row.relationship.split("[SEC]." + pkAlias).join(pkAlias);
-              // }
-              // updateCell($el, row.index, field, newValue);
             }
             if(value == false){
               if(!row.fin && activeTab == "Final"){
@@ -949,6 +940,7 @@ function buildSubTable($el, cols, data, parentData){
                 row.relationship = row.relationship.split(pkAlias).join("[SEC]." + pkAlias);
               }
               updateCell($el, row.index, field, newValue);
+              ChangeIcon(row, parentData, "Identifier");
               if(row.fin && activeTab == "Final"){
                 GetQuerySubjects(row.pktable_name, row.pktable_alias, "Final", row._id);
               }
@@ -1018,6 +1010,17 @@ function buildSubTable($el, cols, data, parentData){
 
   // ApplyFilter();
 
+}
+
+function ChangeIcon(row, qs, icon){
+  $.each(row.seqs, function(i, seq){
+    var column_name = seq.column_name;
+    $.each(qs.fields, function(j, field){
+      if(field.field_name == column_name){
+        field.icon = icon;
+      }
+    })
+  })
 }
 
 $("#removeKeysModal").on('hidden.bs.modal', function (e) {
@@ -1428,27 +1431,8 @@ function GetQuerySubjects(table_name, table_alias, type, linker_id) {
 				showalert("GetQuerySubjects()", table_name + " has no key.", "alert-info", "bottom");
 				// return;
 			}
-      // $.each(data, function(i, table){
-      //   var tableLabel = getLabel(table.table_name);
-      //   table.label = tableLabel;
-      //   var description = getDescription(table.table_name);
-      //   table.description = description;
-      //   $.each(table.fields, function(j, field){
-      //     var columnLabel = getLabel(table.table_name, field.field_name);
-      //     field.label = columnLabel;
-      //     var description = getDescription(table.table_name, field.field_name);
-      //     field.description = description;
-      //   })
-      //   $.each(table.relations, function(j, relation){
-      //     var relationLabel = getLabel(relation.pktable_name);
-      //     relation.relationLabel = relationLabel;
-      //     var description = getDescription(relation.pktable_name);
-      //     relation.description = description;
-      //   })
-      // });
-
-		$datasTable.bootstrapTable('append', data);
-    datas = $datasTable.bootstrapTable("getData");
+  		$datasTable.bootstrapTable('append', data);
+      datas = $datasTable.bootstrapTable("getData");
 
   	},
       error: function(data) {
