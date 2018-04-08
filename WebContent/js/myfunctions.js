@@ -1841,6 +1841,7 @@ function Publish(){
     		success: function(data) {
     			// $('#DatasTable').bootstrapTable('load', data);
           console.log(data);
+          showalert("Publish()", data.message, "alert-success", "bottom");
     		},
     		error: function(data) {
     			showalert("Publish()", "Publish failed.", "alert-danger", "bottom");
