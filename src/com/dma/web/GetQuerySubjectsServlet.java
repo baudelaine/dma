@@ -210,6 +210,7 @@ public class GetQuerySubjectsServlet extends HttpServlet {
         	field.set_id(field_name + field_type);
         	if(pks.contains(rst.getString("COLUMN_NAME"))){
     			field.setPk(true);
+    			field.setIcon("Identifier");
     		}
         	if(indexes.contains(rst.getString("COLUMN_NAME"))){
     			field.setIndex(true);
@@ -251,8 +252,6 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	        System.out.println("_id=" + _id);
 
 	        if(!map.containsKey(_id)){
-	        	
-	        	System.out.println("+++ add relation +++");
 	        	
 	        	Relation relation = new Relation();
 	        	
@@ -302,7 +301,6 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	        	
 	        	Relation relation = map.get(_id);
 	        	if(!relation.getSeqs().isEmpty()){
-		        	System.out.println("+++ update relation +++");
 	        		Seq seq = new Seq();
 		        	seq.setTable_name(fktable_name);
 		        	seq.setPktable_name(pktable_name);

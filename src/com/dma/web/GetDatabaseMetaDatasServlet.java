@@ -93,8 +93,7 @@ public class GetDatabaseMetaDatasServlet extends HttpServlet {
 			    	String table_name = rst0.getString("TABLE_NAME");
 			    	
 			    	ResultSet rst = metaData.getImportedKeys(con.getCatalog(), schema, table_name);
-			    	@SuppressWarnings("unused")
-					int FKSeqCount = 0;
+			    	int FKSeqCount = 0;
 			    	Set<String> FKSet = new HashSet<String>();
 			    	while(rst.next()){
 			    		String FKName = rst.getString("FK_NAME");
@@ -104,8 +103,7 @@ public class GetDatabaseMetaDatasServlet extends HttpServlet {
 		            if(rst != null){rst.close();}
 	
 			    	rst = metaData.getExportedKeys(con.getCatalog(), schema, table_name);
-			    	@SuppressWarnings("unused")
-					int PKSeqCount = 0;
+			    	int PKSeqCount = 0;
 			    	Set<String> PKSet = new HashSet<String>();
 			    	while(rst.next()){
 			    		String PKName = rst.getString("FK_NAME");
