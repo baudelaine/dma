@@ -29,6 +29,18 @@ public class Field {
 	public void set_id(String _id) {
 		this._id = _id;
 	}
+	public Map<String, Object> getLabels() {
+		return labels;
+	}
+	public void setLabels(Map<String, Object> labels) {
+		this.labels = labels;
+	}
+	public Map<String, Object> getDescriptions() {
+		return descriptions;
+	}
+	public void setDescriptions(Map<String, Object> descriptions) {
+		this.descriptions = descriptions;
+	}
 	public String get_ref() {
 		return _ref;
 	}

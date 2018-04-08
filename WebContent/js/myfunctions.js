@@ -1793,7 +1793,7 @@ function SetProjectName(){
 function Publish(){
 
   var projectName = "";
-  // RemoveFilter();
+  $datasTable.bootstrapTable("filterBy", {});
 	var data = $datasTable.bootstrapTable('getData');
 
   if (data.length == 0) {
@@ -1838,7 +1838,7 @@ function Publish(){
 
 function SaveModel(){
 
-  // RemoveFilter();
+  $datasTable.bootstrapTable("filterBy", {});
   var modelName;
 	var data = $datasTable.bootstrapTable('getData');
 

@@ -51,7 +51,12 @@ public class SessionListener implements HttpSessionListener {
     	
     	try {
     		
+    		String cognosFolder = (String) ic.lookup("CognosFolder"); 
     		String cognosModelsPath = (String) ic.lookup("CognosModelsPath"); 
+    		String cognosDispatcher= (String) ic.lookup("CognosDispatche");
+    		String cognosLogin = (String) ic.lookup("CognosLogin");
+    		String cognosPassword = (String) ic.lookup("CognosPassword");
+    		String cognosNamespace = (String) ic.lookup("CognosNamespace");
     		String cognosDataSource = (String) ic.lookup("CognosDataSource"); 
     		String cognosSchema = (String) ic.lookup("CognosSchema"); 
     		String cognosDefaultLocale = (String) ic.lookup("CognosDefaultLocale"); 
@@ -97,7 +102,12 @@ public class SessionListener implements HttpSessionListener {
 			s.setAttribute("schema", schema);
 			s.setAttribute("query", query);
 			s.setAttribute("query_subjects", query_subjects);
+			s.setAttribute("cognosFolder", cognosFolder); 
 			s.setAttribute("cognosModelsPath", cognosModelsPath);
+			s.setAttribute("cognosDispatcher", cognosDispatcher); 
+			s.setAttribute("cognosLogin", cognosLogin); 
+			s.setAttribute("cognosPassword", cognosPassword); 
+			s.setAttribute("cognosNamespace", cognosNamespace); 
 			s.setAttribute("cognosDataSource", cognosDataSource);
 			s.setAttribute("cognosSchema", cognosSchema);
 			s.setAttribute("cognosDefaultLocale", cognosDefaultLocale);
