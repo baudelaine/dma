@@ -19,7 +19,7 @@ import sapphire.util.Logger;
  *
  * @author Iqbal
  */
-public class ConfigProperties {
+public class ConfigPropertiezz {
 
 	public static String model;
 	public static String modelXML;
@@ -98,7 +98,7 @@ public class ConfigProperties {
 
 	}
 
-	public ConfigProperties() {
+	public ConfigPropertiezz() {
 
 	}
 

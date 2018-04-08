@@ -19,6 +19,7 @@ var $projectFileModal = $('#modProjectFile');
 // var url = "js/PROJECT.json";
 var qs2rm = {qs: "", row: "", qsList: [], ids2rm: {}};
 var newRelation;
+var cognosLocales;
 
 var relationCols = [];
 // relationCols.push({field:"checkbox", checkbox: "true"});
@@ -134,7 +135,7 @@ $(document)
   GetDBMDFromCache();
 
   buildTable($datasTable, qsCols, datas, true);
-
+  GetCognosLocales();
 })
 .ajaxStart(function(){
     $("div#divLoading").addClass('show');
@@ -1621,6 +1622,23 @@ function ChooseTable(table, sort) {
   }
 }
 
+function GetCognosLocales(){
+  $.ajax({
+      type: 'POST',
+      url: "GetCognosLocales",
+      dataType: 'json',
+
+      success: function(data) {
+        cognosLocales = data.cognosLocales;
+        console.log(cognosLocales);
+      },
+      error: function(data) {
+          console.log(data);
+          showalert("GetCognosLocales()", "GetCognosLocales failed.", "alert-danger", "bottom");
+      }
+  });
+}
+
 function ChooseField(table, id){
   table.empty();
 
@@ -1846,6 +1864,17 @@ function SaveModel(){
     showalert("SaveModel()", "Nothing to save.", "alert-warning", "bottom");
     return;
   }
+
+  $.each(data, function(i, qs){
+    var labels = {};
+    qs.labels = labels;
+    var descriptions = {};
+    qs.descriptions = descriptions;
+    $.each(cognosLocales, function(j, locale){
+      qs.labels[locale] = qs.label;
+      qs.descriptions[locale] = qs.description;
+    })
+  })
 
   bootbox.prompt({
     size: "small",

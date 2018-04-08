@@ -6,7 +6,7 @@ import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
-import com.dma.properties.ConfigProperties;
+import com.dma.properties.ConfigPropertiezz;
 
 
 public class Test0 {

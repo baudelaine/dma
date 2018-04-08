@@ -59,7 +59,7 @@ import com.cognos.developer.schemas.bibus._3.SystemService_PortType;
 import com.cognos.developer.schemas.bibus._3.SystemService_ServiceLocator;
 import com.cognos.org.apache.axis.client.Stub;
 import com.cognos.org.apache.axis.message.SOAPHeaderElement;
-import com.dma.properties.ConfigProperties;
+import com.dma.properties.ConfigPropertiezz;
 
 import sapphire.util.Logger;
 
@@ -116,7 +116,7 @@ public class CRNConnect {
 
 	// Create a variable that contains the default URL for Content Manager.
 	// sn_dg_prm_smpl_connect_start_2
-	public static String CM_URL = ConfigProperties.dispatcher;
+	private String CM_URL = null;
 	// sn_dg_prm_smpl_connect_end_2
 
 	/**
@@ -125,6 +125,11 @@ public class CRNConnect {
 	 * 
 	 * @return A connection to the server
 	 */
+	
+	public void setDispatcher(String cognosDispatcher){
+		this.CM_URL = cognosDispatcher;
+	}
+	
 	public ContentManagerService_PortType connectToCognosServer() {
 		BiBusHeader bibus = null;
 		while (bibus == null) {

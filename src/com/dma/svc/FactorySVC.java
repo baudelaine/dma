@@ -22,7 +22,7 @@ import com.cognos.developer.schemas.bibus._3.Sort;
 import com.cognos.developer.schemas.bibus._3.TokenProp;
 import com.cognos.developer.schemas.bibus._3.UpdateActionEnum;
 import com.dma.cognos.CRNConnect;
-import com.dma.properties.ConfigProperties;
+import com.dma.properties.ConfigPropertiezz;
 import com.dma.web.Field;
 import com.dma.web.QuerySubject;
 import com.dma.web.RelationShip;
@@ -38,16 +38,16 @@ public class FactorySVC {
 		this.csvc = csvc;
 	}
 	
-	public void addLocale(String locale) {
+	public void addLocale(String locale, String cognosDefaultLocale) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/addLocale.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/addLocale.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node newLocale = document.selectSingleNode("//param[@seq='1']/value");
 			Node activeLocale = document.selectSingleNode("//param[@seq='2']/value");
 
 			newLocale.setText("<stringCollection><item>" + locale + "</item></stringCollection>");
-			activeLocale.setText("en-gb");
+			activeLocale.setText(cognosDefaultLocale);
 			System.out.println("addLocale(" + locale + ")");
 			csvc.executeModel(document);
 		} catch (DocumentException ex) {
@@ -58,7 +58,7 @@ public class FactorySVC {
 
 	public void removeLocale(String locale) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/removeLocale.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/removeLocale.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node nodeLocale = document.selectSingleNode("//param[@seq='1']/value");
@@ -74,7 +74,7 @@ public class FactorySVC {
 
 	public void setLocale(String cognosDefaultLocale) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/setLocale.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/setLocale.xml");
 
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
@@ -96,7 +96,7 @@ public class FactorySVC {
 	
 	public void changePropertyFixIDDefaultLocale() {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/changePropertyFixIDDefaultLocale.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/changePropertyFixIDDefaultLocale.xml");
 
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
@@ -110,7 +110,7 @@ public class FactorySVC {
 
 	public void copyQuerySubject(String targetNameSpace, String sourceQS){
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/copyQuerySubject.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/copyQuerySubject.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			
@@ -131,7 +131,7 @@ public class FactorySVC {
 	
 	public void renameQuerySubject(String qs, String name){
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/renameQuerySubject.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/renameQuerySubject.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			
@@ -152,7 +152,7 @@ public class FactorySVC {
 	
 	public void DBImport(String Namespace, String dataSourceName, String schemaName) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/DBImport.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/DBImport.xml");
 
 			SAXReader reader = new SAXReader();
 			Document script = reader.read(xmlFile);
@@ -193,7 +193,7 @@ public class FactorySVC {
 		try {
 //			String datasource = "[].[dataSources].[DEV]";
 			
-			File xmlFile = new File(ConfigProperties.PathToXML + "/deleteDataSource.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/deleteDataSource.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -210,7 +210,7 @@ public class FactorySVC {
 	
 	public void createFolder(String NamespaceRefObj, String Name) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createFolder.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createFolder.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node n1 = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150727115905548\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[2]/value");
@@ -228,7 +228,7 @@ public class FactorySVC {
 
 	public void createFolderInFolder(String Namespace, String Fin, String Fout) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createFolderInFolder.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createFolderInFolder.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node n1 = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150916123602448\"]/transaction[@saved=\"false\"]/action[1]/inputparams/param[2]/value");
@@ -249,7 +249,7 @@ public class FactorySVC {
 
 	public void createNamespace(String NameSpace, String Parent) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createNamespace.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createNamespace.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node parent = document.selectSingleNode("//param[@seq='2']/value");
@@ -269,7 +269,7 @@ public class FactorySVC {
 	public void deleteNamespace(String namespace) {
 		try {
 	
-			File xmlFile = new File(ConfigProperties.PathToXML + "/deleteNamespace.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/deleteNamespace.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -285,7 +285,7 @@ public class FactorySVC {
 
 	public void createQuerySubject(String Source, String Destination, String Name) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createQuerySubject.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createQuerySubject.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node src = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150722173540031\"]/transaction[1]/action[@seq=\"1\"]/inputparams/param[1]/value");
@@ -309,7 +309,7 @@ public class FactorySVC {
 
 	public void createQuerySubjectInFolder(String Source, String Destination, String Folder, String Name) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createQuerySubject.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createQuerySubject.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			///////////////////////////////////////////////////
@@ -342,7 +342,7 @@ public class FactorySVC {
 	// il ont besoin du vrai nom de la table et aussi du u_name
 	public void createQuerySubject(String Source, String Destination, String BasedOnQuerySubject, String NameQuerySubject) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createQuerySubject.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createQuerySubject.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node src = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150722173540031\"]/transaction[1]/action[@seq=\"1\"]/inputparams/param[1]/value");
@@ -369,7 +369,7 @@ public class FactorySVC {
 	
 	public void createQuerySubjectFilter(String qsPath, String Exp) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createQuerySubjectFilter.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createQuerySubjectFilter.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			
@@ -403,8 +403,8 @@ public class FactorySVC {
 
 	public void createQueryItem(String QuerySubject, String Name, String Exp) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createQueryItem.xml");
-			File cdataFile = new File(ConfigProperties.PathToXML + "/createQueryItemCDATA.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createQueryItem.xml");
+			File cdataFile = new File(csvc.getPathToXML() + "/createQueryItemCDATA.xml");
 			SAXReader reader = new SAXReader();
 
 			Document document = reader.read(xmlFile);
@@ -436,7 +436,7 @@ public class FactorySVC {
 	
 	public void createQueryItemInFolder(String QS, String Folder, String Name, String Exp) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createQueryItemInFolder.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createQueryItemInFolder.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -465,7 +465,7 @@ public class FactorySVC {
 	
 	public void changeQueryItemProperty(String queryItemPath, String property, String value) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/changeQueryitemProperty.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/changeQueryitemProperty.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			// queryItem/hidden (false, true)
@@ -498,7 +498,7 @@ public class FactorySVC {
 	public void createRelationship(RelationShip rs) {
 
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createRelationship.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createRelationship.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Element root = document.getRootElement();
@@ -555,7 +555,7 @@ public class FactorySVC {
 
 	public void ReorderSubFolderBefore(String handle, String target) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/ReorderBefore.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/ReorderBefore.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node tp = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150723154806075\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[1]/mappingpath");
@@ -576,7 +576,7 @@ public class FactorySVC {
 
 	public void ReorderBefore(String handle, String target) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/ReorderBefore.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/ReorderBefore.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node h = document.selectSingleNode("/bmtactionlog[@timestamp=\"20150723154806075\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[1]/value");
@@ -594,7 +594,7 @@ public class FactorySVC {
 
 	public void createSubFolder(String QSRejObj, String Name) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createSubFolder.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createSubFolder.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -614,7 +614,7 @@ public class FactorySVC {
 
 	public void createSubFolderInSubFolder(String QSRefObj, String Fext, String Fint) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createSubFolder.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createSubFolder.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -632,7 +632,7 @@ public class FactorySVC {
 	}
 	public void createSubFolderInSubFolderIIC(String QSRefObj, String Fint) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createSubFolder.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createSubFolder.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -652,7 +652,7 @@ public class FactorySVC {
 
 	public void createFilter(String Name, String Expression, String Namespace) {
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createFilter.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createFilter.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node NamespaceNode = document.selectSingleNode("/bmtactionlog/transaction[1]/action[1]/inputparams[1]/param[2]/value[1]");
@@ -675,8 +675,8 @@ public class FactorySVC {
 	public void assignFilter(String Filter, String QuerySubject) {
 		try {
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/assignFilter.xml");
-			File cdataFile = new File(ConfigProperties.PathToXML + "/assignFilterCDATA.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/assignFilter.xml");
+			File cdataFile = new File(csvc.getPathToXML() + "/assignFilterCDATA.xml");
 			SAXReader reader = new SAXReader();
 
 			Document document = reader.read(xmlFile);
@@ -719,7 +719,7 @@ public class FactorySVC {
 			String objectTypePath = objectType + "/screenTip";
 			String stObjectPath = "/O/screenTip[0]/O/" + objectPath;
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createScreenTip.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createScreenTip.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -743,7 +743,7 @@ public class FactorySVC {
 	public void createMeasureDimension(String handle, String measureDimensionName) {
 		try {
 	
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createMeasureDimension.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createMeasureDimension.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -783,7 +783,7 @@ public class FactorySVC {
 //			String dimensionPath = "[DIMENSIONS].[SDIDATA_MEASURES]";
 //			String exp = "[FINAL].[SDIDATA].[SDIDATA_COUNT]";
 						
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createMeasure.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createMeasure.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -824,7 +824,7 @@ public class FactorySVC {
 			String mappingPath = "";
 			if (handle.contains("].[")) {mappingPath = "folder";} else {mappingPath="namespace";}
 			
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimension.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createDimension.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -855,7 +855,7 @@ public class FactorySVC {
 //			dimensionPath = "[DIMENSIONS].[S_PRODUCT]";
 //			exp = "[FINAL].[S_PRODUCT]";
 						
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimensionHierarchy.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createDimensionHierarchy.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 	    
@@ -886,7 +886,7 @@ public class FactorySVC {
 //			newLevel = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_BATCH]";
 //			exp = "[FINAL].[S_BATCH]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/addHierarchyLevel.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/addHierarchyLevel.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -921,7 +921,7 @@ public class FactorySVC {
 //			dimensionPath = "[DIMENSIONS].[S_PRODUCT]";
 //			exp = "[FINAL].[S_REQUEST]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/addDimensionHierarchy.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/addDimensionHierarchy.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -951,7 +951,7 @@ public class FactorySVC {
 			
 //			String queryItemPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_PRODUCT].[S_PRODUCTID1]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimensionRole_BK.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createDimensionRole_BK.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -972,7 +972,7 @@ public class FactorySVC {
 			
 //			String queryItemPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_PRODUCT].[S_PRODUCTID1]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimensionRole_MC.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createDimensionRole_MC.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -993,7 +993,7 @@ public class FactorySVC {
 			
 //			String queryItemPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_PRODUCT].[S_PRODUCTID1]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createDimensionRole_MD.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createDimensionRole_MD.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1015,7 +1015,7 @@ public class FactorySVC {
 				
 //				String dimensionPath = "[DIMENSIONS].[S_PRODUCT]";
 
-				File xmlFile = new File(ConfigProperties.PathToXML + "/createScopeRelationship.xml");
+				File xmlFile = new File(csvc.getPathToXML() + "/createScopeRelationship.xml");
 				SAXReader reader = new SAXReader();
 				Document document = reader.read(xmlFile);
 
@@ -1037,7 +1037,7 @@ public class FactorySVC {
 //			String dimensionPath = "[DIMENSIONS].[S_PRODUCT]";
 //			String levelPath = "[DIMENSIONS].[S_PRODUCT].[S_PRODUCT].[S_BATCH]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/adjustScopeRelationship.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/adjustScopeRelationship.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1067,7 +1067,7 @@ public class FactorySVC {
 			String handleLevelName = "/O/name[0]/O/" + dimensionPath + ".[" + hierarchyName + "].[New Hierarchy(All)]";
 			String levelName = hierarchyName + "(All)";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createEmptyHierarchy.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createEmptyHierarchy.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1098,7 +1098,7 @@ public class FactorySVC {
 			String handleLevelName = "/O/name[0]/O/" + dimensionPath + ".[" + hierarchyName + "].[" + hierarchyOldName +"(All)]";
 			String levelName = hierarchyName + "(All)";
 			
-			File xmlFile = new File(ConfigProperties.PathToXML + "/modifyHierarchyName.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/modifyHierarchyName.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1125,7 +1125,7 @@ public class FactorySVC {
 		try {
 //			String dimensionPath = "[DIMENSIONS].[SDIDATA.CREATEDT]";
 			
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createEmptyNewHierarchy.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createEmptyNewHierarchy.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1148,7 +1148,7 @@ public class FactorySVC {
 					
 			String handleLevelName = "/O/name[0]/O/" + hierarchyPath + ".[New Level]";
 			
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createEmptyHierarchyLevel.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createEmptyHierarchyLevel.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1176,7 +1176,7 @@ public class FactorySVC {
 					
 			String handleLevelName = "/O/name[0]/O/" + hierarchyPath + ".[" + levelOldName + "]";
 			
-			File xmlFile = new File(ConfigProperties.PathToXML + "/modifyLevelName.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/modifyLevelName.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Element elemhandleLevelName = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20171122161606340\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[1]/value");
@@ -1200,7 +1200,7 @@ public class FactorySVC {
 //			String queryItemName = "YEAR_KEY";
 //			String exp = "_year (<refobj>[FINAL].[SDIDATA].[CREATEDT]</refobj>)";
 					
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createHierarchyLevelQueryItem.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createHierarchyLevelQueryItem.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1235,7 +1235,7 @@ public class FactorySVC {
 //			String exp = "_year(&lt;refobj&gt;[FINAL].[SDIDATA].[CREATEDT]&lt;/refobj&gt;)";
 //			levelPath = "[DIMENSIONS].[SDIDATA.CREATEDT].[SDIDATA.CREATEDT (By month)].[YEAR]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/modifyLevelQueryItem.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/modifyLevelQueryItem.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -1521,7 +1521,7 @@ public class FactorySVC {
 			String securityViewsPath = securityViews + ".[" + packageName + "]";
 			String packagesPath = "[].[packages]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createPackage.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/createPackage.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			// action 1
@@ -1595,7 +1595,7 @@ public class FactorySVC {
 			String packagesPath = "[].[packages]";
 			String packagePath = packagesPath + ".[" + packageName + "]";
 
-			File xmlFile = new File(ConfigProperties.PathToXML + "/publishPackage.xml");
+			File xmlFile = new File(csvc.getPathToXML() + "/publishPackage.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			// transaction 1

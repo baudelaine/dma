@@ -41,7 +41,7 @@ import org.dom4j.io.XMLWriter;
 import com.dma.web.Field;
 import com.dma.web.QuerySubject;
 import com.dma.web .Relation;
-import com.dma.properties.ConfigProperties;
+import com.dma.properties.ConfigPropertiezz;
 import com.dma.svc.CognosSVC;
 import com.dma.svc.FactorySVC;
 import com.dma.web.RelationShip;
@@ -176,6 +176,19 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			result.put("troubleshooting", "");
 		}
 		
+		String cognosFolder = (String) request.getSession().getAttribute("CognosFolder");
+		String cognosDispatcher = (String) request.getSession().getAttribute("CognosDispatcher");
+		String cognosLogin = (String) request.getSession().getAttribute("CognosLogin");
+		String cognosPassword = (String) request.getSession().getAttribute("CognosPassword");
+		String cognosNamespace = (String) request.getSession().getAttribute("CognosNamespace");
+		String pathToXML = getServletContext().getRealPath("/") + "/res/templates";
+		if(!Files.exists(Paths.get(pathToXML))){
+			result.put("status", "KO");
+			result.put("message", "PathToXML " + pathToXML + " not found." );
+			result.put("troubleshooting", "Check that '" + pathToXML + "' exists on server and contains XML templates.");
+		}
+		
+		
 		// END SETUP COGNOS ENVIRONMENT
 
 		if(((String) result.get("status")).equalsIgnoreCase("OK")){
@@ -189,11 +202,12 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				String cognosLocales = (String) request.getSession().getAttribute("cognosLocales");
 				System.out.println("cognosLocales=" + cognosLocales);
 
-				csvc = new CognosSVC();
+				csvc = new CognosSVC(cognosDispatcher);
+				csvc.setPathToXML(pathToXML);
 				fsvc = new FactorySVC(csvc);
-				csvc.logon();
+				csvc.logon(cognosLogin, cognosPassword, cognosNamespace);
 				String modelName = projectName;
-				csvc.openModel(modelName);
+				csvc.openModel(modelName, cognosFolder);
 				fsvc.setLocale(cognosDefaultLocale);
 				
 				//IICInitNameSpace();
@@ -567,7 +581,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					}
 				}
 				
-				fsvc.addLocale(cognosLocales);
+				fsvc.addLocale(cognosLocales, cognosDefaultLocale);
 	
 		/*
 				for(Entry<String, String> map: labelMap.entrySet()){
@@ -661,10 +675,11 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				System.out.println("Create and Publish Package");	
 				
 				//start
-				csvc = new CognosSVC();
+				csvc = new CognosSVC(cognosDispatcher);
+				csvc.setPathToXML(pathToXML);
 				fsvc = new FactorySVC(csvc);
-				csvc.logon();
-				csvc.openModel(modelName);
+				csvc.logon(cognosLogin, cognosPassword, cognosNamespace);
+				csvc.openModel(modelName, cognosFolder);
 				fsvc.setLocale(cognosDefaultLocale);
 				
 				String[] locales = {cognosLocales};

@@ -21,7 +21,7 @@ import org.dom4j.io.XMLWriter;
 
 import com.cognos.developer.schemas.bibus._3.XmlEncodedXML;
 import com.dma.cognos.CRNConnect;
-import com.dma.properties.ConfigProperties;
+import com.dma.properties.ConfigPropertiezz;
 import com.dma.svc.CognosSVC;
 import com.dma.svc.FactorySVC;
 
@@ -39,7 +39,7 @@ public class Test2 {
 
 
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/createQueryItemInFolder.xml");
+			File xmlFile = new File(ConfigPropertiezz.PathToXML + "/createQueryItemInFolder.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Element root = document.getRootElement();

@@ -58,10 +58,23 @@
 	<jndiEntry jndiName="DBEngine" value="DB2"/>
 	<jndiEntry jndiName="WithRecCount" value="true"/>
 
+	<!-- Start Cognos section -->
+
+	<jndiEntry jndiName="CognosFolder" value="C:/models"/>
+	<jndiEntry jndiName="CognosModelsPath" value="/mnt/dd3"/>
+	<jndiEntry jndiName="CognosDispatcher" value="http://172.16.186.246:9300/p2pd/servlet/dispatch"/>
+	<jndiEntry jndiName="CognosLogin" value="admin"/>
+	<jndiEntry jndiName="CognosPassword" value="Freestyle05$"/>
+	<jndiEntry jndiName="CognosNamespace" value="CognosEx"/>
+	<jndiEntry jndiName="CognosDataSource" value="DEV"/>
+	<jndiEntry jndiName="CognosSchema" value="DANONE"/>
+	<jndiEntry jndiName="CognosDefaultLocale" value="en-gb"/>
+	<jndiEntry jndiName="CognosLocales" value="fr,en-us,de"/>
 	
+	<!-- End Cognos section -->
 
     <applicationMonitor updateTrigger="mbean"/>
 
-    <webApplication id="ddtool" location="ddtool.war" name="ddtool">
+    <webApplication id="dma" location="dma.war" name="dma">
     </webApplication>
 </server>

@@ -30,7 +30,7 @@ import com.cognos.developer.schemas.bibus._3.XmlEncodedXML;
 import com.cognos.org.apache.axis.client.Stub;
 import com.cognos.org.apache.axis.message.SOAPHeaderElement;
 import com.dma.cognos.CRNConnect;
-import com.dma.properties.ConfigProperties;
+import com.dma.properties.ConfigPropertiezz;
 import com.dma.web.QuerySubject;
 
 import sapphire.util.Logger;
@@ -41,26 +41,35 @@ public class CognosSVC {
 	private String modelPath;
 	private Map<String, Element> actionsMap;
 	private int i;
+	private String pathToXML;
 
 
-	public CognosSVC () {
+	public CognosSVC (String cognosDispatcher) {
 		crnConnect = new CRNConnect();
+		crnConnect.setDispatcher(cognosDispatcher);
 		crnConnect.connectToCognosServer();
 		actionsMap = new HashMap<String, Element>();
 		i=1;
 	}
 	
+	public void setPathToXML(String pathToXML){
+		this.pathToXML = pathToXML;
+	}
+	
+	public String getPathToXML(){
+		return this.pathToXML;
+	}
 	
 	public Document doc = null;
 
-	public boolean logon() {
+	public boolean logon(String cognosLogin, String cognosPassword, String cognosNamespace) {
 		try {
 			StringBuilder credentialXML = new StringBuilder();
 
 			credentialXML.append("<credential>");
-			credentialXML.append("<namespace>").append(ConfigProperties.nm).append("</namespace>");
-			credentialXML.append("<username>").append(ConfigProperties.login).append("</username>");
-			credentialXML.append("<password>").append(ConfigProperties.pwd).append("</password>");
+			credentialXML.append("<namespace>").append(cognosNamespace).append("</namespace>");
+			credentialXML.append("<username>").append(cognosLogin).append("</username>");
+			credentialXML.append("<password>").append(cognosPassword).append("</password>");
 			credentialXML.append("</credential>");
 
 			String encodedCredentials = credentialXML.toString();
@@ -74,7 +83,7 @@ public class CognosSVC {
 					.getValueAsType(new QName("http://developer.cognos.com/schemas/bibus/3/", "biBusHeader"));
 			((Stub) crnConnect.getCMService()).setHeader("http://developer.cognos.com/schemas/bibus/3/", "biBusHeader",
 					cmBiBusHeader);
-			System.out.println("Logon successful as " + ConfigProperties.login);
+			System.out.println("Logon successful as " + cognosLogin);
 
 		} catch (RemoteException ex) {
 			lg(ex.getMessage());
@@ -98,11 +107,11 @@ public class CognosSVC {
 
 	}
 	
-	public void openModel(String modelName) {
+	public void openModel(String modelName, String cognosFolder) {
 		
-		modelPath = ConfigProperties.modelsCognosFolder + "/" + modelName + "/" + modelName + ".cpf";
+		modelPath = cognosFolder + "/" + modelName + "/" + modelName + ".cpf";
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/openModel.xml");
+			File xmlFile = new File(pathToXML + "/openModel.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 
@@ -122,7 +131,7 @@ public class CognosSVC {
 	public void saveModel() {
 
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/saveModel.xml");
+			File xmlFile = new File(pathToXML + "/saveModel.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node node = document.selectSingleNode("//@model");
@@ -142,7 +151,7 @@ public class CognosSVC {
 	public void closeModel() {
 
 		try {
-			File xmlFile = new File(ConfigProperties.PathToXML + "/closeModel.xml");
+			File xmlFile = new File(pathToXML + "/closeModel.xml");
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			Node node = document.selectSingleNode("//@model");
@@ -176,7 +185,7 @@ public class CognosSVC {
 
 	public void executeAllActions() {
 		try {
-			File rootFile = new File(ConfigProperties.PathToXML + "/executeModel.xml");
+			File rootFile = new File(pathToXML + "/executeModel.xml");
 
 			SAXReader reader = new SAXReader();
 

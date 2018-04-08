@@ -53,14 +53,14 @@ public class SessionListener implements HttpSessionListener {
     		
     		String cognosFolder = (String) ic.lookup("CognosFolder"); 
     		String cognosModelsPath = (String) ic.lookup("CognosModelsPath"); 
-    		String cognosDispatcher= (String) ic.lookup("CognosDispatche");
+    		String cognosDispatcher= (String) ic.lookup("CognosDispatcher");
     		String cognosLogin = (String) ic.lookup("CognosLogin");
     		String cognosPassword = (String) ic.lookup("CognosPassword");
     		String cognosNamespace = (String) ic.lookup("CognosNamespace");
     		String cognosDataSource = (String) ic.lookup("CognosDataSource"); 
     		String cognosSchema = (String) ic.lookup("CognosSchema"); 
     		String cognosDefaultLocale = (String) ic.lookup("CognosDefaultLocale"); 
-    		String cognosLocales = (String) ic.lookup("CognosLocales"); 
+    		String cognosLocales = (String) ic.lookup("CognosLocales");
     		
     		String dbEngine = (String) ic.lookup("DBEngine");
     		if(dbEngine.equalsIgnoreCase("DB2400")){
