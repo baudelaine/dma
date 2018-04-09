@@ -101,8 +101,8 @@ qsCols.push({field:"recurseCount", title: '<i class="glyphicon glyphicon-repeat"
   });
 qsCols.push({field:"addPKRelation", title: '<i class="glyphicon glyphicon-magnet" title="Add PK relation(s)"></i>', formatter: "addPKRelationFormatter", align: "center"});
 qsCols.push({field:"addRelation", title: '<i class="glyphicon glyphicon-plus-sign" title="Add new relation"></i>', formatter: "addRelationFormatter", align: "center"});
-// qsCols.push({field:"linker", formatter: "boolFormatter", title: "linker", align: "center"});
-// qsCols.push({field:"linker_ids", title: "linker_ids"});
+qsCols.push({field:"linker", formatter: "boolFormatter", title: "linker", align: "center"});
+qsCols.push({field:"linker_ids", title: "linker_ids"});
 
 var fieldCols = [];
 fieldCols.push({field:"index", title: "index", formatter: "indexFormatter", sortable: false});
@@ -928,6 +928,29 @@ function buildSubTable($el, cols, data, parentData){
                 ChangeIcon(row, parentData, "Attribute");
                 return;
               }
+              else{
+                if(activeTab == "Final"){
+                  row.relationship = row.relationship.split("[FINAL]." + pkAlias).join(pkAlias);
+                  row.fin = false;
+                }
+                if(activeTab == "Reference"){
+                  row.relationship = row.relationship.split("[REF]." + pkAlias).join(pkAlias);
+                  row.ref = false;
+                }
+                if(activeTab == "Security"){
+                  row.relationship = row.relationship.split("[SEC]." + pkAlias).join(pkAlias);
+                  row.sec = false;
+                }
+
+                var linked = false;
+                $.each(parentData.relations, function(i, obj){
+                  if(obj.fin || obj.ref || obj.sec){
+                    linked = true;
+                  }
+                });
+                updateCell($datasTable, parentData.index, "linker", linked);
+
+              }
             }
             if(value == false){
               if(!row.fin && activeTab == "Final"){
@@ -1143,7 +1166,7 @@ function RemoveKeys(row, qs){
 
         var linked = false;
         $.each(qs.relations, function(i, obj){
-          if(obj.fin || obj.ref){
+          if(obj.fin || obj.ref || obj.sec){
             linked = true;
           }
         });
