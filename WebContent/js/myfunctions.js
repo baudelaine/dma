@@ -101,8 +101,8 @@ qsCols.push({field:"recurseCount", title: '<i class="glyphicon glyphicon-repeat"
   });
 qsCols.push({field:"addPKRelation", title: '<i class="glyphicon glyphicon-magnet" title="Add PK relation(s)"></i>', formatter: "addPKRelationFormatter", align: "center"});
 qsCols.push({field:"addRelation", title: '<i class="glyphicon glyphicon-plus-sign" title="Add new relation"></i>', formatter: "addRelationFormatter", align: "center"});
-qsCols.push({field:"linker", formatter: "boolFormatter", title: "linker", align: "center"});
-qsCols.push({field:"linker_ids", title: "linker_ids"});
+// qsCols.push({field:"linker", formatter: "boolFormatter", title: "linker", align: "center"});
+// qsCols.push({field:"linker_ids", title: "linker_ids"});
 
 var fieldCols = [];
 fieldCols.push({field:"index", title: "index", formatter: "indexFormatter", sortable: false});
