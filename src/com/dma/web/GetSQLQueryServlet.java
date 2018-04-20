@@ -74,6 +74,10 @@ public class GetSQLQueryServlet extends HttpServlet {
 				con.createStatement().execute("ALTER SESSION SET NLS_COMP=LINGUISTIC");
 			}
 
+			if((dbEngine).equalsIgnoreCase("DB2") || (dbEngine).equalsIgnoreCase("DB2400")){
+				con.createStatement().execute("set schema " + schema);
+			}
+			
 			String query = (String) parms.get("query");
 			results.put("query", query);
 			results.put("schema", schema);

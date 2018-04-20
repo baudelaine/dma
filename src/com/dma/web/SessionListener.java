@@ -93,9 +93,12 @@ public class SessionListener implements HttpSessionListener {
 //				  con = datasource.getConnection();
 //			}
 //			else{
-				DataSource ds = (DataSource) ic.lookup(jndiName);
-				con = ds.getConnection();
 //			}
+				
+			DataSource ds = (DataSource) ic.lookup(jndiName);
+			con = ds.getConnection();
+			
+			
 			s.setAttribute("con", con);
 			s.setAttribute("dbEngine", dbEngine);
 			s.setAttribute("jndiName", jndiName);

@@ -575,7 +575,7 @@ function SaveDBMD(){
         ShowAlert("SaveDBMD()", "Database metadata saved successfully.", "alert-success", "bottom");
       },
       error: function(data) {
-        ShowAlert("SaveDBMD()", "Saving database metadata failed.", "alert-danger", "bottom");
+        // ShowAlert("SaveDBMD()", "Saving database metadata failed.", "alert-danger", "bottom");
       }
     });
   }
