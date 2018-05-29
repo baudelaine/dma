@@ -41,7 +41,6 @@ import org.dom4j.io.XMLWriter;
 import com.dma.web.Field;
 import com.dma.web.QuerySubject;
 import com.dma.web .Relation;
-import com.dma.properties.ConfigPropertiezz;
 import com.dma.svc.CognosSVC;
 import com.dma.svc.FactorySVC;
 import com.dma.web.RelationShip;
@@ -219,7 +218,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				fsvc.createNamespace("SEC", "AUTOGENERATION");
 				fsvc.createNamespace("FILTER_FINAL", "AUTOGENERATION");
 				fsvc.createNamespace("FILTER_REF", "AUTOGENERATION");
-				fsvc.createNamespace("DATA", "AUTOGENERATION");
+				fsvc.createNamespace("DATA", "Model");
 				
 				//Import();
 				fsvc.DBImport("PHYSICAL", cognosDataSource, cognosSchema);
@@ -628,7 +627,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					SAXReader reader = new SAXReader();
 					Document document = reader.read(new ByteArrayInputStream(datas.getBytes(StandardCharsets.UTF_8)));
 					
-					String namespaceName = "AUTOGENERATION";
+					String namespaceName = "DATA";
 					String spath = "/project/namespace/namespace";
 					int k=1;
 					
@@ -638,17 +637,8 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 					k++;
 					namespace = (Element) document.selectSingleNode(spath + "[" + k + "]/name");
 					}
-					namespaceName = "DATA";
+					
 					spath = spath + "[" + k + "]";
-								
-					k=1;
-					namespace = (Element) document.selectSingleNode(spath + "/namespace[" + k + "]/name");
-					while(!namespace.getStringValue().equals(namespaceName) && namespace!=null)
-					{
-					k++;
-					namespace = (Element) document.selectSingleNode(spath + "/namespace[" + k + "]/name");
-					}
-					spath = spath + "/namespace[" + k + "]";
 					fsvc.recursiveParserQS(document, spath, cognosLocales, labelMap);
 	
 					try {
@@ -684,7 +674,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				
 				String[] locales = {cognosLocales};
 				fsvc.changePropertyFixIDDefaultLocale();
-				fsvc.createPackage(modelName, modelName, modelName, locales);
+//				fsvc.createPackage(modelName, modelName, modelName, locales);
 //				fsvc.publishPackage(modelName,"/content");
 				
 				csvc.executeAllActions();

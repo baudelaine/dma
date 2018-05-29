@@ -22,7 +22,6 @@ import com.cognos.developer.schemas.bibus._3.Sort;
 import com.cognos.developer.schemas.bibus._3.TokenProp;
 import com.cognos.developer.schemas.bibus._3.UpdateActionEnum;
 import com.dma.cognos.CRNConnect;
-import com.dma.properties.ConfigPropertiezz;
 import com.dma.web.Field;
 import com.dma.web.QuerySubject;
 import com.dma.web.RelationShip;
@@ -1525,51 +1524,51 @@ public class FactorySVC {
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(xmlFile);
 			// action 1
-			Element ElemSecurityViews = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"1\"]/inputparams/param[2]/value");
-			Element ElemPackageName = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"1\"]/inputparams/param[3]/value");
+			Element ElemSecurityViews = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"1\"]/inputparams/param[2]/value");
+			Element ElemPackageName = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"1\"]/inputparams/param[3]/value");
 			ElemSecurityViews.setText(securityViews);
 			ElemPackageName.setText(packageName);
 			// 2
-			Element ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"2\"]/inputparams/param[1]/value");
+			Element ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"2\"]/inputparams/param[1]/value");
 			ElemSecurityViewsPath.setText(securityViewsPath);
 			//3
-			Element ElemPackagesPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"3\"]/inputparams/param[2]/value");
+			Element ElemPackagesPath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"3\"]/inputparams/param[2]/value");
 			ElemPackagesPath.setText(packagesPath);
-			ElemPackageName = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"3\"]/inputparams/param[3]/value");
+			ElemPackageName = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"3\"]/inputparams/param[3]/value");
 			ElemPackageName.setText(packageName);
 			//4
 			String packagePath = packagesPath + ".[" + packageName + "]";
-			Element ElemPackagePath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"4\"]/inputparams/param[1]/value");
+			Element ElemPackagePath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"4\"]/inputparams/param[1]/value");
 			ElemPackagePath.setText(packagePath);
-			ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"4\"]/inputparams/param[2]/value");
+			ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"4\"]/inputparams/param[2]/value");
 			ElemSecurityViewsPath.setText(securityViewsPath);
 			//5
-			ElemPackagePath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"5\"]/inputparams/param[1]/value");
+			ElemPackagePath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"5\"]/inputparams/param[1]/value");
 			ElemPackagePath.setText(packagePath);
-			Element Elemlanguage = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"5\"]/inputparams/param[2]/value");
+			Element Elemlanguage = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"5\"]/inputparams/param[2]/value");
 			Elemlanguage.setText(locales[0]);
 			//6
 			String packageDescriptionPath = "/O/description[0]/O/" + packagePath;
-			Element ElemPackageDescriptionPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"6\"]/inputparams/param[1]/value");
+			Element ElemPackageDescriptionPath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"6\"]/inputparams/param[1]/value");
 			ElemPackageDescriptionPath.setText(packageDescriptionPath);
 
-			Element ElemPackageDescription = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"6\"]/inputparams/param[2]/value");
+			Element ElemPackageDescription = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"6\"]/inputparams/param[2]/value");
 			ElemPackageDescription.setText(packageDescription);
 			//7
 			String packageTooTipPath = "/O/screenTip[0]/O/" + packagePath;
-			Element ElemPackageTooTipPathPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"7\"]/inputparams/param[1]/value");
+			Element ElemPackageTooTipPathPath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"7\"]/inputparams/param[1]/value");
 			ElemPackageTooTipPathPath.setText(packageTooTipPath);
 
-			Element ElemPackageScreenTip = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"7\"]/inputparams/param[2]/value");
+			Element ElemPackageScreenTip = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"7\"]/inputparams/param[2]/value");
 			ElemPackageScreenTip.setText(packageScreenTip);
 			//8
-			ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"8\"]/inputparams/param[1]/value");
+			ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"8\"]/inputparams/param[1]/value");
 			ElemSecurityViewsPath.setText(securityViewsPath);
 			//9
-			ElemPackagePath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"9\"]/inputparams/param[1]/value");
+			ElemPackagePath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"9\"]/inputparams/param[1]/value");
 			ElemPackagePath.setText(packagePath);
 			//10
-			ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20180209185210418\"]/transaction/action[@seq=\"10\"]/inputparams/param[1]/value");
+			ElemSecurityViewsPath = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"10\"]/inputparams/param[1]/value");
 			ElemSecurityViewsPath.setText(securityViewsPath);
 
 //			System.out.println(document.asXML());

@@ -30,7 +30,6 @@ import com.cognos.developer.schemas.bibus._3.XmlEncodedXML;
 import com.cognos.org.apache.axis.client.Stub;
 import com.cognos.org.apache.axis.message.SOAPHeaderElement;
 import com.dma.cognos.CRNConnect;
-import com.dma.properties.ConfigPropertiezz;
 import com.dma.web.QuerySubject;
 
 import sapphire.util.Logger;

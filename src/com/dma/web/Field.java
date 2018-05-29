@@ -22,7 +22,8 @@ public class Field {
 	String displayType = "Value";
 	String description = "";
 	Map<String, Object> descriptions = new HashMap<String, Object>();
-	
+	String drill = "";
+
 	public String get_id() {
 		return _id;
 	}
@@ -125,5 +126,11 @@ public class Field {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
+	public String getDrill() {
+		return drill;
+	}
+	public void setDrill(String drill) {
+		this.drill = drill;
+	}
+
 }
