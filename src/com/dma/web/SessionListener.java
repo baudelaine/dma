@@ -1,11 +1,8 @@
 package com.dma.web;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.InitialContext;
@@ -15,9 +12,6 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import javax.sql.DataSource;
-
-import com.ibm.as400.access.AS400JDBCConnection;
-import com.ibm.as400.access.AS400JDBCDataSource;
 
 /**
  * Application Lifecycle Listener implementation class SessionListener
@@ -63,23 +57,42 @@ public class SessionListener implements HttpSessionListener {
     		String cognosLocales = (String) ic.lookup("CognosLocales");
     		
     		String dbEngine = (String) ic.lookup("DBEngine");
-    		if(dbEngine.equalsIgnoreCase("DB2400")){
-				jndiName = "jdbc/ds2";
-				schema = (String) ic.lookup("DB2400Schema");
-				query = (String) ic.lookup("TestDB2400DBConnection");
-			}
-    		if(dbEngine.equalsIgnoreCase("DB2")){
-				jndiName = "jdbc/ds1";
-				schema = (String) ic.lookup("DB2Schema");
-				query = (String) ic.lookup("TestDB2DBConnection");
-			}
+    		String schema = (String) ic.lookup("DBSchema");
+    		
+    		switch(dbEngine.toUpperCase()){
+    		
+    			case "ORA":
+    				jndiName = "jdbc/ORA";
+    				query = (String) ic.lookup("TestORAConnection");
+    				break;
+    				
+    			case "DB2":
+    				jndiName = "jdbc/DB2";
+    				query = (String) ic.lookup("TestDB2Connection");
+    				break;
 
-			if(dbEngine.equalsIgnoreCase("ORA")){
-				jndiName = "jdbc/ds0";
-				schema = (String) ic.lookup("ORASchema");
-				query = (String) ic.lookup("TestORADBConnection");
-			}    		
-			
+    			case "DB2400":
+    				jndiName = "jdbc/DB2400";
+    				query = (String) ic.lookup("TestDB2400Connection");
+    				break;
+
+    			case "SQLSRV":
+    				jndiName = "jdbc/SQLSRV";
+    				query = (String) ic.lookup("TestSQLSRVConnection");
+    				break;
+
+    			case "MYSQL":
+    				jndiName = "jdbc/MYSQL";
+    				query = (String) ic.lookup("TestMYSQLConnection");
+    				break;
+
+    			case "PGSQL":
+    				jndiName = "jdbc/PGSQL";
+    				query = (String) ic.lookup("TestPGSQLConnection");
+    				break;
+    				
+    		}
+    		
 			Connection con = null;
 //			if(dbEngine.equalsIgnoreCase("DB2400")){
 //				Class.forName("com.ibm.as400.access.AS400JDBCDriver");
@@ -149,3 +162,4 @@ public class SessionListener implements HttpSessionListener {
     }
 	
 }
+
