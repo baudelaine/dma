@@ -127,7 +127,7 @@ fieldCols.push({field:"displayType", title: "DisplayType", editable:{
   source: [{value: "Link", text: "Link"}, {value: "Picture", text: "Picture"}, {value: "Value", text: "Value"}]
   }
 });
-//fieldCols.push({field:"drill", title: "Drill", editable: {type: "text"}, sortable: true});
+fieldCols.push({field:"drill", title: "Drill", editable: {type: "text"}, sortable: true});
 
 $(document)
 .ready(function() {
