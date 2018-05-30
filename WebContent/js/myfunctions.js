@@ -127,7 +127,9 @@ fieldCols.push({field:"displayType", title: "DisplayType", editable:{
   source: [{value: "Link", text: "Link"}, {value: "Picture", text: "Picture"}, {value: "Value", text: "Value"}]
   }
 });
-fieldCols.push({field:"drill", title: "Drill", editable: {type: "text"}, sortable: true});
+fieldCols.push({field:"dimension", title: "Dimension", editable: {type: "text"}, sortable: true});
+fieldCols.push({field:"measure", title: "Measure", editable: {type: "text"}, sortable: true});
+fieldCols.push({field:"order", title: "Order", editable: {type: "text"}, sortable: true});
 
 $(document)
 .ready(function() {

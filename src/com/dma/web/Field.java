@@ -22,7 +22,9 @@ public class Field {
 	String displayType = "Value";
 	String description = "";
 	Map<String, Object> descriptions = new HashMap<String, Object>();
-	String drill = "";
+	String dimension = "";
+	String measure = "";
+	String order = "";
 
 	public String get_id() {
 		return _id;
@@ -126,11 +128,23 @@ public class Field {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public String getDrill() {
-		return drill;
+	public String getDimension() {
+		return dimension;
 	}
-	public void setDrill(String drill) {
-		this.drill = drill;
+	public void setDimension(String dimension) {
+		this.dimension = dimension ;
+	}
+	public String getMeasure() {
+		return measure;
+	}
+	public void setMeasure(String measure) {
+		this.measure = measure;
+	}
+	public String getOrder() {
+		return order;
+	}
+	public void setOrder(String order) {
+		this.order = order;
 	}
 
 }
