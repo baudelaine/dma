@@ -11,7 +11,7 @@
 <action seq="2" type="SetSecurityViewDefinition">
 <inputparams>
 <param seq="1" type="handle"><mappingpath>securityView</mappingpath><value>[].[securityViews].[TEST]</value></param>
-<param seq="2" type="handle"><mappingpath>namespace</mappingpath><value>[REF]</value></param>
+<param seq="2" type="handle"><mappingpath>namespace</mappingpath><value>[AUTOGENERATION]</value></param>
 <param seq="3" type="integer"><value>0</value></param>
 <param seq="4" type="handle"><mappingpath>namespace</mappingpath><value>[Model]</value></param>
 <param seq="5" type="integer"><value>2</value></param>
@@ -19,8 +19,6 @@
 <param seq="7" type="integer"><value>0</value></param>
 <param seq="8" type="handle"><mappingpath>namespace</mappingpath><value>[PHYSICALUSED]</value></param>
 <param seq="9" type="integer"><value>0</value></param>
-<param seq="10" type="handle"><mappingpath>namespace</mappingpath><value>[FINAL]</value></param>
-<param seq="11" type="integer"><value>0</value></param>
 </inputparams><domchanges/><result success="t"><outputparams/></result></action>
 <action seq="3" type="Create">
 <inputparams>
