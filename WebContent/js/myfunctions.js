@@ -1341,7 +1341,7 @@ function GetPKRelations(table_name, table_alias, type){
 
   var parms = "table=" + table_name + "&alias=" + table_alias + "&type=" + type;
 
-	console.log("calling GetQuerySubjectsWithPK with: " + parms);
+	console.log("calling GetPKRelations with: " + parms);
 
   $.ajax({
     type: 'POST',
@@ -1357,32 +1357,23 @@ function GetPKRelations(table_name, table_alias, type){
 			}
 
       if($activeSubDatasTable != undefined){
-        // console.log("datas");
-        // console.log(datas);
+
         var index;
         var datas = $datasTable.bootstrapTable("getData");
         $.each(datas, function(i, obj){
-          // console.log("obj._id");
-          // console.log(obj._id);
           if(obj._id == table_alias + type){
-            // console.log("hhhhhhhhhhhhhhhhhhhh");
             index = i;
           }
         })
-        // console.log("index=" + index);
         var relations = datas[index].relations;
-        // console.log("relations");
-        // console.log(relations);
-        //
-        // console.log("data.length=" + data.length)
+
         $.each(data, function(i, obj){
-          if(i < data.length -1){
-            relations.push(obj);
-          }
-          if(i == data.length -1){
-            AddRow($activeSubDatasTable, obj);
-          }
+          $datasTable.bootstrapTable("getData")[index].relations.push(obj);
         });
+
+        $datasTable.bootstrapTable("collapseRow", index);
+        $datasTable.bootstrapTable("expandRow", index);
+
       }
 
   	},
