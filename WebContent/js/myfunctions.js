@@ -967,13 +967,13 @@ function buildSubTable($el, cols, data, parentData){
               updateCell($el, row.index, field, newValue);
               ChangeIcon(row, parentData, "Identifier");
               if(row.fin && activeTab == "Final"){
-                GetQuerySubjects(row.pktable_name, row.pktable_alias, "Final", row._id);
+                GetQuerySubjects(row.pktable_name, row.pktable_alias, "Final", parentData.index);
               }
               if(row.ref && activeTab == "Reference"){
-                GetQuerySubjects(row.pktable_name, row.pktable_alias, "Ref", row._id);
+                GetQuerySubjects(row.pktable_name, row.pktable_alias, "Ref", row._id, parentData.index);
               }
               if(row.sec && activeTab == "Security"){
-                GetQuerySubjects(row.pktable_name, row.pktable_alias, "Sec", row._id);
+                GetQuerySubjects(row.pktable_name, row.pktable_alias, "Sec", row._id, parentData.index);
               }
               updateCell($datasTable, parentData.index, "linker", true);
             }
@@ -1386,7 +1386,7 @@ function GetPKRelations(table_name, table_alias, type){
 
 }
 
-function GetQuerySubjects(table_name, table_alias, type, linker_id) {
+function GetQuerySubjects(table_name, table_alias, type, linker_id, index) {
 
 	var table_name, table_alias, type, linker_id;
 
@@ -1449,6 +1449,7 @@ function GetQuerySubjects(table_name, table_alias, type, linker_id) {
 			}
   		$datasTable.bootstrapTable('append', data);
       datas = $datasTable.bootstrapTable("getData");
+      $datasTable.bootstrapTable('expandRow', index);
 
   	},
       error: function(data) {
