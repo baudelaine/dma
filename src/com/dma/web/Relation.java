@@ -24,6 +24,7 @@ public class Relation {
 	boolean tra = false;
 	boolean nommageRep = false;
 	boolean leftJoin = false;
+	boolean usedForDimensions = false;
 	boolean rightJoin = false;
 	String relationship = "";
 	String where = "";
@@ -179,6 +180,12 @@ public class Relation {
 	}
 	public void setLeftJoin(boolean leftJoin) {
 		this.leftJoin = leftJoin;
+	}
+	public boolean isUsedForDimensions() {
+		return usedForDimensions;
+	}
+	public void setUsedForDimensions(boolean usedForDimensions) {
+		this.usedForDimensions = usedForDimensions;
 	}
 	public boolean isRightJoin() {
 		return rightJoin;

@@ -39,6 +39,7 @@ relationCols.push({field:"sec", title: "sec", formatter: "boolFormatter", align:
 relationCols.push({field:"tra", title: "tra", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"nommageRep", title: "RepTableName", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"leftJoin", title: "Left Join", formatter: "boolFormatter", align: "center"});
+relationCols.push({field:"usedForDimensions", title: "Used For Dimensions", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"rightJoin", title: "Right Join", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"duplicate", title: '<i class="glyphicon glyphicon-duplicate"></i>', formatter: "duplicateFormatter", align: "center"});
 relationCols.push({field:"remove", title: '<i class="glyphicon glyphicon-trash"></i>', formatter: "removeFormatter", align: "center"});
@@ -127,8 +128,56 @@ fieldCols.push({field:"displayType", title: "DisplayType", editable:{
   source: [{value: "Link", text: "Link"}, {value: "Picture", text: "Picture"}, {value: "Value", text: "Value"}]
   }
 });
-fieldCols.push({field:"dimension", title: "Dimension", editable: {type: "text"}, sortable: true});
-fieldCols.push({field:"measure", title: "Measure", editable: {type: "text"}, sortable: true});
+
+var measure = {
+  type: "select",
+  mode: "inline",
+  value: [],
+  source: [
+      {value: 1, text: 'Average'},
+      {value: 2, text: 'Count'},
+      {value: 3, text: 'Count Distinct'},
+      {value: 4, text: 'Sum'},
+      {value: 5, text: 'Maximun'},
+      {value: 6, text: 'Minimum'},
+      {value: 7, text: 'Median'},
+      {value: 8, text: 'Standard Deviation'},
+      {value: 9, text: 'Variance'}
+  ]
+};
+
+fieldCols.push({field:"measure", title: "Measure", editable: measure});
+
+var dateDimensions = {
+  type: "checklist",
+  mode: "inline",
+  value: [],
+  source: [
+    {value: 'Year', text: 'Year'},
+    {value: 'Quarter', text: 'Quarter'},
+    {value: 'Month', text: 'Month'},
+    {value: 'Weeks', text: 'Weeks'},
+    {value: 'Day', text: 'Day'},
+    {value: 'AM/PM', text: 'AM/PM'},
+    {value: 'Hour', text: 'Hour'},
+    {value: 'Min', text: 'Min'},
+    {value: 'Date', text: 'Date'}
+  ]
+}
+
+var dimensions = {
+  type: "checklist",
+  mode: "inline",
+  value: [0],
+  source: [
+    {value: 0, text: 'value 0'},
+    {value: 1, text: 'value 1'},
+    {value: 2, text: 'value 2'},
+    {value: 3, text: 'value 3'}
+  ]
+}
+
+fieldCols.push({field:"dimension", title: "Dimension", editable: {type: 'text', mode: 'inline'}});
 fieldCols.push({field:"order", title: "Order", editable: {type: "text"}, sortable: true});
 
 $(document)
@@ -238,6 +287,7 @@ $secTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('showColumn', 'addRelation');
   $datasTable.bootstrapTable('showColumn', 'recurseCount');
   $datasTable.bootstrapTable('showColumn', 'nommageRep');
+
 });
 
 $traTab.on('shown.bs.tab', function(e) {
@@ -309,6 +359,16 @@ $datasTable.on('reset-view.bs.table', function(){
       if(row.sec && activeTab.match("Final|Reference")){
         $tableRows.eq(i).find('a').eq(3).editable('disable');
         $tableRows.eq(i).find('a').eq(2).editable('disable');
+      }
+      if(activeTab.match("Query Subject")){
+        if(row.field_type == "DATE"){
+          $tableRows.eq(i).find('a').eq(6).editable('destroy');
+          $tableRows.eq(i).find('a').eq(6).editable(dateDimensions);
+          // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dateDimensions.source);
+        }
+        else{
+          // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dimensions.source);
+        }
       }
 
     });
@@ -759,11 +819,31 @@ function buildSubTable($el, cols, data, parentData){
       sortName: "recCountPercent",
       sortOrder: "desc",
       idField: "index",
+
+      onAll: function(name, args){
+        //Fires when all events trigger, the parameters contain: name: the event name, args: the event data.
+        console.log("---------- buildSubTable: onAll -------------");
+        console.log("name=" + name);
+        console.log("args=");
+        console.log(args);
+        console.log("---------- buildSubTable: onAll -------------");
+      },
+
       onEditableInit: function(){
         //Fired when all columns was initialized by $().editable() method.
       },
       onEditableShown: function(editable, field, row, $el){
         //Fired when an editable cell is opened for edits.
+        console.log("---------- buildSubTable: onEditableShown -------------");
+        console.log("editable=");
+        console.log(editable);
+        console.log("field=");
+        console.log(field);
+        console.log("row=");
+        console.log(row);
+        console.log("$el=");
+        console.log($el);
+        console.log("---------- buildSubTable: onEditableShown -------------");
       },
       onEditableHidden: function(field, row, $el, reason){
         //Fired when an editable cell is hidden / closed.
@@ -796,11 +876,36 @@ function buildSubTable($el, cols, data, parentData){
 
         switch(field){
 
+          case "dimension":
+          console.log("---------- buildSubTable: case dimension -------------");
+          console.log("field=");
+          console.log(field);
+          console.log("value=");
+          console.log(value);
+          console.log("row=");
+          console.log(row);
+          console.log("$element=");
+          console.log($element);
+          console.log("---------- buildSubTable: case dimension -------------");
+
+            if(row.field_type == "DATE"){
+              // $element.options.source = dateDimensions;
+              // console.log("!!!!!!!!!!!!!!!!!!!!!!!");
+              // console.log($(this).bootstrapTable('getOptions'));
+              // var col = $(this).bootstrapTable('getOptions')[0].columns[0];
+              // var src = col[8].editable.source
+              // console.log(src);
+              // $(this).bootstrapTable('getOptions')[0].columns[0][8].editable.source = dateDimensions;
+              // // $(this).bootstrapTable('refreshOptions', $(this).bootstrapTable('getOptions'));
+            }
+
+            break;
 
           case "traduction":
           case "hidden":
           case "timezone":
           case "leftJoin":
+          case "usedForDimensions":
           case "rightJoin":
             console.log(field);
             console.log(value);
@@ -1007,6 +1112,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('hideColumn', 'sec');
     $el.bootstrapTable('hideColumn', 'tra');
     $el.bootstrapTable('showColumn', 'nommageRep');
+    $el.bootstrapTable('showColumn', 'usedForDimensions');
   }
 
   if(activeTab == "Security"){
@@ -1015,6 +1121,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('hideColumn', 'tra');
     $el.bootstrapTable('showColumn', 'sec');
     $el.bootstrapTable('showColumn', 'nommageRep');
+    $el.bootstrapTable('hideColumn', 'usedForDimensions');
   }
 
   if(activeTab == "Translation"){
@@ -1023,6 +1130,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('hideColumn', 'sec');
     $el.bootstrapTable('showColumn', 'tra');
     $el.bootstrapTable('showColumn', 'nommageRep');
+    $el.bootstrapTable('hideColumn', 'usedForDimensions');
   }
 
   if(activeTab == "Final"){
@@ -1031,6 +1139,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('hideColumn', 'tra');
     $el.bootstrapTable('showColumn', 'fin');
     $el.bootstrapTable('hideColumn', 'nommageRep');
+    $el.bootstrapTable('hideColumn', 'usedForDimensions');
   }
 
   // ApplyFilter();
