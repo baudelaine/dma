@@ -11,14 +11,14 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Servlet implementation class GetTablesServlet
  */
-@WebServlet("/GetNewRelation")
-public class GetNewRelationServlet extends HttpServlet {
+@WebServlet("/GetNewField")
+public class GetNewFieldServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public GetNewRelationServlet() {
+    public GetNewFieldServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -32,7 +32,7 @@ public class GetNewRelationServlet extends HttpServlet {
 
 		try {
 			
-	        result = new Relation();
+	        result = new Field();
 		    response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
 			response.getWriter().write(Tools.toJSON(result));

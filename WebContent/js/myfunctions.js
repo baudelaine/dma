@@ -102,6 +102,7 @@ qsCols.push({field:"recurseCount", title: '<i class="glyphicon glyphicon-repeat"
   });
 qsCols.push({field:"addPKRelation", title: '<i class="glyphicon glyphicon-magnet" title="Add PK relation(s)"></i>', formatter: "addPKRelationFormatter", align: "center"});
 qsCols.push({field:"addRelation", title: '<i class="glyphicon glyphicon-plus-sign" title="Add new relation"></i>', formatter: "addRelationFormatter", align: "center"});
+qsCols.push({field:"addField", title: '<i class="glyphicon glyphicon-plus-sign" title="Add new field"></i>', formatter: "addFieldFormatter", align: "center"});
 // qsCols.push({field:"linker", formatter: "boolFormatter", title: "linker", align: "center"});
 // qsCols.push({field:"linker_ids", title: "linker_ids"});
 
@@ -110,6 +111,7 @@ fieldCols.push({field:"index", title: "index", formatter: "indexFormatter", sort
 fieldCols.push({field:"field_name", title: "field_name", sortable: true });
 fieldCols.push({field:"label", title: "label", editable: {type: "text"}, sortable: true});
 fieldCols.push({field:"description", title: "Description", sortable: false, editable: {type: "textarea", rows: 4}});
+fieldCols.push({field:"expression", title: "Expression", sortable: false, editable: {type: "textarea", rows: 4}});
 // fieldCols.push({field:"traduction", title: "traduction", formatter: "boolFormatter", align: "center", sortable: false});
 fieldCols.push({field:"hidden", title: "Hidden", formatter: "boolFormatter", align: "center", sortable: false});
 // fieldCols.push({field:"field_type", title: "field_type", editable: false, sortable: true});
@@ -236,6 +238,7 @@ $qsTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('hideColumn', 'operate');
   $datasTable.bootstrapTable('hideColumn', 'addRelation');
   $datasTable.bootstrapTable('hideColumn', 'addPKRelation');
+  $datasTable.bootstrapTable('showColumn', 'addField');
   $datasTable.bootstrapTable('hideColumn', 'recurseCount');
   $datasTable.bootstrapTable('hideColumn', '_id');
 });
@@ -250,6 +253,7 @@ $finTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('showColumn', 'label');
   $datasTable.bootstrapTable('hideColumn', 'recurseCount');
   $datasTable.bootstrapTable('showColumn', 'addRelation');
+  $datasTable.bootstrapTable('hideColumn', 'addField');
   $datasTable.bootstrapTable('hideColumn', 'addPKRelation');
   $datasTable.bootstrapTable('hideColumn', 'nommageRep');
   // $datasTable.bootstrapTable('showColumn', '_id');
@@ -268,6 +272,7 @@ $refTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('showColumn', 'label');
   $datasTable.bootstrapTable('showColumn', 'addPKRelation');
   $datasTable.bootstrapTable('showColumn', 'addRelation');
+  $datasTable.bootstrapTable('hideColumn', 'addField');
   $datasTable.bootstrapTable('showColumn', 'recurseCount');
   $datasTable.bootstrapTable('showColumn', 'nommageRep');
   // $datasTable.bootstrapTable('showColumn', '_id');
@@ -285,6 +290,7 @@ $secTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('showColumn', 'label');
   $datasTable.bootstrapTable('showColumn', 'addPKRelation');
   $datasTable.bootstrapTable('showColumn', 'addRelation');
+  $datasTable.bootstrapTable('hideColumn', 'addField');
   $datasTable.bootstrapTable('showColumn', 'recurseCount');
   $datasTable.bootstrapTable('showColumn', 'nommageRep');
 
@@ -552,6 +558,14 @@ function addPKRelationFormatter(value, row, index) {
 function addRelationFormatter(value, row, index) {
     return [
         '<a class="addRelation" href="javascript:void(0)" title="Add new relation">',
+        '<i class="glyphicon glyphicon-plus-sign"></i>',
+        '</a>'
+    ].join('');
+}
+
+function addFieldFormatter(value, row, index) {
+    return [
+        '<a class="addRelation" href="javascript:void(0)" title="Add new field">',
         '<i class="glyphicon glyphicon-plus-sign"></i>',
         '</a>'
     ].join('');
@@ -1372,6 +1386,15 @@ function buildTable($el, cols, data) {
             GetPKRelations(row.table_name, row.table_alias, row.type);
           }
 
+          if(field.match("addField")){
+            $el.bootstrapTable("collapseAllRows")
+            $el.bootstrapTable('expandRow', row.index);
+
+            if($activeSubDatasTable != undefined){
+              GetNewField($activeSubDatasTable);
+            }
+          }
+
 
         },
         onExpandRow: function (index, row, $detail) {
@@ -1389,6 +1412,7 @@ function buildTable($el, cols, data) {
     $el.bootstrapTable('showColumn', 'label');
     $el.bootstrapTable('hideColumn', 'recurseCount');
     $el.bootstrapTable('hideColumn', 'addPKRelation');
+    $el.bootstrapTable('hideColumn', 'addField');
     $el.bootstrapTable('showColumn', '_id');
     $el.bootstrapTable('showColumn', 'linker');
     $el.bootstrapTable('showColumn', 'linker_ids');
@@ -1406,6 +1430,50 @@ function buildTable($el, cols, data) {
     }
 
     // ApplyFilter();
+
+}
+
+function GetNewField($el) {
+
+  var fieldName;
+  var rows = $el.bootstrapTable('getData');
+  console.log(rows);
+
+  bootbox.prompt({
+    size: "small",
+    title: "Enter field name",
+    callback: function(result){
+       /* result = String containing user input if OK clicked or null if Cancel clicked */
+      fieldName = result;
+      if(!fieldName){
+        return;
+      }
+
+      $.each(rows, function(index, row){
+        if(row.field_name == fieldName){
+          showalert("GetNewField()", fieldName + " already exists.", "alert-warning", "bottom");
+  				return;
+        }
+      })
+
+      $.ajax({
+        type: 'POST',
+        url: "GetNewField",
+        dataType: 'json',
+
+        success: function(data) {
+          console.log(data);
+          data.field_name = fieldName;
+          AddRow($el, data);
+        },
+        error: function(data) {
+            console.log(data);
+        }
+      });
+
+    }
+  });
+
 
 }
 

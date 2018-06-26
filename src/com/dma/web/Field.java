@@ -21,6 +21,7 @@ public class Field {
 	String icon = "Attribute";
 	String displayType = "Value";
 	String description = "";
+	String expression = "";
 	Map<String, Object> descriptions = new HashMap<String, Object>();
 	String dimension = "";
 	String measure = "";
@@ -145,6 +146,12 @@ public class Field {
 	}
 	public void setOrder(String order) {
 		this.order = order;
+	}
+	public String getExpression() {
+		return expression;
+	}
+	public void setExpression(String expression) {
+		this.expression = expression;
 	}
 
 }
