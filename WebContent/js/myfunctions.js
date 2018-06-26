@@ -1437,39 +1437,42 @@ function GetNewField($el) {
 
   var fieldName;
   var rows = $el.bootstrapTable('getData');
-  console.log(rows);
+
 
   bootbox.prompt({
     size: "small",
     title: "Enter field name",
     callback: function(result){
        /* result = String containing user input if OK clicked or null if Cancel clicked */
+       var status = 'OK';
       fieldName = result;
       if(!fieldName){
         return;
       }
 
       $.each(rows, function(index, row){
-        if(row.field_name == fieldName){
-          showalert("GetNewField()", fieldName + " already exists.", "alert-warning", "bottom");
+        if(row.field_name.toUpperCase() == fieldName.toUpperCase()){
+          showalert("GetNewField()", fieldName.toUpperCase() + " already exists.", "alert-warning", "bottom");
+          status = 'KO'
   				return;
         }
       })
+      if(status == 'OK'){
+        $.ajax({
+          type: 'POST',
+          url: "GetNewField",
+          dataType: 'json',
 
-      $.ajax({
-        type: 'POST',
-        url: "GetNewField",
-        dataType: 'json',
-
-        success: function(data) {
-          console.log(data);
-          data.field_name = fieldName;
-          AddRow($el, data);
-        },
-        error: function(data) {
+          success: function(data) {
             console.log(data);
-        }
-      });
+            data.field_name = fieldName.toUpperCase();
+            AddRow($el, data);
+          },
+          error: function(data) {
+              console.log(data);
+          }
+        });
+      }
 
     }
   });
