@@ -108,7 +108,8 @@ qsCols.push({field:"addField", title: '<i class="glyphicon glyphicon-plus-sign" 
 
 var fieldCols = [];
 fieldCols.push({field:"index", title: "index", formatter: "indexFormatter", sortable: false});
-fieldCols.push({field:"field_name", title: "field_name", sortable: true });
+fieldCols.push({field:"field_name", title: "Name", sortable: true });
+fieldCols.push({field:"field_type", title: "Type", editable: false, sortable: true});
 fieldCols.push({field:"label", title: "label", editable: {type: "text"}, sortable: true});
 fieldCols.push({field:"description", title: "Description", sortable: false, editable: {type: "textarea", rows: 4}});
 fieldCols.push({field:"expression", title: "Expression", sortable: false, editable: {type: "textarea", rows: 4}});
@@ -368,8 +369,8 @@ $datasTable.on('reset-view.bs.table', function(){
       }
       if(activeTab.match("Query Subject")){
         if(row.field_type == "DATE"){
-          $tableRows.eq(i).find('a').eq(6).editable('destroy');
-          $tableRows.eq(i).find('a').eq(6).editable(dateDimensions);
+          $tableRows.eq(i).find('a').eq(7).editable('destroy');
+          $tableRows.eq(i).find('a').eq(7).editable(dateDimensions);
           // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dateDimensions.source);
         }
         else{
@@ -1127,6 +1128,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('hideColumn', 'tra');
     $el.bootstrapTable('showColumn', 'nommageRep');
     $el.bootstrapTable('showColumn', 'usedForDimensions');
+    $el.bootstrapTable('hideColumn', 'rightJoin');
   }
 
   if(activeTab == "Security"){
@@ -1136,6 +1138,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('showColumn', 'sec');
     $el.bootstrapTable('showColumn', 'nommageRep');
     $el.bootstrapTable('hideColumn', 'usedForDimensions');
+    $el.bootstrapTable('hideColumn', 'rightJoin');
   }
 
   if(activeTab == "Translation"){
@@ -1145,6 +1148,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('showColumn', 'tra');
     $el.bootstrapTable('showColumn', 'nommageRep');
     $el.bootstrapTable('hideColumn', 'usedForDimensions');
+    $el.bootstrapTable('hideColumn', 'rightJoin');
   }
 
   if(activeTab == "Final"){
@@ -1154,6 +1158,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('showColumn', 'fin');
     $el.bootstrapTable('hideColumn', 'nommageRep');
     $el.bootstrapTable('hideColumn', 'usedForDimensions');
+    $el.bootstrapTable('hideColumn', 'rightJoin');
   }
 
   // ApplyFilter();
@@ -1466,6 +1471,7 @@ function GetNewField($el) {
           success: function(data) {
             console.log(data);
             data.field_name = fieldName.toUpperCase();
+            data.field_type = "CUSTOM";
             AddRow($el, data);
           },
           error: function(data) {
