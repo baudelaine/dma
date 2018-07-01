@@ -26,7 +26,8 @@ public class Field {
 	String dimension = "";
 	String measure = "";
 	String order = "";
-
+	boolean custom = false;
+	
 	public String get_id() {
 		return _id;
 	}
@@ -152,6 +153,12 @@ public class Field {
 	}
 	public void setExpression(String expression) {
 		this.expression = expression;
+	}
+	public boolean isCustom() {
+		return custom;
+	}
+	public void setCustom(boolean custom) {
+		this.custom = custom;
 	}
 
 }
