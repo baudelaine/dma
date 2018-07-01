@@ -40,7 +40,7 @@ relationCols.push({field:"tra", title: "tra", formatter: "boolFormatter", align:
 relationCols.push({field:"nommageRep", title: "RepTableName", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"leftJoin", title: "Left Join", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"usedForDimensions", title: "Used For Dimensions", formatter: "boolFormatter", align: "center"});
-relationCols.push({field:"rightJoin", title: "Right Join", formatter: "boolFormatter", align: "center"});
+// relationCols.push({field:"rightJoin", title: "Right Join", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"duplicate", title: '<i class="glyphicon glyphicon-duplicate"></i>', formatter: "duplicateFormatter", align: "center"});
 relationCols.push({field:"remove", title: '<i class="glyphicon glyphicon-trash"></i>', formatter: "removeFormatter", align: "center"});
 // relationCols.push({field:"operate", title: "operate", formatter: "operateRelationFormatter", align: "center", events: "operateRelationEvents"});
@@ -137,15 +137,16 @@ var measure = {
   mode: "inline",
   value: [],
   source: [
-      {value: 1, text: 'Average'},
-      {value: 2, text: 'Count'},
-      {value: 3, text: 'Count Distinct'},
-      {value: 4, text: 'Sum'},
-      {value: 5, text: 'Maximun'},
-      {value: 6, text: 'Minimum'},
-      {value: 7, text: 'Median'},
-      {value: 8, text: 'Standard Deviation'},
-      {value: 9, text: 'Variance'}
+      {value: '', text: ''},
+      {value: 'Average', text: 'Average'},
+      {value: 'Count', text: 'Count'},
+      {value: 'Count Distinct', text: 'Count Distinct'},
+      {value: 'Sum', text: 'Sum'},
+      {value: 'Maximun', text: 'Maximun'},
+      {value: 'Minimum', text: 'Minimum'},
+      {value: 'Median', text: 'Median'},
+      {value: 'Standard Deviation', text: 'Standard Deviation'},
+      {value: 'Variance', text: 'Variance'}
   ]
 };
 
@@ -257,9 +258,9 @@ $finTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('hideColumn', 'addField');
   $datasTable.bootstrapTable('hideColumn', 'addPKRelation');
   $datasTable.bootstrapTable('hideColumn', 'nommageRep');
-  // $datasTable.bootstrapTable('showColumn', '_id');
-  // $datasTable.bootstrapTable('showColumn', 'linker');
-  // $datasTable.bootstrapTable('showColumn', 'linker_ids');
+  $datasTable.bootstrapTable('hideColumn', '_id');
+  $datasTable.bootstrapTable('hideColumn', 'linker');
+  $datasTable.bootstrapTable('hideColumn', 'linker_ids');
 });
 
 $refTab.on('shown.bs.tab', function(e) {
@@ -276,9 +277,9 @@ $refTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('hideColumn', 'addField');
   $datasTable.bootstrapTable('showColumn', 'recurseCount');
   $datasTable.bootstrapTable('showColumn', 'nommageRep');
-  // $datasTable.bootstrapTable('showColumn', '_id');
-  // $datasTable.bootstrapTable('showColumn', 'linker');
-  // $datasTable.bootstrapTable('showColumn', 'linker_ids');
+  $datasTable.bootstrapTable('hideColumn', '_id');
+  $datasTable.bootstrapTable('hideColumn', 'linker');
+  $datasTable.bootstrapTable('hideColumn', 'linker_ids');
 });
 
 $secTab.on('shown.bs.tab', function(e) {
@@ -1042,8 +1043,10 @@ function buildSubTable($el, cols, data, parentData){
             console.log("pkAlias=" + pkAlias);
             console.log(newValue);
             if(value == true){
-
+              console.log('++++++PrepareRemoveKey');
               PrepareRemoveKeys(row, parentData);
+              console.log('++++++');
+              console.log(qs2rm);
               if(qs2rm.qsList.length > 0){
 
                 RemoveKeys(row, parentData);
@@ -1087,7 +1090,7 @@ function buildSubTable($el, cols, data, parentData){
               updateCell($el, row.index, field, newValue);
               ChangeIcon(row, parentData, "Identifier");
               if(row.fin && activeTab == "Final"){
-                GetQuerySubjects(row.pktable_name, row.pktable_alias, "Final", parentData.index);
+                GetQuerySubjects(row.pktable_name, row.pktable_alias, "Final", row._id, parentData.index);
               }
               if(row.ref && activeTab == "Reference"){
                 GetQuerySubjects(row.pktable_name, row.pktable_alias, "Ref", row._id, parentData.index);
@@ -1096,6 +1099,9 @@ function buildSubTable($el, cols, data, parentData){
                 GetQuerySubjects(row.pktable_name, row.pktable_alias, "Sec", row._id, parentData.index);
               }
               updateCell($datasTable, parentData.index, "linker", true);
+//              $datasTable.bootstrapTable('collapseRow', parentData.index);
+  //            $datasTable.bootstrapTable('expandRow', parentData.index);
+
             }
             var linked = false;
             $.each(parentData.relations, function(i, obj){
@@ -1128,7 +1134,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('hideColumn', 'tra');
     $el.bootstrapTable('showColumn', 'nommageRep');
     $el.bootstrapTable('showColumn', 'usedForDimensions');
-    $el.bootstrapTable('hideColumn', 'rightJoin');
+    $el.bootstrapTable('showColumn', 'rightJoin');
   }
 
   if(activeTab == "Security"){
@@ -1138,7 +1144,7 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('showColumn', 'sec');
     $el.bootstrapTable('showColumn', 'nommageRep');
     $el.bootstrapTable('hideColumn', 'usedForDimensions');
-    $el.bootstrapTable('hideColumn', 'rightJoin');
+    $el.bootstrapTable('showColumn', 'rightJoin');
   }
 
   if(activeTab == "Translation"){
@@ -1158,10 +1164,8 @@ function buildSubTable($el, cols, data, parentData){
     $el.bootstrapTable('showColumn', 'fin');
     $el.bootstrapTable('hideColumn', 'nommageRep');
     $el.bootstrapTable('hideColumn', 'usedForDimensions');
-    $el.bootstrapTable('hideColumn', 'rightJoin');
+    $el.bootstrapTable('showColumn', 'rightJoin');
   }
-
-  // ApplyFilter();
 
 }
 
@@ -1471,7 +1475,7 @@ function GetNewField($el) {
           success: function(data) {
             console.log(data);
             data.field_name = fieldName.toUpperCase();
-            data.field_type = "CUSTOM";
+            data.custom = true;
             AddRow($el, data);
           },
           error: function(data) {
