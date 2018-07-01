@@ -149,9 +149,14 @@ public class FactorySVC {
 		
 	}
 	
-	public void DBImport(String Namespace, String dataSourceName, String schemaName) {
+	public void DBImport(String Namespace, String dataSourceName, String schemaName, String engineName) {
 		try {
-			File xmlFile = new File(csvc.getPathToXML() + "/DBImport.xml");
+			File xmlFile = null;
+			if (engineName.equals("ORA")) {
+				xmlFile = new File(csvc.getPathToXML() + "/DBImport_ORA.xml");
+			} else  if (engineName.equals("MYSQL")) {
+				xmlFile = new File(csvc.getPathToXML() + "/DBImport_MYSQL.xml");
+			}
 
 			SAXReader reader = new SAXReader();
 			Document script = reader.read(xmlFile);
@@ -171,8 +176,13 @@ public class FactorySVC {
 			elemDataSource.addAttribute("description", "");
 			elemDataSource.addAttribute("screenTip", "");
 
-			Element elemSchema = (Element) doc.selectSingleNode("//item/item");
-			elemSchema.addAttribute("Name", schemaName);
+			if (engineName.equals("ORA")) {
+				Element elemSchema = (Element) doc.selectSingleNode("//item/item");
+				elemSchema.addAttribute("Name", schemaName);
+			} else  if (engineName.equals("MYSQL")) {
+				Element elemSchema = (Element) doc.selectSingleNode("//item/item");
+				elemSchema.addAttribute("Name", schemaName);
+			}
 			
 			Element root_cdata = doc.getRootElement();
 	

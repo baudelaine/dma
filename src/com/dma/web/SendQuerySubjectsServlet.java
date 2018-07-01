@@ -174,13 +174,15 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			result.put("message", renamedCpf + " found in " + projectPath + ".");
 			result.put("troubleshooting", "");
 		}
-		
+
+		String dBEngine = (String) request.getSession().getAttribute("dbEngine");
 		String cognosFolder = (String) request.getSession().getAttribute("cognosFolder");
 		String cognosDispatcher = (String) request.getSession().getAttribute("cognosDispatcher");
 		String cognosLogin = (String) request.getSession().getAttribute("cognosLogin");
 		String cognosPassword = (String) request.getSession().getAttribute("cognosPassword");
 		String cognosNamespace = (String) request.getSession().getAttribute("cognosNamespace");
 		String pathToXML = getServletContext().getRealPath("/") + "/res/templates";
+
 		if(!Files.exists(Paths.get(pathToXML))){
 			result.put("status", "KO");
 			result.put("message", "PathToXML " + pathToXML + " not found." );
@@ -222,7 +224,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				fsvc.createNamespace("DIMENSIONAL", "Model");
 				
 				//Import();
-				fsvc.DBImport("PHYSICAL", cognosDataSource, cognosSchema);
+				fsvc.DBImport("PHYSICAL", cognosDataSource, cognosSchema, dBEngine);
 				
 				gRefMap = new HashMap<String, Integer>();
 				
