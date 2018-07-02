@@ -20,6 +20,7 @@ var $projectFileModal = $('#modProjectFile');
 var qs2rm = {qs: "", row: "", qsList: [], ids2rm: {}};
 var newRelation;
 var cognosLocales;
+var dbDataType = [];
 
 var relationCols = [];
 // relationCols.push({field:"checkbox", checkbox: "true"});
@@ -109,10 +110,16 @@ qsCols.push({field:"addField", title: '<i class="glyphicon glyphicon-plus-sign" 
 var fieldCols = [];
 fieldCols.push({field:"index", title: "index", formatter: "indexFormatter", sortable: false});
 fieldCols.push({field:"field_name", title: "Name", sortable: true });
-fieldCols.push({field:"field_type", title: "Type", editable: false, sortable: true});
-fieldCols.push({field:"label", title: "label", editable: {type: "text"}, sortable: true});
-fieldCols.push({field:"description", title: "Description", sortable: false, editable: {type: "textarea", rows: 4}});
-fieldCols.push({field:"expression", title: "Expression", sortable: false, editable: {type: "textarea", rows: 4}});
+fieldCols.push({field:"field_type", title: "Type", editable: {type: "text", mode: "inline"}, sortable: true});
+
+var customFieldType = {
+  type: "select",
+  mode: "inline"
+};
+
+fieldCols.push({field:"label", title: "label", editable: {type: "text", mode: "inline"}, sortable: true});
+fieldCols.push({field:"description", title: "Description", sortable: false, editable: {type: "textarea", mode: "inline", rows: 4}});
+fieldCols.push({field:"expression", title: "Expression", sortable: false, editable: {type: "textarea", mode: "inline", rows: 4}});
 // fieldCols.push({field:"traduction", title: "traduction", formatter: "boolFormatter", align: "center", sortable: false});
 fieldCols.push({field:"hidden", title: "Hidden", formatter: "boolFormatter", align: "center", sortable: false});
 // fieldCols.push({field:"field_type", title: "field_type", editable: false, sortable: true});
@@ -121,12 +128,14 @@ fieldCols.push({field:"hidden", title: "Hidden", formatter: "boolFormatter", ali
 // fieldCols.push({field:"timezone", title: "timezone", formatter: "boolFormatter", align: "center", sortable: false});
 fieldCols.push({field:"icon", title: "Icon", editable:{
   type: "select",
+  mode: "inline",
   value: "Attribute",
   source: [{value: "Attribute", text: "Attribute"}, {value: "Identifier", text: "Identifier"}, {value: "Fact", text: "Fact"}]
   }
 });
 fieldCols.push({field:"displayType", title: "DisplayType", editable:{
   type: "select",
+  mode: "inline",
   value: "Value",
   source: [{value: "Link", text: "Link"}, {value: "Picture", text: "Picture"}, {value: "Value", text: "Value"}]
   }
@@ -183,6 +192,7 @@ var dimensions = {
 
 fieldCols.push({field:"dimension", title: "Dimension", editable: {type: 'text', mode: 'inline'}});
 fieldCols.push({field:"order", title: "Order", editable: {type: "text"}, sortable: true});
+fieldCols.push({field:"remove", title: '<i class="glyphicon glyphicon-trash"></i>', formatter: "removeFormatter", align: "center"});
 
 $(document)
 .ready(function() {
@@ -190,7 +200,8 @@ $(document)
   GetDBMDFromCache();
 
   buildTable($datasTable, qsCols, datas, true);
-  GetCognosLocales();
+  GetCognosLocales
+  GetDBDataType();
 })
 .ajaxStart(function(){
     $("div#divLoading").addClass('show');
@@ -243,6 +254,9 @@ $qsTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('showColumn', 'addField');
   $datasTable.bootstrapTable('hideColumn', 'recurseCount');
   $datasTable.bootstrapTable('hideColumn', '_id');
+  // console.log('dbDataType=');
+  // console.log(dbDataType);
+
 });
 
 $finTab.on('shown.bs.tab', function(e) {
@@ -261,6 +275,7 @@ $finTab.on('shown.bs.tab', function(e) {
   $datasTable.bootstrapTable('hideColumn', '_id');
   $datasTable.bootstrapTable('hideColumn', 'linker');
   $datasTable.bootstrapTable('hideColumn', 'linker_ids');
+
 });
 
 $refTab.on('shown.bs.tab', function(e) {
@@ -370,12 +385,28 @@ $datasTable.on('reset-view.bs.table', function(){
       }
       if(activeTab.match("Query Subject")){
         if(row.field_type == "DATE"){
-          $tableRows.eq(i).find('a').eq(7).editable('destroy');
-          $tableRows.eq(i).find('a').eq(7).editable(dateDimensions);
+          $tableRows.eq(i).find('a').eq(8).editable('destroy');
+          $tableRows.eq(i).find('a').eq(8).editable(dateDimensions);
           // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dateDimensions.source);
         }
         else{
           // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dimensions.source);
+        }
+      }
+      if(activeTab.match("Query Subject")){
+        if(row.custom != true){
+          $tableRows.eq(i).find('a').eq(0).editable('disable');
+          console.log($tableRows.eq(i).find('a.remove').val('hidden'));
+          console.log(row);
+          // $tableRows.eq(i).find('a.remove').prop("disabled",true);
+          $tableRows.eq(i).find('a.remove').remove();
+        }
+        else{
+          $tableRows.eq(i).find('a').eq(0).editable('destroy');
+          // $tableRows.eq(i).find('a').eq(0).editable('setValue', ['VARCHAR']);
+          customFieldType.source = dbDataType;
+          $tableRows.eq(i).find('a').eq(0).editable(customFieldType);
+          $tableRows.eq(i).find('a').eq(0).editable('option', 'defaultValue', 'VARCHAR');
         }
       }
 
@@ -1004,14 +1035,24 @@ function buildSubTable($el, cols, data, parentData){
             return;
 
           case "remove":
-            if(!row.fin && !row.ref){
-              $el.bootstrapTable('remove', {
-                  field: 'index',
-                  values: [row.index]
-              });
+            if(activeTab.match("Final|Reference|Security")){
+              if(!row.fin && !row.ref){
+                $el.bootstrapTable('remove', {
+                    field: 'index',
+                    values: [row.index]
+                });
+              }
+              else{
+                showalert("buildSubTable()", row._id + " is checked.", "alert-warning", "bottom");
+              }
             }
-            else{
-              showalert("buildSubTable()", row._id + " is checked.", "alert-warning", "bottom");
+            if(activeTab.match("Query Subject")){
+              if(row.custom == true){
+                $el.bootstrapTable('remove', {
+                    field: 'index',
+                    values: [row.index]
+                });
+              }
             }
             return;
 
@@ -2162,6 +2203,22 @@ function OpenModel(id){
 
 }
 
+function GetDBDataType() {
+
+	$.ajax({
+        type: 'POST',
+        url: "GetDataType",
+        dataType: 'json',
+
+        success: function(data) {
+			       dbDataType = data;
+        },
+        error: function(data) {
+            console.log(data);
+        }
+
+    });
+}
 
 function Reset() {
 
