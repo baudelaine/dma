@@ -145,11 +145,13 @@ public class ScanServlet extends HttpServlet {
 		    		Statement stmt = null;
 		    		ResultSet rs = null;
 		            try{
-		    			if(!schema.isEmpty()){
-		    				schema += ".";
-		    			}
 		            	
-			    		String query = "SELECT COUNT(*) FROM " + schema + table.get("name");
+			    		String query = "SELECT COUNT(*) FROM ";
+			    		if(!schema.isEmpty()){
+			    			query += schema + ".";
+			    		}
+			    		query += table.get("name");
+			    		
 			    		stmt = con.createStatement();
 			            rs = stmt.executeQuery(query);
 			            while (rs.next()) {

@@ -195,10 +195,13 @@ public class GetPKRelationsServlet extends HttpServlet {
 		    		Set<String> tableSet = new HashSet<String>();
 		    		for(Seq seq: rel.getSeqs()){
 		    			if(!schema.isEmpty()){
-		    				schema += ".";
+			    			tableSet.add(schema + "." + seq.pktable_name);
+			    			tableSet.add(schema + "." + seq.table_name);
 		    			}
-		    			tableSet.add(schema + seq.pktable_name);
-		    			tableSet.add(schema + seq.table_name);
+		    			else{
+			    			tableSet.add(schema + seq.pktable_name);
+			    			tableSet.add(schema + seq.table_name);
+		    			}
 		    		}
 		    		
 		    		System.out.println("tableSet=" + tableSet);

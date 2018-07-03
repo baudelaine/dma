@@ -125,10 +125,12 @@ public class GetQuerySubjectsServlet extends HttpServlet {
     		Statement stmt = null;
     		ResultSet rs = null;
             try{
-    			if(!schema.isEmpty()){
-    				schema += ".";
-    			}
-	    		String query = "SELECT COUNT(*) FROM " + schema + table;
+	    		String query = "SELECT COUNT(*) FROM ";
+	    		if(!schema.isEmpty()){
+	    			query += schema + ".";
+	    		}
+	    		query += table;
+	    		
 	    		stmt = con.createStatement();
 	            rs = stmt.executeQuery(query);
 	            while (rs.next()) {
@@ -159,6 +161,8 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 				result.setDescription((String) o.get("table_description"));
 			}
 		}
+		
+		System.out.println("result" + result);
         
         return result;
         
@@ -223,7 +227,6 @@ public class GetQuerySubjectsServlet extends HttpServlet {
     			field.setLabel((String) column.get("column_remarks"));
     			field.setDescription((String) column.get("column_description"));
     		}
-        	
         	
         	result.add(field);
         }
@@ -335,11 +338,13 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	    		Set<String> tableSet = new HashSet<String>();
 	    		for(Seq seq: rel.getSeqs()){
 	    			if(!schema.isEmpty()){
-	    				schema += ".";
+		    			tableSet.add(schema + "." + seq.pktable_name);
+		    			tableSet.add(schema + "." + seq.table_name);
 	    			}
-	    			
-	    			tableSet.add(schema + seq.pktable_name);
-	    			tableSet.add(schema + seq.table_name);
+	    			else{
+		    			tableSet.add(schema + seq.pktable_name);
+		    			tableSet.add(schema + seq.table_name);
+	    			}
 	    		}
 	    		
 	    		System.out.println("tableSet=" + tableSet);
@@ -480,11 +485,13 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	    		Set<String> tableSet = new HashSet<String>();
 	    		for(Seq seq: rel.getSeqs()){
 	    			if(!schema.isEmpty()){
-	    				schema += ".";
+		    			tableSet.add(schema + "." + seq.pktable_name);
+		    			tableSet.add(schema + "." + seq.table_name);
 	    			}
-
-	    			tableSet.add(schema + seq.pktable_name);
-	    			tableSet.add(schema + seq.table_name);
+	    			else{
+		    			tableSet.add(schema + seq.pktable_name);
+		    			tableSet.add(schema + seq.table_name);
+	    			}
 	    		}
 	    		
 	    		System.out.println("tableSet=" + tableSet);
