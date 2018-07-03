@@ -51,13 +51,24 @@ public class SessionListener implements HttpSessionListener {
     		String cognosLogin = (String) ic.lookup("CognosLogin");
     		String cognosPassword = (String) ic.lookup("CognosPassword");
     		String cognosNamespace = (String) ic.lookup("CognosNamespace");
-    		String cognosDataSource = (String) ic.lookup("CognosDataSource"); 
-    		String cognosSchema = (String) ic.lookup("CognosSchema"); 
+    		String cognosDataSource = (String) ic.lookup("CognosDataSource");
+    		String cognosSchema = null;
+    		try{
+    			cognosSchema = (String) ic.lookup("CognosSchema");
+    		}
+    		catch(NamingException e){
+    			cognosSchema = "";
+    		}
     		String cognosDefaultLocale = (String) ic.lookup("CognosDefaultLocale"); 
     		String cognosLocales = (String) ic.lookup("CognosLocales");
-    		
+    		String schema = null;
+    		try{
+    			schema = (String) ic.lookup("DBSchema");
+    		}
+    		catch(NamingException e){
+    			schema = "";
+    		}
     		String dbEngine = (String) ic.lookup("DBEngine");
-    		String schema = (String) ic.lookup("DBSchema");
     		
     		switch(dbEngine.toUpperCase()){
     		
@@ -94,20 +105,6 @@ public class SessionListener implements HttpSessionListener {
     		}
     		
 			Connection con = null;
-//			if(dbEngine.equalsIgnoreCase("DB2400")){
-//				Class.forName("com.ibm.as400.access.AS400JDBCDriver");
-//				System.out.println("com.ibm.as400.access.AS400JDBCDriver loaded successfully !!!");
-//				AS400JDBCConnection con400 = (AS400JDBCConnection) DriverManager.getConnection("jdbc:as400:");
-				
-//				AS400JDBCDataSource datasource = new AS400JDBCDataSource("172.16.2.70");
-//				  datasource.setUser("IBMIIC");
-//				  datasource.setPassword("spcspc");
-//				  datasource.setDatabaseName("S6514BFA");
-//				  con = datasource.getConnection();
-//			}
-//			else{
-//			}
-				
 			DataSource ds = (DataSource) ic.lookup(jndiName);
 			con = ds.getConnection();
 			

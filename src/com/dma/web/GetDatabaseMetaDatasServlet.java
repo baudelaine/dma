@@ -132,7 +132,11 @@ public class GetDatabaseMetaDatasServlet extends HttpServlet {
 		    		Statement stmt = null;
 		    		ResultSet rs = null;
 		            try{
-			    		String query = "SELECT COUNT(*) FROM " + schema + "." + table_name;
+			    		String query = "SELECT COUNT(*) FROM ";
+			    		if(!schema.isEmpty()){
+			    			query += schema + ".";
+			    		}
+			    		query += table_name;
 			    		stmt = con.createStatement();
 			            rs = stmt.executeQuery(query);
 			            while (rs.next()) {

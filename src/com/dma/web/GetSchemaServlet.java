@@ -87,7 +87,11 @@ public class GetSchemaServlet extends HttpServlet {
 		    		Statement stmt = null;
 		    		ResultSet rs = null;
 		            try{
-			    		String query = "SELECT COUNT(*) FROM " + schema + "." + table_name;
+		    			if(!schema.isEmpty()){
+		    				schema += ".";
+		    			}
+		            	
+			    		String query = "SELECT COUNT(*) FROM " + schema + table_name;
 			    		stmt = con.createStatement();
 			            rs = stmt.executeQuery(query);
 			            while (rs.next()) {

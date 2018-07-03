@@ -163,7 +163,12 @@ public class GetPKRelationsServlet extends HttpServlet {
 	    		Statement stmt = null;
 	    		ResultSet rs = null;
 	            try{
-		    		String query = "SELECT COUNT(*) FROM " + schema + "." + table;
+		    		String query = "SELECT COUNT(*) FROM ";
+		    		if(!schema.isEmpty()){
+		    			query += schema + ".";
+		    		}
+		    		query += table;
+		    		
 		    		stmt = con.createStatement();
 		            rs = stmt.executeQuery(query);
 		            while (rs.next()) {
@@ -189,8 +194,11 @@ public class GetPKRelationsServlet extends HttpServlet {
 		    		
 		    		Set<String> tableSet = new HashSet<String>();
 		    		for(Seq seq: rel.getSeqs()){
-		    			tableSet.add(schema + "." + seq.pktable_name);
-		    			tableSet.add(schema + "." + seq.table_name);
+		    			if(!schema.isEmpty()){
+		    				schema += ".";
+		    			}
+		    			tableSet.add(schema + seq.pktable_name);
+		    			tableSet.add(schema + seq.table_name);
 		    		}
 		    		
 		    		System.out.println("tableSet=" + tableSet);
