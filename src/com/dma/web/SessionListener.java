@@ -146,15 +146,20 @@ public class SessionListener implements HttpSessionListener {
 			}
 			
 			Map<String, String> tableAliases = new HashMap<String, String>();
-			PreparedStatement stmt = con.getMetaData().getConnection().prepareStatement(aliasesQuery);
-            ResultSet rst = stmt.executeQuery();
-            while (rst.next()) {
-                String table = rst.getString(1);
-                String alias = rst.getString(2);
-                tableAliases.put(alias, table);
-            }			
-		    
-			if(rst != null){rst.close();}
+			try{
+				PreparedStatement stmt = con.getMetaData().getConnection().prepareStatement(aliasesQuery);
+	            ResultSet rst = stmt.executeQuery();
+	            while (rst.next()) {
+	                String table = rst.getString(1);
+	                String alias = rst.getString(2);
+	                tableAliases.put(alias, table);
+	            }			
+			    
+				if(rst != null){rst.close();}
+			}
+			catch(Exception e){
+				//Ignore error if no alias in database
+			}
 
 			System.out.println("tableAliases=" + tableAliases);
 			
