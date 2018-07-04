@@ -154,6 +154,8 @@ public class SessionListener implements HttpSessionListener {
 	                String alias = rst.getString(2);
 	                tableAliases.put(alias, table);
 	            }			
+				System.out.println("tableAliases=" + tableAliases);
+				s.setAttribute("tableAliases", tableAliases);
 			    
 				if(rst != null){rst.close();}
 			}
@@ -161,9 +163,6 @@ public class SessionListener implements HttpSessionListener {
 				//Ignore error if no alias in database
 			}
 
-			System.out.println("tableAliases=" + tableAliases);
-			
-			s.setAttribute("tableAliases", tableAliases);
 			
 			System.out.println("SessionId " + s.getId() + " is now connected to " + jndiName + " using shema " + schema);
 			
