@@ -1,6 +1,8 @@
 package com.dma.web;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -125,6 +127,39 @@ public class SessionListener implements HttpSessionListener {
 			s.setAttribute("cognosSchema", cognosSchema);
 			s.setAttribute("cognosDefaultLocale", cognosDefaultLocale);
 			s.setAttribute("cognosLocales", cognosLocales);
+
+			String aliasesQuery = "";
+			
+			switch(dbEngine.toUpperCase()){
+			
+				case "DB2":
+					aliasesQuery = "SELECT base_tabname, tabname FROM syscat.tables WHERE type = 'A' AND owner = 'DB2INST1'";
+					break;
+				
+				case "ORA":
+					aliasesQuery = "SELECT table_name, synonym_name FROM user_synonyms"; // or maybe all_synonyms
+					break;
+					
+				case "SQLSRV":
+					aliasesQuery = "SELECT PARSENAME(base_object_name,1), name FROM sys.synonyms";
+					break;
+			}
+			
+			Map<String, String> tableAliases = new HashMap<String, String>();
+			PreparedStatement stmt = con.getMetaData().getConnection().prepareStatement(aliasesQuery);
+            ResultSet rst = stmt.executeQuery();
+            while (rst.next()) {
+                String table = rst.getString(1);
+                String alias = rst.getString(2);
+                tableAliases.put(alias, table);
+            }			
+		    
+			if(rst != null){rst.close();}
+
+			System.out.println("tableAliases=" + tableAliases);
+			
+			s.setAttribute("tableAliases", tableAliases);
+			
 			System.out.println("SessionId " + s.getId() + " is now connected to " + jndiName + " using shema " + schema);
 			
 			withRecCount = (Boolean) ic.lookup("WithRecCount");

@@ -39,6 +39,7 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	boolean withRecCount = false;
 	long qs_recCount = 0L;
 	Map<String, Object> dbmd = null;
+	Map<String, String> tableAliases = null;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -72,6 +73,7 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 			con = (Connection) request.getSession().getAttribute("con");
 			schema = (String) request.getSession().getAttribute("schema");
 			dbmd = (Map<String, Object>) request.getSession().getAttribute("dbmd");
+			tableAliases = (Map<String, String>) request.getSession().getAttribute("tableAliases");
 			metaData = con.getMetaData();
 			
 			QuerySubject querySubject = getQuerySubjects();
@@ -254,6 +256,14 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	        String fktable_name = rst.getString("FKTABLE_NAME");
 	        String pktable_name = rst.getString("PKTABLE_NAME");
 	        String _id = key_name + "F";
+	        
+	        if(tableAliases.containsKey(fktable_name)){
+	        	fktable_name = tableAliases.get(fktable_name);
+	        }
+
+	        if(tableAliases.containsKey(pktable_name)){
+	        	pktable_name = tableAliases.get(pktable_name);
+	        }
 	        
 	        System.out.println("_id=" + _id);
 
