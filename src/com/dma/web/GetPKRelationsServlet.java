@@ -82,12 +82,14 @@ public class GetPKRelationsServlet extends HttpServlet {
 		        String pktable_name = rst.getString("PKTABLE_NAME");
 		        String _id = key_name + "P";
 		        
-		        if(tableAliases.containsKey(fktable_name)){
-		        	fktable_name = tableAliases.get(fktable_name);
-		        }
-
-		        if(tableAliases.containsKey(pktable_name)){
-		        	pktable_name = tableAliases.get(pktable_name);
+		        if(tableAliases != null){
+			        if(tableAliases.containsKey(fktable_name)){
+			        	fktable_name = tableAliases.get(fktable_name);
+			        }
+	
+			        if(tableAliases.containsKey(pktable_name)){
+			        	pktable_name = tableAliases.get(pktable_name);
+			        }
 		        }
 		        
 		        System.out.println("_id=" + _id);
