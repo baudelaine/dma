@@ -383,11 +383,11 @@ $datasTable.on('reset-view.bs.table', function(){
         $tableRows.eq(i).find('a').eq(3).editable('disable');
         $tableRows.eq(i).find('a').eq(2).editable('disable');
       }
-      if(activeTab.match("Query Subject")){
+      if(activeTab.match("Query Subject") && row.field_type != undefined){
         if(row.field_type.toUpperCase() == "DATE" || row.field_type.toUpperCase() == "TIMESTAMP"){
           $tableRows.eq(i).find('a').eq(8).editable('destroy');
           $tableRows.eq(i).find('a').eq(8).editable(dateDimensions);
-          // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dateDimensions.source);
+        // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dateDimensions.source);
         }
         else{
           // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dimensions.source);
