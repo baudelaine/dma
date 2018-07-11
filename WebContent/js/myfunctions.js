@@ -384,7 +384,7 @@ $datasTable.on('reset-view.bs.table', function(){
         $tableRows.eq(i).find('a').eq(2).editable('disable');
       }
       if(activeTab.match("Query Subject") && row.field_type != undefined){
-        if(row.field_type.toUpperCase() == "DATE" || row.field_type.toUpperCase() == "TIMESTAMP"){
+        if(row.field_type.toUpperCase() == "DATE" || row.field_type.toUpperCase() == "TIMESTAMP" || row.field_type.toUpperCase() == "DATETIME"){
           $tableRows.eq(i).find('a').eq(8).editable('destroy');
           $tableRows.eq(i).find('a').eq(8).editable(dateDimensions);
         // $tableRows.eq(i).find('a').eq(6).editable('option', 'source', dateDimensions.source);
@@ -1199,6 +1199,7 @@ function buildSubTable($el, cols, data, parentData){
   }
 
   if(activeTab == "Final"){
+    $el.bootstrapTable("filterBy", {key_type: 'F'});
     $el.bootstrapTable('hideColumn', 'ref');
     $el.bootstrapTable('hideColumn', 'sec');
     $el.bootstrapTable('hideColumn', 'tra');
