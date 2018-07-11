@@ -61,6 +61,19 @@ public class SessionListener implements HttpSessionListener {
     		catch(NamingException e){
     			cognosSchema = "";
     		}
+    		String cognosCatalog = null;
+    		try{
+    			cognosCatalog = (String) ic.lookup("CognosCatalog");
+    		}
+    		catch(NamingException e){
+    			cognosSchema = "";
+    		}
+    		try{
+    			cognosSchema = (String) ic.lookup("CognosSchema");
+    		}
+    		catch(NamingException e){
+    			cognosSchema = "";
+    		}
     		String cognosDefaultLocale = (String) ic.lookup("CognosDefaultLocale"); 
     		String cognosLocales = (String) ic.lookup("CognosLocales");
     		String schema = null;
@@ -125,6 +138,7 @@ public class SessionListener implements HttpSessionListener {
 			s.setAttribute("cognosNamespace", cognosNamespace); 
 			s.setAttribute("cognosDataSource", cognosDataSource);
 			s.setAttribute("cognosSchema", cognosSchema);
+			s.setAttribute("cognosCatalog", cognosCatalog);
 			s.setAttribute("cognosDefaultLocale", cognosDefaultLocale);
 			s.setAttribute("cognosLocales", cognosLocales);
 
