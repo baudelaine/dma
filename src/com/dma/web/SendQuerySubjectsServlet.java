@@ -198,6 +198,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				
 		        //start();
 				String cognosDataSource = (String) request.getSession().getAttribute("cognosDataSource");
+				String cognosCatalog = (String) request.getSession().getAttribute("cognosCatalog");
 				String cognosSchema = (String) request.getSession().getAttribute("cognosSchema");
 				String cognosDefaultLocale = (String) request.getSession().getAttribute("cognosDefaultLocale");
 				String cognosLocales = (String) request.getSession().getAttribute("cognosLocales");
@@ -224,7 +225,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				fsvc.createNamespace("DIMENSIONAL", "Model");
 				
 				//Import();
-				fsvc.DBImport("PHYSICAL", cognosDataSource, cognosSchema, dBEngine);
+				fsvc.DBImport("PHYSICAL", cognosDataSource, cognosCatalog, cognosSchema, dBEngine);
 				
 				gRefMap = new HashMap<String, Integer>();
 				
