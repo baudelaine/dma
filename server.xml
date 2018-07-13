@@ -39,7 +39,7 @@
 
   <dataSource jndiName="jdbc/DB2" transactional="false">
     <jdbcDriver libraryRef="DB2Lib"/>
-    <properties.db2.jcc databaseName="SAMPLE" password="spcspc" portNumber="50000" serverName="localhost" user="db2inst1"/>
+    <properties.db2.jcc currentSchema="DB2INST1" databaseName="MARQUE" password="spcspc" portNumber="50000" serverName="localhost" user="db2inst1"/>
   </dataSource>
 
   <jndiEntry jndiName="TestDB2Connection" value="select current date from sysibm.sysdummy1"/>
@@ -84,7 +84,7 @@
 
   <dataSource jndiName="jdbc/MYSQL" transactional="false">
     <jdbcDriver libraryRef="MYSQLLib"/>
-    <properties databaseName="DBNAME" password="pwd" portNumber="3306" serverName="localhost/127.0.0.1" user="user"/>
+    <properties databaseName="employees" password="spcspc" portNumber="3306" serverName="localhost" user="root"/>
   </dataSource>
 
 	<jndiEntry jndiName="TestMYSQLConnection" value="select now()"/>
@@ -99,7 +99,7 @@
 
   <dataSource jndiName="jdbc/PGSQL" type="javax.sql.XADataSource">
     <jdbcDriver libraryRef="PGSQLLib" javax.sql.XADataSource="org.postgresql.xa.PGXADataSource"/>
-    <properties databaseName="DBNAME" password="pwd" portNumber="5432" serverName="localhost/127.0.0.1" user="user"/>
+    <properties databaseName="dvdrental" password="spcspc" portNumber="5432" serverName="localhost" user="postgres"/>
   </dataSource>
 
 	<jndiEntry jndiName="TestPGSQLConnection" value="select 1"/>
@@ -109,8 +109,8 @@
 
   <!-- START DMA SETUP-->
 
-  <jndiEntry jndiName="DBSchema" value="DANONE"/>
-	<jndiEntry jndiName="DBEngine" value="ORA"/>
+  <jndiEntry jndiName="DBSchema" value="DB2INST1"/>
+	<jndiEntry jndiName="DBEngine" value="DB2"/>
 	<jndiEntry jndiName="WithRecCount" value="true"/>
 
   <!-- END DMA SETUP-->
@@ -127,6 +127,7 @@
 	<jndiEntry jndiName="CognosSchema" value="DANONE"/>
 	<jndiEntry jndiName="CognosDefaultLocale" value="en-gb"/>
 	<jndiEntry jndiName="CognosLocales" value="en"/>
+	<jndiEntry jndiName="CognosCatalog" value=""/>
 
   <!-- END COGNOS SETUP -->
 
