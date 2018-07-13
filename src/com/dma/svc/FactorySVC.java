@@ -197,8 +197,8 @@ public class FactorySVC {
 		    cdata.setText("");
 		    cdata.addCDATA(root_cdata.asXML());
 			
-		    System.out.println(script.asXML());
-		    System.out.println("DBImport(" + Namespace + ", " + dataSourceName + ", " + schemaName + ")");
+//		    System.out.println(script.asXML());
+		    System.out.println("DBImport(" + Namespace + ", " + dataSourceName + ", " + catalogName + ", " + schemaName + ")");
 			csvc.executeModel(script);
 		} catch (DocumentException ex) {
 			lg(ex.getMessage());
@@ -1357,7 +1357,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR].[YEAR_KEY]");
 
 	//level quarter	
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+/*			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "QUARTER");
 			exp = "if (_month (  " + dateQueryItemPath + " ) in (1,2,3)) then (1)  else (\n" + 
 			"if (_month (  " + dateQueryItemPath + " ) in (4,5,6)) then (2)  else (\n" + 
@@ -1375,9 +1375,9 @@ public class FactorySVC {
 			createDimensionRole_MC("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER].[QUARTER]");
 			createDimensionRole_MD("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER].[QUARTER]");
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER].[QUARTER_KEY]");
-
+*/
 	// level month
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[QUARTER]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[YEAR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "MONTH");
 			exp = "_month (" + dateQueryItemPath + ")";
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", dateQueryItemName, "MONTH_KEY", exp);
@@ -1388,7 +1388,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH].[MONTH_KEY]");
 			
 	// level day
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[MONTH]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "DAY");
 			exp =  "_day (" + dateQueryItemPath + ")";
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", dateQueryItemName, "DAY_KEY", exp);
@@ -1399,7 +1399,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY].[DAY_KEY]");
 							
 	// level AM/PM
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DAY]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "AM/PM");
 			exp = "if (_hour (  " + dateQueryItemPath + " ) in_range {0:11}) then (1)  else (2)";
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", dateQueryItemName, "AM/PM_KEY", exp);
@@ -1411,7 +1411,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM].[AM/PM_KEY]");
 
 	// level hour
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[AM/PM]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "HOUR");
 			exp = "_hour (  " + dateQueryItemPath + " )";
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", dateQueryItemName, "HOUR_KEY", exp);
@@ -1422,7 +1422,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR].[HOUR_KEY]");
 
 	// level date
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[HOUR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)]", dateQueryItemName, "DATE");
 			exp = dateQueryItemPath;
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By month)].[DATE]", dateQueryItemName, "DATE_KEY", exp);
@@ -1445,7 +1445,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR].[YEAR_KEY]");
 
 	//level week	
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[YEAR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "WEEK");
 			exp = "_week_of_year (" + dateQueryItemPath + ")";
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", dateQueryItemName, "WEEK_KEY", exp);
@@ -1458,7 +1458,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK].[WEEK_KEY]");
 
 	//level day_of_week	
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[WEEK]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "DAY_OF_WEEK");
 			exp = "_day_of_week (" + dateQueryItemPath + ",1)";
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", dateQueryItemName, "DAY_OF_WEEK_KEY", exp);
@@ -1482,7 +1482,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK].[DAY_OF_WEEK_KEY]");
 
 	// level AM/PM
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DAY_OF_WEEK]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "AM/PM");
 			exp = "if (_hour (  " + dateQueryItemPath + " ) in_range {0:11}) then (1)  else (2)";
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", dateQueryItemName, "AM/PM_KEY", exp);
@@ -1494,7 +1494,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM].[AM/PM_KEY]");
 
 	// level hour
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[AM/PM]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "HOUR");
 			exp = "_hour (  " + dateQueryItemPath + " )";
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", dateQueryItemName, "HOUR_KEY", exp);
@@ -1505,7 +1505,7 @@ public class FactorySVC {
 			createDimensionRole_BK("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR].[HOUR_KEY]");
 
 	// level date
-			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[CREATEDT]", dateQueryItemPath);
+			addHierarchyLevel("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[HOUR]", "[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[" + dateQueryItemName + "]", dateQueryItemPath);
 			modifyLevelName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)]", dateQueryItemName, "DATE");
 			exp = dateQueryItemPath;
 			modifyLevelQueryItemName("[DIMENSIONAL].[" + dimensionName + "].[" + dateQueryItemName + " (By week)].[DATE]", dateQueryItemName, "DATE_KEY", exp);
