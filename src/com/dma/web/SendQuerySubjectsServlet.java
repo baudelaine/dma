@@ -119,9 +119,24 @@ public class SendQuerySubjectsServlet extends HttpServlet {
             .forEach(File::delete);
 		}
 		
-		Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwxrwx");
-		FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(perms);
-		Files.createDirectories(projectPath, attrs);
+//		Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwxrwx");
+//		FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(perms);
+
+		Set<PosixFilePermission> perms = new HashSet<>();
+	    perms.add(PosixFilePermission.OWNER_READ);
+	    perms.add(PosixFilePermission.OWNER_WRITE);
+	    perms.add(PosixFilePermission.OWNER_EXECUTE);
+
+	    perms.add(PosixFilePermission.OTHERS_READ);
+	    perms.add(PosixFilePermission.OTHERS_WRITE);
+	    perms.add(PosixFilePermission.OTHERS_EXECUTE);
+
+	    perms.add(PosixFilePermission.GROUP_READ);
+	    perms.add(PosixFilePermission.GROUP_WRITE);
+	    perms.add(PosixFilePermission.GROUP_EXECUTE);		
+		
+		Files.createDirectories(projectPath);
+		Files.setPosixFilePermissions(projectPath, perms);
 		
 		Path zip = Paths.get(getServletContext().getRealPath("/res/model.zip"));
 		if(!Files.exists(zip)){
@@ -190,7 +205,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 		try {
 			DirectoryStream<Path> ds = Files.newDirectoryStream(projectPath);
 			for(Path path: ds){
-				System.out.println(path.toString());
+//				System.out.println(path.toString());
 				Files.setPosixFilePermissions(path, perms);
 			}
 		} catch (IOException e) {
