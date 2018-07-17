@@ -2,24 +2,27 @@ package com.dma.web;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,33 +33,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.RecursiveToStringStyle;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
 
-import com.dma.web.Field;
-import com.dma.web.QuerySubject;
-import com.dma.web .Relation;
 import com.dma.svc.CognosSVC;
 import com.dma.svc.FactorySVC;
-import com.dma.web.RelationShip;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Servlet implementation class GetSelectionsServlet
@@ -188,6 +173,30 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			result.put("message", "PathToXML " + pathToXML + " not found." );
 			result.put("troubleshooting", "Check that '" + pathToXML + "' exists on server and contains XML templates.");
 		}
+		
+		perms = new HashSet<>();
+	    perms.add(PosixFilePermission.OWNER_READ);
+	    perms.add(PosixFilePermission.OWNER_WRITE);
+//	    perms.add(PosixFilePermission.OWNER_EXECUTE);
+
+	    perms.add(PosixFilePermission.OTHERS_READ);
+	    perms.add(PosixFilePermission.OTHERS_WRITE);
+//	    perms.add(PosixFilePermission.OTHERS_EXECUTE);
+
+	    perms.add(PosixFilePermission.GROUP_READ);
+	    perms.add(PosixFilePermission.GROUP_WRITE);
+//	    perms.add(PosixFilePermission.GROUP_EXECUTE);		
+		
+		try {
+			DirectoryStream<Path> ds = Files.newDirectoryStream(projectPath);
+			for(Path path: ds){
+				System.out.println(path.toString());
+				Files.setPosixFilePermissions(path, perms);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 		
 		
 		// END SETUP COGNOS ENVIRONMENT
@@ -479,6 +488,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 				csvc.openModel(modelName, cognosFolder);
 				fsvc.setLocale(cognosDefaultLocale);
 				
+				@SuppressWarnings("unused")
 				String[] locales = {cognosLocales};
 				fsvc.changePropertyFixIDDefaultLocale();
 //				fsvc.createPackage(modelName, modelName, modelName, locales);
