@@ -40,6 +40,8 @@ public class GetDataTypeServlet extends HttpServlet {
 		List<Object> result = new ArrayList<Object>();
 
 		try {
+
+//			result.add(new HashMap<String, Object>().put("Empty", "Empty"));
 			
 			con = (Connection) request.getSession().getAttribute("con");
 			

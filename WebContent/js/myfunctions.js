@@ -396,8 +396,8 @@ $datasTable.on('reset-view.bs.table', function(){
       if(activeTab.match("Query Subject")){
         if(row.custom != true){
           $tableRows.eq(i).find('a').eq(0).editable('disable');
-          console.log($tableRows.eq(i).find('a.remove').val('hidden'));
-          console.log(row);
+          // console.log($tableRows.eq(i).find('a.remove').val('hidden'));
+          // console.log(row);
           // $tableRows.eq(i).find('a.remove').prop("disabled",true);
           $tableRows.eq(i).find('a.remove').remove();
         }
@@ -406,7 +406,7 @@ $datasTable.on('reset-view.bs.table', function(){
           // $tableRows.eq(i).find('a').eq(0).editable('setValue', ['VARCHAR']);
           customFieldType.source = dbDataType;
           $tableRows.eq(i).find('a').eq(0).editable(customFieldType);
-          $tableRows.eq(i).find('a').eq(0).editable('option', 'defaultValue', 'VARCHAR');
+          $tableRows.eq(i).find('a').eq(0).editable('option', 'defaultValue', '');
         }
       }
 
@@ -2213,6 +2213,7 @@ function GetDBDataType() {
 
         success: function(data) {
 			       dbDataType = data;
+             dbDataType.push({value: "", text: ""});
         },
         error: function(data) {
             console.log(data);
