@@ -430,32 +430,39 @@ public class FactorySVC {
 	}
 
 
-	public void createQueryItem(String QuerySubject, String Name, String Exp) {
+	public void createQueryItem(String querySubject, String name, String exp, String locale) {
 		try {
+			
+//			String querySubject = "[DATA].[HISTORIQUE_L]";
+//			String name = "MONTANT_HT";
+//			String exp = "[FINAL].[HISTORIQUE_L].[QTE] * [FINAL].[HISTORIQUE_L].[PRIX_APREMISE]";
+//			String locale = "en-gb";
+			
 			File xmlFile = new File(csvc.getPathToXML() + "/createQueryItem.xml");
-			File cdataFile = new File(csvc.getPathToXML() + "/createQueryItemCDATA.xml");
 			SAXReader reader = new SAXReader();
-
 			Document document = reader.read(xmlFile);
-			Document cdata_document = reader.read(cdataFile);
 
-			// xml
-			Element qs = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20150723154520606\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[1]/value");
-			Element cdata = (Element) document.selectSingleNode("/bmtactionlog[@timestamp=\"20150723154520606\"]/transaction[@saved=\"false\"]/action[@seq=\"1\"]/inputparams/param[2]/value");
-			// cdata
-			Element xp = (Element) cdata_document.selectSingleNode("/updateObjectRequest/tasks/task[@name=\"addObject\"]/parameters/param[4]/expression");
-			Element nm = (Element) cdata_document.selectSingleNode("/updateObjectRequest/tasks/task[@name=\"addObject\"]/parameters//param[1]");
-			Element root_cdata = cdata_document.getRootElement();
+			Element handle = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"1\"]/inputparams/param[1]/value");
+			Element cdata = (Element) document.selectSingleNode("/bmtactionlog/transaction/action[@seq=\"1\"]/inputparams/param[2]/value");
 
-			qs.setText(QuerySubject);
+			String s = cdata.getText();
+			handle.setText(querySubject);
+			
+			Document doc = reader.read(new StringReader(s));
 
-			nm.addAttribute("value", Name);
-			xp.setText(Exp);
+			Element qiName = (Element) doc.selectSingleNode("/updateObjectRequest/tasks/task[@name=\"addObject\"]/parameters/param[1]");
+			Element xp = (Element) doc.selectSingleNode("/updateObjectRequest/tasks/task[@name=\"addObject\"]/parameters/param[4]/expression");
+			
+			Element root_cdata = doc.getRootElement();
+
+			qiName.addAttribute("value", name);
+			qiName.addAttribute("locale", locale);
+			xp.setText(exp);
 
 			// attach cdata
-			cdata.setText("");
+		    cdata.setText("");
 			cdata.addCDATA(root_cdata.asXML());
-
+			
 			// System.out.println(document.asXML());
 			csvc.executeModel(document);
 		} catch (DocumentException ex) {

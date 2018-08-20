@@ -337,27 +337,33 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 						
 						//add label map fields
 						for(Field field: query_subject.getValue().getFields()) {
+							
+							if (field.isCustom()) {
+								
+								fsvc.createQueryItem("[DATA].[" + query_subject.getValue().getTable_alias() + "]", field.getField_name(), field.getExpression(), cognosDefaultLocale);
+							}
+							
 							if (field.getLabel() == null || field.getLabel().equals("")) {
 							labelMap.put(query_subject.getValue().getTable_alias() + "." + field.getField_name(), field.getField_name());
 							} else {
 								labelMap.put(query_subject.getValue().getTable_alias() + "." + field.getField_name(), field.getLabel());
 							}
 							//add tooltip
-						desc = "";
-						if(field.getDescription() != null) {desc = ": " + field.getDescription();}	
-						fsvc.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", query_subject.getValue().getTable_name() + "." + field.getField_name() + desc);
-						//end tooltip
-						//change property query item
-						fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
-						if (!field.getDisplayType().toLowerCase().equals("value"))
-						{
-							fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
-						}
-						if (field.isHidden())
-						{
-							fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "hidden", "true");
-							
-						}
+							desc = "";
+							if(field.getDescription() != null) {desc = ": " + field.getDescription();}	
+							fsvc.createScreenTip("queryItem", "[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", query_subject.getValue().getTable_name() + "." + field.getField_name() + desc);
+							//end tooltip
+							//change property query item
+							fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "usage", field.getIcon().toLowerCase());
+							if (!field.getDisplayType().toLowerCase().equals("value"))
+							{
+								fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "displayType", field.getDisplayType().toLowerCase());
+							}
+							if (field.isHidden())
+							{
+								fsvc.changeQueryItemProperty("[DATA].[" + query_subject.getValue().getTable_alias() + "].[" + field.getField_name() + "]", "hidden", "true");
+								
+							}
 						//end change
 						}
 						// end label
