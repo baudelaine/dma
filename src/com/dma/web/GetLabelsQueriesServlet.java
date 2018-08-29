@@ -45,7 +45,6 @@ public class GetLabelsQueriesServlet extends HttpServlet {
 			System.out.println("realPath=" + realPath);
 			
 			String fileName = realPath + "/res/labels_queries.json";
-			System.out.println("fileName=" + fileName);			
 			File file = new File(fileName);
 			BufferedReader br = null; 
 			

@@ -30,6 +30,7 @@ public class ContextListener implements ServletContextListener {
        	try {
     			ic = new InitialContext();
     			arg0.getServletContext().setAttribute("ic", ic);
+    			arg0.getServletContext().setAttribute("resources", Tools.getResources());
     			System.out.println("Context has been initialized...");
     			
     		} catch (NamingException e) {

@@ -11,7 +11,7 @@
 	<link href="css/bootstrap-editable.css" type="text/css" rel="stylesheet" />
 	<link href="css/bootstrap-select.min.css" type="text/css" rel="stylesheet" />
 	<link href="css/bootstrap-theme.min.css" type="text/css" rel="stylesheet" />
-	<link rel="stylesheet" href="css/bootstrap-tagsinput.css">
+	<link href="css/bootstrap-tagsinput.css" type="text/css" rel="stylesheet">
 	<link href="css/mycss.css" type="text/css" rel="stylesheet" />
 
 </head>
@@ -74,7 +74,7 @@
 						<button type="button" onclick="RemoveAll()" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Remove all."><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
 
 					<button type="button" onclick="TestDBConnection()" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Test connection to server database."><span class="glyphicon glyphicon-signal aria-hidden="true"></span></button>
-					<button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="Release server session" onClick="Reset()"><span class="glyphicon glyphicon-off aria-hidden="true"></span></button>
+					<button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="Release server session" onClick="Logout()"><span class="glyphicon glyphicon-off aria-hidden="true"></span></button>
 				</form>
 
 		  </div>
@@ -244,6 +244,33 @@
 			</div>
 		</div>
 		<!-- projectFile modal -->
+
+		<!-- logout modal -->
+	  <div class="modal fade" id="modLogout" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	    <div class="modal-dialog" role="document">
+	      <div class="modal-content">
+	        <div class="modal-header">
+	          <h4 class="modal-title" id="myModalLabel">Data Modeling Accelarator</h4>
+	        </div>
+	        <div class="modal-body">
+
+						<p><h5>Do you really want to logout ?</h5></p>
+
+	        </div>
+	        <div class="modal-footer">
+						<form method="post" action='ibm_security_logout' name="logout_form">
+							<INPUT TYPE="HIDDEN" name="logoutExitPage" VALUE="/login.html">
+							<input type="submit" class="btn btn-danger" name="logout" value="Logout">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	          </form>
+
+	          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	  <!-- logout modal -->
+
 
 		<div>
 
