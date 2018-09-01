@@ -2222,6 +2222,75 @@ function GetDBDataType() {
     });
 }
 
+
+function Logout(){
+
+  $('#modLogout').modal('toggle');
+
+  return;
+
+  bootbox.confirm({
+    message: "Do you really want to logout ?",
+    buttons: {
+        confirm: {
+            label: 'Yes',
+            className: 'btn-danger'
+        },
+        cancel: {
+            label: 'No',
+            className: 'btn-success'
+        }
+    },
+    callback: function (result) {
+
+      if(!result){
+        return;
+      }
+
+      // $.ajax({
+      //       type: 'POST',
+      //       url: "ibm_security_logout",
+      //       data: 'logout=Logout&logoutExitPage=%2Flogin.html',
+      //
+      //       success: function(data) {
+      //         console.log(data);
+      //       },
+      //       error: function(data) {
+      //         console.log(data);
+      //       }
+      //
+      //   });
+
+        var XHR = new XMLHttpRequest();
+          var FD  = new FormData();
+
+          // Push our data into our FormData object
+          FD.append("logout", "Logout");
+          // FD.append("logoutExitPage", "login.html");
+
+          // Define what happens on successful data submission
+          XHR.addEventListener('load', function(event) {
+            console.log('Yeah! Data sent and response loaded.');
+          });
+
+          // Define what happens in case of error
+          XHR.addEventListener('error', function(event) {
+            console.log('Oops! Something went wrong.');
+          });
+
+          // Set up our request
+          XHR.open('POST', 'Logout');
+
+          XHR.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+
+          // Send our FormData object; HTTP headers are set automatically
+          XHR.send(FD);
+
+    }
+
+});
+}
+
 function Reset() {
 
 	var success = "OK";
