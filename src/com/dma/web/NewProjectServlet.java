@@ -139,6 +139,12 @@ public class NewProjectServlet extends HttpServlet {
 				
 				Files.createDirectories(projectPath);
 				Files.setPosixFilePermissions(projectPath, perms);
+				Path modelPath = Paths.get(projectPath + "/models");
+				Files.createDirectories(modelPath);
+				Files.setPosixFilePermissions(modelPath, perms);
+				Path queriesPath = Paths.get(projectPath + "/queries");
+				Files.createDirectories(queriesPath);
+				Files.setPosixFilePermissions(queriesPath, perms);
 				
 				result.put("STATUS", "OK");
 				result.put("PROJECT_PATH", projectPath.toString());

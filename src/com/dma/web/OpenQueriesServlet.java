@@ -1,11 +1,10 @@
 package com.dma.web;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -36,7 +35,10 @@ public class OpenQueriesServlet extends HttpServlet {
 
 		String queries = request.getParameter("queries");
 		
-		BufferedReader br = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream("queries/" + queries)));
+		Path path = Paths.get(request.getSession().getAttribute("projectPath") + "/queries/" + queries);
+
+		
+		BufferedReader br = new BufferedReader(new FileReader(path.toFile()));
 		
 		
 		response.setContentType("application/json");
@@ -47,6 +49,7 @@ public class OpenQueriesServlet extends HttpServlet {
 			response.getWriter().write(line);
 		}
 
+		if(br != null){br.close();};		
 	}
 
 	/**

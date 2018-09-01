@@ -43,7 +43,7 @@ public class GetLabelsQueriesServlet extends HttpServlet {
 		
 		try {
 			
-			Path path = Paths.get((String) request.getSession().getAttribute("projectPath") + "/labels_queries.json");
+			Path path = Paths.get((String) request.getSession().getAttribute("projectPath") + "/queries/labels_queries.json");
 			
 			if(Files.exists(path)){
 				System.out.println("Load labels queries from cache...");
