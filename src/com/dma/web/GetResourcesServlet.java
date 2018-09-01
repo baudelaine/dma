@@ -10,19 +10,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * Servlet implementation class GetImportedKeysServlet
  */
-@WebServlet("/GetCognosLocales")
-public class GetCognosLocalesServlet extends HttpServlet {
+@WebServlet("/GetResources")
+public class GetResourcesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+	
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public GetCognosLocalesServlet() {
+    public GetResourcesServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -30,24 +28,14 @@ public class GetCognosLocalesServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@SuppressWarnings("unchecked")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-
 		Map<String, Object> result = new HashMap<String, Object>();
 
-		try{
-			
-			String[] cognosLocales = StringUtils.split((String) request.getServletContext().getAttribute("cognosLocales"), ",");
-			result.put("status", "OK");
-			result.put("content", (String) request.getServletContext().getAttribute("cognosLocales"));
-			result.put("cognosLocales", cognosLocales);
-		}
-		catch(Exception e){
-			result.put("status", "KO");
-			result.put("message", e.getMessage());
-			result.put("troubleshooting", "Check CognosLocales is initialized in server.xml");			
-		}
 		
+		result = (Map<String, Object>) request.getServletContext().getAttribute("resources");
+		    
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(Tools.toJSON(result));			

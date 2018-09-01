@@ -5,6 +5,7 @@ public class Project {
 	String name = "";
 	String dbSchema = "";
 	Resource resource = null;
+	String description = "";
 
 	public String getName() {
 		return name;
@@ -23,6 +24,12 @@ public class Project {
 	}
 	public void setResource(Resource resource) {
 		this.resource = resource;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

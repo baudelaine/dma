@@ -1,4 +1,4 @@
-<server description="new server">
+<server description="dma server">
 
     <!-- Enable features -->
     <featureManager>
@@ -132,8 +132,6 @@
 
   <!-- START DMA SETUP-->
 
-  <jndiEntry jndiName="DBSchema" value="DB2INST1"/>
-	<jndiEntry jndiName="DBEngine" value="DB2"/>
 	<jndiEntry jndiName="WithRecCount" value="true"/>
 
   <!-- END DMA SETUP-->

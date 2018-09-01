@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -46,18 +49,13 @@ public class GetSchemaServlet extends HttpServlet {
 
 		try {
 			
-			String realPath = getServletContext().getRealPath("/");
-			System.out.println("realPath=" + realPath);
-			
-			String fileName = realPath + "/res/schema.json";
-			System.out.println("fileName=" + fileName);			
-			File file = new File(fileName);
-			
-			if(file.exists()){
+			Path path = Paths.get((String) request.getSession().getAttribute("projectPath") + "/schema.json");
+
+			if(Files.exists(path)){
 				
 				System.out.println("Load schema from cache...");
 				
-				BufferedReader br = new BufferedReader(new FileReader(file));
+				BufferedReader br = new BufferedReader(new FileReader(path.toFile()));
 			
 				response.setContentType("application/json");
 				response.setCharacterEncoding("UTF-8");

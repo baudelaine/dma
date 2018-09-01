@@ -1,9 +1,11 @@
 package com.dma.web;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,16 +43,11 @@ public class GetLabelsQueriesServlet extends HttpServlet {
 		
 		try {
 			
-			String realPath = getServletContext().getRealPath("/");
-			System.out.println("realPath=" + realPath);
+			Path path = Paths.get((String) request.getSession().getAttribute("projectPath") + "/labels_queries.json");
 			
-			String fileName = realPath + "/res/labels_queries.json";
-			File file = new File(fileName);
-			BufferedReader br = null; 
-			
-			if(file.exists()){
+			if(Files.exists(path)){
 				System.out.println("Load labels queries from cache...");
-				br = new BufferedReader(new FileReader(file));
+				BufferedReader br = new BufferedReader(new FileReader(path.toFile()));
 		        ObjectMapper mapper = new ObjectMapper();
 		        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		        results = mapper.readValue(br, new TypeReference<Map<String, Object>>(){});

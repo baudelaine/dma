@@ -1,9 +1,11 @@
 package com.dma.web;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,18 +41,13 @@ public class GetDatabaseMetaDatasFromCache extends HttpServlet {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			
-			String realPath = getServletContext().getRealPath("/");
-			System.out.println("realPath=" + realPath);
+			Path path = Paths.get((String) request.getSession().getAttribute("projectPath") + "/dbmd.json");
 			
-			String fileName = realPath + "/res/dbmd.json";
-			System.out.println("fileName=" + fileName);			
-			File file = new File(fileName);
-			
-			if(file.exists()){
+			if(Files.exists(path)){
 				
 				System.out.println("Load Database Meta Datas from cache...");
 				
-				BufferedReader br = new BufferedReader(new FileReader(file));
+				BufferedReader br = new BufferedReader(new FileReader(path.toFile()));
 				
 				ObjectMapper mapper = new ObjectMapper();
 		        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

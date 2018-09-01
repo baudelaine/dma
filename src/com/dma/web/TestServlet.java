@@ -68,7 +68,7 @@ public class TestServlet extends HttpServlet {
 		
 		result.put("QSCount", query_subjects.size());
 		
-		Path cognosModelsPath = Paths.get((String) request.getSession().getAttribute("cognosModelsPath"));
+		Path cognosModelsPath = Paths.get((String) request.getServletContext().getAttribute("cognosModelsPath"));
 		if(!Files.isWritable(cognosModelsPath)){
 			result.put("status", "KO");
 			result.put("message", "cognosModelsPath '" + cognosModelsPath + "' not writeable." );

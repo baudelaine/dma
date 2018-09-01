@@ -1,10 +1,9 @@
 package com.dma.web;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -41,9 +40,8 @@ public class GetModelListServlet extends HttpServlet {
 
 		List<Object> result = new ArrayList<Object>();
 
-		String realPath = getServletContext().getRealPath("/");
-		System.out.println("realPath=" + realPath);
-		File dir = new File(realPath + "/models/.");
+		Path path = Paths.get((String) request.getSession().getAttribute("projectPath"));
+		File dir = new File(path + "/models/.");
 		
 		if(dir.exists()){
 			File[] fs = dir.listFiles();

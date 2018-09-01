@@ -4,15 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,12 +51,9 @@ public class ScanServlet extends HttpServlet {
 
 		try {
 			
-			String realPath = getServletContext().getRealPath("/");
-			System.out.println("realPath=" + realPath);
-			
-			String fileName = realPath + "/res/tables.json";
-			System.out.println("fileName=" + fileName);			
-			File file = new File(fileName);
+			Path path = Paths.get((String) request.getSession().getAttribute("projectPath") + "/tables.json");
+
+			File file = path.toFile();
 			
 			if(file.exists()){
 			

@@ -62,7 +62,7 @@ public class GetPKRelationsServlet extends HttpServlet {
 			con = (Connection) request.getSession().getAttribute("con");
 			schema = (String) request.getSession().getAttribute("schema");
 			dbmd = (Map<String, Object>) request.getSession().getAttribute("dbmd");
-			withRecCount = (Boolean) request.getSession().getAttribute("withRecCount");
+			withRecCount = (Boolean) request.getServletContext().getAttribute("withRecCount");
 			tableAliases = (Map<String, String>) request.getSession().getAttribute("tableAliases");
 			
 		    Map<String, Relation> map = new HashMap<String, Relation>();

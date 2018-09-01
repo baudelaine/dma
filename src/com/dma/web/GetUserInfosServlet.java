@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -90,12 +89,15 @@ public class GetUserInfosServlet extends HttpServlet {
 					br = new BufferedReader(new FileReader(projectsFile.toFile()));
 					ObjectMapper mapper = new ObjectMapper();
 			        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-					List<Project> projects = mapper.readValue(br, new TypeReference<List<Project>>(){});
+					Map<String, Project> projects = mapper.readValue(br, new TypeReference<Map<String, Project>>(){});
+					result.put("STATUS", "OK");
 					result.put("PROJECTS", projects);
+					request.getSession().setAttribute("projects", projects);
+					result.put("WKS", wks.toString());
 				}
 				catch(Exception e){
 					result.put("STATUS", "KO");
-					result.put("REASON", projectsFile + " is not a valid List<Project> object");
+					result.put("REASON", projectsFile + " is not a valid Map<String, Project> object");
 		            result.put("EXCEPTION", e.getClass().getName());
 		            result.put("MESSAGE", e.getMessage());
 		            StringWriter sw = new StringWriter();
@@ -108,8 +110,6 @@ public class GetUserInfosServlet extends HttpServlet {
 			}
 		}
 		
-		result.put("WKS", wks.toString());
-		result.put("RESOURCES", request.getServletContext().getAttribute("resources"));
 		    
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");

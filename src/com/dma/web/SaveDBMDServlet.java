@@ -6,16 +6,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -46,17 +40,13 @@ public class SaveDBMDServlet extends HttpServlet {
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
 
-		String realPath = getServletContext().getRealPath("/");
-		System.out.println("realPath=" + realPath);
+		Path path = Paths.get(request.getSession().getAttribute("projectPath") + "/dbmd.json");
 		
-		String fileName = realPath + "/res/dbmd.json";
-		System.out.println("fileName=" + fileName);
-		
-		File file = new File(fileName);
+		File file = path.toFile();
 		if(!file.exists()){file.createNewFile();}
 		file.setReadable(true, false);
 		
-		BufferedWriter bw = new BufferedWriter(new FileWriter(new File(fileName)));
+		BufferedWriter bw = new BufferedWriter(new FileWriter(path.toFile()));
 	
 //		IOUtils.copy(br, bw);
 		

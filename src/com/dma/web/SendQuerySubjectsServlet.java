@@ -103,7 +103,7 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 		
 		// START SETUP COGNOS ENVIRONMENT
 		
-		Path cognosModelsPath = Paths.get((String) request.getSession().getAttribute("cognosModelsPath"));
+		Path cognosModelsPath = Paths.get((String) request.getServletContext().getAttribute("cognosModelsPath"));
 		if(!Files.isWritable(cognosModelsPath)){
 			result.put("status", "KO");
 			result.put("message", "cognosModelsPath '" + cognosModelsPath + "' not writeable." );
@@ -176,11 +176,11 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 		}
 
 		String dBEngine = (String) request.getSession().getAttribute("dbEngine");
-		String cognosFolder = (String) request.getSession().getAttribute("cognosFolder");
-		String cognosDispatcher = (String) request.getSession().getAttribute("cognosDispatcher");
-		String cognosLogin = (String) request.getSession().getAttribute("cognosLogin");
-		String cognosPassword = (String) request.getSession().getAttribute("cognosPassword");
-		String cognosNamespace = (String) request.getSession().getAttribute("cognosNamespace");
+		String cognosFolder = (String) request.getServletContext().getAttribute("cognosFolder");
+		String cognosDispatcher = (String) request.getServletContext().getAttribute("cognosDispatcher");
+		String cognosLogin = (String) request.getServletContext().getAttribute("cognosLogin");
+		String cognosPassword = (String) request.getServletContext().getAttribute("cognosPassword");
+		String cognosNamespace = (String) request.getServletContext().getAttribute("cognosNamespace");
 		String pathToXML = getServletContext().getRealPath("/") + "/res/templates";
 
 		if(!Files.exists(Paths.get(pathToXML))){
@@ -221,11 +221,11 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			try{
 				
 		        //start();
-				String cognosDataSource = (String) request.getSession().getAttribute("cognosDataSource");
-				String cognosCatalog = (String) request.getSession().getAttribute("cognosCatalog");
-				String cognosSchema = (String) request.getSession().getAttribute("cognosSchema");
-				String cognosDefaultLocale = (String) request.getSession().getAttribute("cognosDefaultLocale");
-				String cognosLocales = (String) request.getSession().getAttribute("cognosLocales");
+				String cognosDataSource = (String) request.getServletContext().getAttribute("cognosDataSource");
+				String cognosCatalog = (String) request.getServletContext().getAttribute("cognosCatalog");
+				String cognosSchema = (String) request.getServletContext().getAttribute("cognosSchema");
+				String cognosDefaultLocale = (String) request.getServletContext().getAttribute("cognosDefaultLocale");
+				String cognosLocales = (String) request.getServletContext().getAttribute("cognosLocales");
 				System.out.println("cognosLocales=" + cognosLocales);
 
 				csvc = new CognosSVC(cognosDispatcher);

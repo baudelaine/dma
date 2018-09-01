@@ -6,7 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,7 +30,7 @@ public class test4 {
 	public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
 		// TODO Auto-generated method stub
 
-		List<Project> ps = new ArrayList<Project>();
+		Map<String, Project> ps = new HashMap<String, Project>();
 		
 		Resource r = new Resource();
 		r.setJndiName("jdbc/DB2");
@@ -39,7 +42,7 @@ public class test4 {
 		p.setDbSchema("DB2INST1");
 		p.setResource(r);
 		
-		ps.add(p);
+		ps.put(p.getName(), p);
 
 		r = new Resource();
 		r.setJndiName("jdbc/ORA");
@@ -51,7 +54,7 @@ public class test4 {
 		p.setDbSchema("DANONE");
 		p.setResource(r);
 		
-		ps.add(p);
+		ps.put(p.getName(), p);
 
 		r = new Resource();
 		r.setJndiName("jdbc/MYSQL");
@@ -63,7 +66,7 @@ public class test4 {
 		p.setDbSchema("");
 		p.setResource(r);
 		
-		ps.add(p);
+		ps.put(p.getName(), p);
 
 		r = new Resource();
 		r.setJndiName("jdbc/PGSQL");
@@ -75,9 +78,10 @@ public class test4 {
 		p.setDbSchema("");
 		p.setResource(r);
 
-		ps.add(p);
+		ps.put(p.getName(), p);
 		
-		for(Project prj: ps){
+		for(Entry<String, Project> e: ps.entrySet()){
+			Project prj = e.getValue();
 			Resource res = prj.getResource();
 			res.setDescription(res.getDbName() + " (" + res.getJndiName() + " - " + res.getDbEngine() + ")");
 			

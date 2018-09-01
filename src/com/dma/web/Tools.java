@@ -20,6 +20,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -67,7 +68,9 @@ public class Tools {
         return null;
 	}
 	
-	public final static List<Resource> getResources(){
+	public final static Map<String, Resource> getResources(){
+		
+		Map<String, Resource> result = new HashMap<String, Resource>();
 		
 		try{
 			
@@ -106,14 +109,17 @@ public class Tools {
 					}
 				}
 				
-				rs.add(r);
+				if(StringUtils.isNoneEmpty(r.getDbName(), r.getJndiName(), r.getDbEngine())){
+					rs.add(r);
+				}				
 			}
 			
 			for(Resource r: rs){
 				r.setDescription(r.getDbName() + " (" + r.getJndiName() + " - " + r.getDbEngine() + ")");
+				result.put(r.getDbName(), r);
 			}
 			
-			return rs;
+			return result;
 			
 		}
 		catch(Exception e){
