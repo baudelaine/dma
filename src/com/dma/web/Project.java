@@ -6,7 +6,8 @@ public class Project {
 	String dbSchema = "";
 	Resource resource = null;
 	String description = "";
-
+	String timestamp = "";
+	
 	public String getName() {
 		return name;
 	}
@@ -30,6 +31,12 @@ public class Project {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public String getTimestamp() {
+		return timestamp;
+	}
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
 	}
 	
 }

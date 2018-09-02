@@ -46,7 +46,7 @@ $(".list-group a").click(function() {
     openBody += '<div id="searchlist" class="list-group">';
 
     $.each(datas.PROJECTS, function(i, obj){
-      openBody += '<a href="#" id="' + i +'" class="list-group-item"><span>' + obj.name + ' - ' + obj.dbSchema + ' - ' + obj.resource.description + ' - ' + obj.description + '</span></a>';
+      openBody += '<a href="#" id="' + i +'" class="list-group-item"><span>' + obj.name + ' - ' + obj.dbSchema + '<br>' + obj.timestamp + '<br>' + obj.resource.description + '<br>' + obj.description + '</span></a>';
     });
     openBody += '</div></form></div></div><script>';
     openBody += '$("#searchlist").btsListFilter("#searchinput", {itemChild: "span", initial: false, casesensitive: false,});';
@@ -64,6 +64,14 @@ $(".list-group a").click(function() {
     $('#newProjectModal').modal('toggle');
   }
 
+});
+
+$("#prjResource").change(function () {
+    var selectedText = $(this).find("option:selected").val();
+    var dbSchema = datas.RESOURCES[selectedText].jndiName.split('.')[1];
+    console.log(selectedText);
+    console.log(dbSchema);
+		$('#prjDbSchema').val(dbSchema);
 });
 
 function GetUserInfos() {

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -83,6 +84,18 @@ public class NewProjectServlet extends HttpServlet {
 		}
 			
 		if(newProject != null){
+			
+			Calendar c = Calendar.getInstance();
+//			c.setTimeInMillis(System.currentTimeMillis());
+
+			java.text.SimpleDateFormat mois = new java.text.SimpleDateFormat("MM");
+			
+			String date = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH) + "-" + c.get(Calendar.DAY_OF_MONTH);
+			date = c.get(Calendar.YEAR) + "-" + mois.format(c.getTime()) + "-" + c.get(Calendar.DAY_OF_MONTH);
+			String time = c.get(Calendar.HOUR_OF_DAY) + "-" + c.get(Calendar.MINUTE) + "-" + c.get(Calendar.SECOND);
+			
+			newProject.setTimestamp(date + "-" + time);
+			
 			Map<String, Project> projects = new HashMap<String, Project>();
 			projects.put(newProject.getName(), newProject);
 			Path projectsFile = Paths.get(getServletContext().getRealPath("/datas") + "/" + user + "/projects.json");

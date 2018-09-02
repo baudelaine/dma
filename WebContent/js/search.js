@@ -119,6 +119,16 @@ $('#modQueriesList').on('shown.bs.modal', function() {
   $(this).find('.modal-body').append(list);
 });
 
+$('#queryModal').on('shown.bs.modal', function() {
+  if($('#searchSelect').val().length == 0){
+    $('#searchSelect').selectpicker('selectAll');
+  }
+});
+
+$('#queryModal').on('hidden.bs.modal', function() {
+    $('#searchSelect').selectpicker('deselectAll');
+});
+
 tableLabelQuery.addEventListener('click', function(event){
   var query = $("#tableLabel").val();
   var type = 'table';
@@ -167,6 +177,7 @@ function CheckIfTableSelected(){
   if($('#searchSelect').val().length == 0){
     ShowAlert("CheckIfTableSelected()", "No table selected in 'Choose table(s)...'.", "alert-warning", "bottom");
     return false;
+    // $('#searchSelect').selectpicker('selectAll');
   }
   return true;
 }

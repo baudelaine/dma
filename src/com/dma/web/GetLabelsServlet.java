@@ -200,23 +200,27 @@ public class GetLabelsServlet extends HttpServlet {
 					}
 					
 					Map<String, Object> cls = (Map<String, Object>) clMap.get(table);
-					for(Entry<String, Object> cl: cls.entrySet()){
-						String column_name = cl.getKey();
-						Object column_remarks = cl.getValue();
-						if(!columns.containsKey(cl.getKey())){
-							columns.put(cl.getKey(), new HashMap<String, Object>());
+					if(cls != null){
+						for(Entry<String, Object> cl: cls.entrySet()){
+							String column_name = cl.getKey();
+							Object column_remarks = cl.getValue();
+							if(!columns.containsKey(cl.getKey())){
+								columns.put(cl.getKey(), new HashMap<String, Object>());
+							}
+							((Map<String, Object>) columns.get(column_name)).put("column_remarks", column_remarks);
 						}
-						((Map<String, Object>) columns.get(column_name)).put("column_remarks", column_remarks);
 					}
 
 					Map<String, Object> cds = (Map<String, Object>) cdMap.get(table);
-					for(Entry<String, Object> cd: cds.entrySet()){
-						String column_name = cd.getKey();
-						Object column_description = cd.getValue();
-						if(!columns.containsKey(cd.getKey())){
-							columns.put(cd.getKey(), new HashMap<String, Object>());
+					if(cds != null){
+						for(Entry<String, Object> cd: cds.entrySet()){
+							String column_name = cd.getKey();
+							Object column_description = cd.getValue();
+							if(!columns.containsKey(cd.getKey())){
+								columns.put(cd.getKey(), new HashMap<String, Object>());
+							}
+							((Map<String, Object>) columns.get(column_name)).put("column_description", column_description);
 						}
-						((Map<String, Object>) columns.get(column_name)).put("column_description", column_description);
 					}
 					
 					result.put("columns", columns);
