@@ -46,7 +46,7 @@ $(".list-group a").click(function() {
     openBody += '<div id="searchlist" class="list-group">';
 
     $.each(datas.PROJECTS, function(i, obj){
-      openBody += '<a href="#" id="' + i +'" class="list-group-item"><span>' + obj.name + ' - ' + obj.timestamp + '<br>' + obj.resource.dbName + ' - ' + obj.dbSchema + ' - ' + obj.resource.dbEngine + '</span></a>';
+      openBody += '<a href="#" id="' + i +'" class="list-group-item"><span>' + obj.name + ' - ' + obj.timestamp + '<br>' + obj.resource.dbName + ' - ' + obj.dbSchema + ' - ' + obj.resource.dbEngine + '<br>' + obj.description + '</span></a>';
     });
     openBody += '</div></form></div></div><script>';
     openBody += '$("#searchlist").btsListFilter("#searchinput", {itemChild: "span", initial: false, casesensitive: false,});';
