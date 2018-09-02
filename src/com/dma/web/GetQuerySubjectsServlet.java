@@ -225,9 +225,11 @@ public class GetQuerySubjectsServlet extends HttpServlet {
     			field.setIndex(true);
     		}
     		if(columns != null){
-    			Map<String, Object> column = (Map<String, Object>) columns.get(field_name); 
-    			field.setLabel((String) column.get("column_remarks"));
-    			field.setDescription((String) column.get("column_description"));
+    			Map<String, Object> column = (Map<String, Object>) columns.get(field_name);
+    			if(column != null){
+	    			field.setLabel((String) column.get("column_remarks"));
+	    			field.setDescription((String) column.get("column_description"));
+    			}
     		}
         	
         	result.add(field);
