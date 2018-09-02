@@ -129,6 +129,21 @@
 
   <!-- END PGSQL SETUP-->
 
+<!-- START IFX SETUP-->
+
+  <library id="IFXLib">
+    <fileset dir="${shared.resource.dir}/IFX" includes="*.jar"/>
+  </library>
+
+  <dataSource jndiName="jdbc/IFX">
+    <jdbcDriver libraryRef="IFXLib"/>
+    <properties.informix databaseName="stores_demo" ifxIFXHOST="172.16.186.241" password="spcspc" portNumber="9088" serverName="ol_informix1210" user="informix"/>
+  </dataSource>
+
+        <jndiEntry jndiName="TestIFXConnection" value="SELECT CURRENT FROM systables WHERE tabid=1"/>
+
+  <!-- END IFX SETUP-->
+
 
   <!-- START DMA SETUP-->
 

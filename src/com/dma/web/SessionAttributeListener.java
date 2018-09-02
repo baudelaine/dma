@@ -86,6 +86,11 @@ public class SessionAttributeListener implements HttpSessionAttributeListener {
 	    			case "PGSQL":
 	    				query = (String) ic.lookup("TestPGSQLConnection");
 	    				break;
+
+	    			case "IFX":
+	    				query = (String) ic.lookup("TestIFXConnection");
+	    				break;
+	    				
 	    		}
 	    		s.setAttribute("query", query);
         	}
