@@ -221,9 +221,9 @@ public class SendQuerySubjectsServlet extends HttpServlet {
 			try{
 				
 		        //start();
-				String cognosDataSource = (String) request.getServletContext().getAttribute("cognosDataSource");
-				String cognosCatalog = (String) request.getServletContext().getAttribute("cognosCatalog");
-				String cognosSchema = (String) request.getServletContext().getAttribute("cognosSchema");
+				String cognosDataSource = (String) request.getSession().getAttribute("cognosDataSource");
+				String cognosCatalog = (String) request.getSession().getAttribute("cognosCatalog");
+				String cognosSchema = (String) request.getSession().getAttribute("cognosSchema");
 				String cognosDefaultLocale = (String) request.getServletContext().getAttribute("cognosDefaultLocale");
 				String cognosLocales = (String) request.getServletContext().getAttribute("cognosLocales");
 				System.out.println("cognosLocales=" + cognosLocales);

@@ -56,6 +56,14 @@ public class SessionAttributeListener implements HttpSessionAttributeListener {
 			s.setAttribute("schema", schema);
     		String dbEngine = project.getResource().getDbEngine();
     		s.setAttribute("dbEngine", dbEngine);
+    		
+    		String cognosCatalog = project.getResource().getCognosCatalog();
+    		s.setAttribute("cognosCatalog", cognosCatalog);
+    		String cognosDataSource = project.getResource().getCognosDataSource();
+    		s.setAttribute("cognosDataSource", cognosDataSource);
+    		String cognosSchema = project.getResource().getCognosSchema();
+    		s.setAttribute("cognosSchema", cognosSchema);
+    		
         	Map<String, QuerySubject> query_subjects = new HashMap<String, QuerySubject>();
         	s.setAttribute("query_subjects", query_subjects);
 

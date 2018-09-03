@@ -6,6 +6,9 @@ public class Resource {
 	String dbName = "";
 	String dbEngine = "";
 	String description = "";
+	String cognosCatalog = "";
+	String cognosSchema = "";
+	String cognosDataSource = "";
 
 	public String getJndiName() {
 		return jndiName;
@@ -30,6 +33,24 @@ public class Resource {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public String getCognosCatalog() {
+		return cognosCatalog;
+	}
+	public void setCognosCatalog(String cognosCatalog) {
+		this.cognosCatalog = cognosCatalog;
+	}
+	public String getCognosSchema() {
+		return cognosSchema;
+	}
+	public void setCognosSchema(String cognosSchema) {
+		this.cognosSchema = cognosSchema;
+	}
+	public String getCognosDataSource() {
+		return cognosDataSource;
+	}
+	public void setCognosDataSource(String cognosDataSource) {
+		this.cognosDataSource = cognosDataSource;
 	}
 	
 }

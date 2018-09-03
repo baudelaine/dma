@@ -2,7 +2,6 @@ package com.dma.web;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -98,6 +97,9 @@ public class Tools {
 				Node node = nodeList.item(index);
 				Resource r = new Resource();
 				r.setJndiName(getAttrValue(node, "jndiName"));
+				r.setCognosCatalog(getAttrValue(node, "cognosCatalog"));
+				r.setCognosDataSource(getAttrValue(node, "cognosDataSource"));
+				r.setCognosSchema(getAttrValue(node, "cognosSchema"));
 				NodeList childNodes = node.getChildNodes();
 				for(int i = 0; i < childNodes.getLength(); i++){
 					Node childNode = childNodes.item(i);
@@ -139,6 +141,7 @@ public class Tools {
 	    return n.getNodeValue();
 	}
 	
+	@SuppressWarnings("unused")
 	static private String getTextContent(Node parentNode,String childName) {
 	    NodeList nlist = parentNode.getChildNodes();
 	    for (int i = 0 ; i < nlist.getLength() ; i++) {
