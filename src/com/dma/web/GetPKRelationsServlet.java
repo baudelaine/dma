@@ -81,10 +81,12 @@ public class GetPKRelationsServlet extends HttpServlet {
 		        String fktable_name = rst.getString("FKTABLE_NAME");
 		        String pktable_name = rst.getString("PKTABLE_NAME");
 		        String _id = key_name + "P";
+		        boolean isAlias = false;
 		        
 		        if(tableAliases != null){
 			        if(tableAliases.containsKey(fktable_name)){
 			        	fktable_name = tableAliases.get(fktable_name);
+			        	isAlias = true;
 			        }
 	
 			        if(tableAliases.containsKey(pktable_name)){
@@ -92,8 +94,9 @@ public class GetPKRelationsServlet extends HttpServlet {
 			        }
 		        }
 		        
-		        System.out.println("_id=" + _id);
-
+		        // Jump to other key if fktable is an alias
+		        if(isAlias){continue;}
+		        
 		        if(!map.containsKey(_id)){
 		        	
 		        	System.out.println("+++ add relation +++");

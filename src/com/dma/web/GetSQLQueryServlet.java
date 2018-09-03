@@ -1,12 +1,9 @@
 package com.dma.web;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -14,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -46,7 +42,6 @@ public class GetSQLQueryServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	@SuppressWarnings("unchecked")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		Connection con = null;
@@ -91,19 +86,25 @@ public class GetSQLQueryServlet extends HttpServlet {
 			int colCount = rsmd.getColumnCount();
 
 			List<String> column_names = new ArrayList<String>();
+			List<Integer> column_sizes = new ArrayList<Integer>();
+			List<String> column_types = new ArrayList<String>();
 			
 			for(int colid = 1; colid <= colCount; colid++){
 				column_names.add(rsmd.getColumnLabel(colid));
+				column_sizes.add(rsmd.getColumnDisplaySize(colid));
+				column_types.add(rsmd.getColumnTypeName(colid));
 			}
 			
 			results.put("columns", column_names);
 			
 			List<Object> recs = new ArrayList<Object>();
-			int i = 0;
 			while(rst.next()){
 				Map<String, Object> rec = new HashMap<String, Object>();
 				for(int colid = 1; colid <= colCount; colid++){
-					rec.put(column_names.get(colid -1), rst.getObject(colid));
+					if(!StringUtils.containsAny(column_types.get(colid -1), "BLOB", "XML", "SQLXML", "NCLOB", "CLOB")){
+//						System.out.println(column_names.get(colid -1) + "->" + column_types.get(colid -1));
+						rec.put(column_names.get(colid -1), rst.getObject(colid));
+					}
 				}
 				recs.add(rec);
 			}
