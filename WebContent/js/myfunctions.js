@@ -912,7 +912,7 @@ function buildSubTable($el, cols, data, parentData){
         if(field == "pktable_alias"){
           var newValue = row.pktable_alias;
           if($activeSubDatasTable != undefined){
-            updateCell($activeSubDatasTable, row.index, 'relationship', row.relationship.split("[" + oldValue + "]").join("[" + newValue + "]"));
+            updateCell($activeSubDatasTable, row.index, 'relationship', row.relationship.split(" [" + oldValue + "]").join(" [" + newValue + "]"));
           }
         }
 
