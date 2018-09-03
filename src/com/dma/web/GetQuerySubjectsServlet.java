@@ -258,6 +258,7 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	        String fktable_name = rst.getString("FKTABLE_NAME");
 	        String pktable_name = rst.getString("PKTABLE_NAME");
 	        String _id = key_name + "F";
+	        boolean isAlias = false;
 	        
 	        if(tableAliases != null){
 		        if(tableAliases.containsKey(fktable_name)){
@@ -266,10 +267,12 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	
 		        if(tableAliases.containsKey(pktable_name)){
 		        	pktable_name = tableAliases.get(pktable_name);
+		        	isAlias = true;
 		        }
 	        }
-	        
-	        System.out.println("_id=" + _id);
+
+	        // Jump to other key if pktable is an alias
+	        if(isAlias){continue;}
 
 	        if(!map.containsKey(_id)){
 	        	
