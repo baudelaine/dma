@@ -54,31 +54,6 @@ public class ContextListener implements ServletContextListener {
     		sc.setAttribute("cognosPassword", cognosPassword);
     		String cognosNamespace = (String) ic.lookup("CognosNamespace");
     		sc.setAttribute("cognosNamespace", cognosNamespace);
-    		String cognosDataSource = (String) ic.lookup("CognosDataSource");
-    		sc.setAttribute("cognosDataSource", cognosDataSource);
-    		String cognosSchema = null;
-    		try{
-    			cognosSchema = (String) ic.lookup("CognosSchema");
-    		}
-    		catch(NamingException e){
-    			cognosSchema = "";
-        		sc.setAttribute("cognosSchema", cognosSchema);
-    		}
-    		String cognosCatalog = null;
-    		try{
-    			cognosCatalog = (String) ic.lookup("CognosCatalog");
-    		}
-    		catch(NamingException e){
-    			cognosSchema = "";
-        		sc.setAttribute("cognosCatalog", cognosCatalog);
-    		}
-    		try{
-    			cognosSchema = (String) ic.lookup("CognosSchema");
-    		}
-    		catch(NamingException e){
-    			cognosSchema = "";
-        		sc.setAttribute("cognosSchema", cognosSchema);
-    		}
     		String cognosDefaultLocale = (String) ic.lookup("CognosDefaultLocale"); 
     		sc.setAttribute("cognosDefaultLocale", cognosDefaultLocale);
     		String cognosLocales = (String) ic.lookup("CognosLocales");
