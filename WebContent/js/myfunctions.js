@@ -912,7 +912,9 @@ function buildSubTable($el, cols, data, parentData){
         if(field == "pktable_alias"){
           var newValue = row.pktable_alias;
           if($activeSubDatasTable != undefined){
-            updateCell($activeSubDatasTable, row.index, 'relationship', row.relationship.split(" [" + oldValue + "]").join(" [" + newValue + "]"));
+            var re = new RegExp("[^.]\\[" + oldValue + "\\]", "gi");
+            // updateCell($activeSubDatasTable, row.index, 'relationship', row.relationship.split(" [" + oldValue + "]").join(" [" + newValue + "]"));
+            updateCell($activeSubDatasTable, row.index, 'relationship', row.relationship.replace(re, " [" + newValue + "]"));
           }
         }
 
@@ -1119,14 +1121,17 @@ function buildSubTable($el, cols, data, parentData){
               }
             }
             if(value == false){
+
+              var re = new RegExp("[^\\.]\\[" + row.pktable_alias + "\\]", "gi");
+
               if(!row.fin && activeTab == "Final"){
-                row.relationship = row.relationship.split(' ' + pkAlias).join(" [FINAL]." + pkAlias);
+                row.relationship = row.relationship.replace(re, " [FINAL].[" + row.pktable_alias + "]");
               }
               if(!row.ref && activeTab == "Reference"){
-                row.relationship = row.relationship.split(' ' + pkAlias).join(" [REF]." + pkAlias);
+                row.relationship = row.relationship.replace(re, " [REF].[" + row.pktable_alias + "]");
               }
               if(!row.ref && activeTab == "Security"){
-                row.relationship = row.relationship.split(' ' + pkAlias).join(" [SEC]." + pkAlias);
+                row.relationship = row.relationship.replace(re, " [SEC].[" + row.pktable_alias + "]");
               }
               updateCell($el, row.index, field, newValue);
               ChangeIcon(row, parentData, "Identifier");
