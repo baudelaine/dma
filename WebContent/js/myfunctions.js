@@ -1120,13 +1120,13 @@ function buildSubTable($el, cols, data, parentData){
             }
             if(value == false){
               if(!row.fin && activeTab == "Final"){
-                row.relationship = row.relationship.split(' ' + pkAlias).join("[FINAL]." + pkAlias);
+                row.relationship = row.relationship.split(' ' + pkAlias).join(" [FINAL]." + pkAlias);
               }
               if(!row.ref && activeTab == "Reference"){
-                row.relationship = row.relationship.split(' ' + pkAlias).join("[REF]." + pkAlias);
+                row.relationship = row.relationship.split(' ' + pkAlias).join(" [REF]." + pkAlias);
               }
               if(!row.ref && activeTab == "Security"){
-                row.relationship = row.relationship.split(' ' + pkAlias).join("[SEC]." + pkAlias);
+                row.relationship = row.relationship.split(' ' + pkAlias).join(" [SEC]." + pkAlias);
               }
               updateCell($el, row.index, field, newValue);
               ChangeIcon(row, parentData, "Identifier");
