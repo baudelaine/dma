@@ -172,9 +172,9 @@ function OpenProject(id) {
 function loadList(obj, list){
   obj.empty();
   $.each(list, function(i, item){
-    var option = '<option class="fontsize" value="' + i + '" data-subtext="' + item.dbEngine + ' - ' + item.jndiName
+    var option = '<option class="fontsize" value="' + i + '" data-subtext="' + item.dbName + ' - ' + item.dbEngine
       + ' - ' + item.cognosCatalog + ' - ' + item.cognosDataSource + ' - ' + item.cognosSchema
-      + '">' + item.dbName + '</option>';
+      + '">' + item.jndiName + '</option>';
     obj.append(option);
   });
   obj.selectpicker('refresh');

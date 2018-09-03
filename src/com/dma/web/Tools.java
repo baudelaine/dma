@@ -118,7 +118,7 @@ public class Tools {
 			
 			for(Resource r: rs){
 				r.setDescription(r.getDbName() + " (" + r.getJndiName() + " - " + r.getDbEngine() + ")");
-				result.put(r.getDbName(), r);
+				result.put(r.getJndiName(), r);
 			}
 			
 			return result;
