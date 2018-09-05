@@ -190,7 +190,7 @@ var dimensions = {
   ]
 }
 
-fieldCols.push({field:"dimension", title: "Dimension", editable: {type: 'text', mode: 'inline'}});
+fieldCols.push({field:"dimension", title: "Dimension", editable: dateDimensions});
 fieldCols.push({field:"order", title: "Order", editable: {type: "text"}, sortable: true});
 fieldCols.push({field:"remove", title: '<i class="glyphicon glyphicon-trash"></i>', formatter: "removeFormatter", align: "center"});
 
