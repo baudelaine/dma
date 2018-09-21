@@ -1,39 +1,39 @@
-<server description="dma server">
+<server description="new server">
 
     <!-- Enable features -->
     <featureManager>
-	    <feature>servlet-3.0</feature>
-    	<feature>jndi-1.0</feature>
+		   <feature>servlet-3.0</feature>
+	    	<feature>jndi-1.0</feature>
 		  <feature>jdbc-4.0</feature>
-		  <feature>appSecurity-2.0</feature>
-		  <feature>ldapRegistry-3.0</feature>
+                  <feature>appSecurity-2.0</feature>
+                  <feature>ldapRegistry-3.0</feature>
 	  </featureManager>
 
     <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
-    <httpEndpoint host="*" httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint"/>
+    <httpEndpoint host="*" httpPort="80" httpsPort="443" id="defaultHttpEndpoint"/>
 
 	<!-- Automatically expand WAR files and EAR files -->
 	<applicationManager autoExpand="true"/>
 
-	<ldapRegistry
-        	id="ldap" 
-        	host="localhost" 
-		port="389"
-        	baseDN="dc=dma,dc=local"
-        	bindDN="cn=admin,dc=dma,dc=local"
-		bindPassword="spcspc"
-        	ldapType="Custom"
+
+       <ldapRegistry
+                id="sample_ldap" realm="SampleLdapIDSRealm" ignoreCase="true"
+                host="172.16.160.120" port="389"
+                baseDN="dc=iicparis,dc=fr,dc=ibm,dc=com"
+                bindDN="cn=admin,dc=iicparis,dc=fr,dc=ibm,dc=com"
+                bindPassword="admin"
+                ldapType="Custom"
 		recursiveSearch="true"
-		certificateMapMode="EXACT_DN"
-		>
-		<customFilters
-			userFilter="(&amp;(uid=%v)(objectclass=posixaccount))"
-			groupFilter="(&amp;(cn=%v)(objectclass=groupofNames))"
-			userIdMap="*:uid"
-			groupIdMap="*:cn"
-			groupMemberIdMap="groupofNames:member"	
-		/>
-	</ldapRegistry>
+                certificateMapMode="EXACT_DN"
+                >
+                <customFilters
+                        userFilter="(&amp;(uid=%v)(objectclass=posixaccount))"
+                        groupFilter="(&amp;(cn=%v)(objectclass=groupofNames))"
+                        userIdMap="*:uid"
+                        groupIdMap="*:cn"
+                        groupMemberIdMap="groupofNames:member"
+                />
+        </ldapRegistry>
 
 
   <!-- START ORA SETUP-->
@@ -45,9 +45,14 @@
 	  <fileset dir="${shared.resource.dir}/ORA" includes="*.jar"/>
 	</library>
 
-	<dataSource jndiName="jdbc/ORA" transactional="false">
+	<dataSource jndiName="jdbc/lvso112.DANONE" transactional="false" cognosCatalog="" cognosDataSource="DEV" cognosSchema="DANONE">
 	  <jdbcDriver libraryRef="ORALib"/>
 	  <properties.oracle databaseName="lvso112" driverType="thin" password="danone" portNumber="1521" serverName="172.16.186.243" user="danone"/>
+	</dataSource>
+
+	<dataSource jndiName="jdbc/XE.HR" transactional="false" cognosCatalog="CCAT" cognosDataSource="CDS" cognosSchema="CSCH">
+	  <jdbcDriver libraryRef="ORALib"/>
+	  <properties.oracle databaseName="XE" driverType="thin" password="spcspc" portNumber="1521" serverName="172.16.186.241" user="HR"/>
 	</dataSource>
 
 	<jndiEntry jndiName="TestORAConnection" value="select sysdate from dual"/>
@@ -60,9 +65,14 @@
     <fileset dir="${shared.resource.dir}/DB2" includes="*.jar"/>
   </library>
 
-  <dataSource jndiName="jdbc/DB2" transactional="false">
+  <dataSource jndiName="jdbc/FRMARK.DB2INST1" transactional="false" cognosCatalog="" cognosDataSource="FRMARK" cognosSchema="DB2INST1">
     <jdbcDriver libraryRef="DB2Lib"/>
-    <properties.db2.jcc currentSchema="DB2INST1" databaseName="FRMARK" password="spcspc" portNumber="50000" serverName="localhost" user="db2inst1"/>
+    <properties.db2.jcc databaseName="FRMARK" password="spcspc" portNumber="50000" serverName="172.16.186.151" user="db2inst1"/>
+  </dataSource>
+
+  <dataSource jndiName="jdbc/SAMPLE.DB2INST1" transactional="false" cognosCatalog="" cognosDataSource="DB2Sample" cognosSchema="DB2INST1">
+    <jdbcDriver libraryRef="DB2Lib"/>
+    <properties.db2.jcc databaseName="SAMPLE" password="spcspc" portNumber="50000" serverName="172.16.186.242" user="db2inst1"/>
   </dataSource>
 
   <jndiEntry jndiName="TestDB2Connection" value="select current date from sysibm.sysdummy1"/>
@@ -75,7 +85,7 @@
     <fileset dir="${shared.resource.dir}/DB2400" includes="*.jar"/>
   </library>
 
-  <dataSource jndiName="jdbc/DB2400" transactional="false">
+  <dataSource jndiName="jdbc/DB2400" transactional="false" cognosCatalog="CCAT" cognosDataSource="CDS" cognosSchema="CSCH">
     <jdbcDriver libraryRef="DB2400Lib"/>
     <properties.db2.i.toolbox databaseName="" password="" portNumber="" serverName="" user=""/>
   </dataSource>
@@ -90,9 +100,14 @@
     <fileset dir="${shared.resource.dir}/SQLSRV" includes="*.jar"/>
   </library>
 
-  <dataSource jndiName="jdbc/SQLSRV" transactional="false">
+  <dataSource jndiName="jdbc/IBS_CHRYSALIDE.dbo" transactional="false" cognosCatalog="IBS_CHRYSALIDE" cognosDataSource="IBS_CHRYSALIDE" cognosSchema="dbo">
     <jdbcDriver libraryRef="SQLSRVLib"/>
-    <properties.microsoft.sqlserver databaseName="DBNAME" password="pwd" portNumber="1433" serverName="localhost/127.0.0.1" user="user"/>
+    <properties.microsoft.sqlserver databaseName="IBS_CHRYSALIDE" password="spcspc" portNumber="1433" serverName="172.16.186.241" user="sa"/>
+  </dataSource>
+
+  <dataSource jndiName="jdbc/Northwind.dbo" transactional="false" cognosCatalog="Northwind" cognosDataSource="SQLServerSample" cognosSchema="dbo">
+    <jdbcDriver libraryRef="SQLSRVLib"/>
+    <properties.microsoft.sqlserver databaseName="Northwind" password="spcspc" portNumber="1433" serverName="172.16.186.241" user="sa"/>
   </dataSource>
 
 	<jndiEntry jndiName="TestSQLSRVConnection" value="SELECT GETDATE()"/>
@@ -105,9 +120,9 @@
     <fileset dir="${shared.resource.dir}/MYSQL" includes="*.jar"/>
   </library>
 
-  <dataSource jndiName="jdbc/MYSQL" transactional="false">
+  <dataSource jndiName="jdbc/employees" transactional="false" cognosCatalog="employees" cognosDataSource="MYSQL" cognosSchema="">
     <jdbcDriver libraryRef="MYSQLLib"/>
-    <properties databaseName="employees" password="spcspc" portNumber="3306" serverName="localhost" user="root"/>
+    <properties databaseName="employees" password="spcspc" portNumber="3306" serverName="172.16.186.242" user="root"/>
   </dataSource>
 
 	<jndiEntry jndiName="TestMYSQLConnection" value="select now()"/>
@@ -120,30 +135,29 @@
     <fileset dir="${shared.resource.dir}/PGSQL" includes="*.jar"/>
   </library>
 
-  <dataSource jndiName="jdbc/PGSQL" type="javax.sql.XADataSource">
+  <dataSource jndiName="jdbc/dvdrental.public" type="javax.sql.XADataSource" cognosCatalog="" cognosDataSource="PGSample" cognosSchema="dvdrental">
     <jdbcDriver libraryRef="PGSQLLib" javax.sql.XADataSource="org.postgresql.xa.PGXADataSource"/>
-    <properties databaseName="dvdrental" password="spcspc" portNumber="5432" serverName="localhost" user="postgres"/>
+    <properties databaseName="dvdrental" password="spcspc" portNumber="5432" serverName="172.16.186.242" user="postgres"/>
   </dataSource>
 
 	<jndiEntry jndiName="TestPGSQLConnection" value="select 1"/>
 
   <!-- END PGSQL SETUP-->
 
-<!-- START IFX SETUP-->
+  <!-- START IFX SETUP-->
 
   <library id="IFXLib">
     <fileset dir="${shared.resource.dir}/IFX" includes="*.jar"/>
   </library>
 
-  <dataSource jndiName="jdbc/IFX">
+  <dataSource jndiName="jdbc/stores_demo" cognosCatalog="CCAT" cognosDataSource="CDS" cognosSchema="CSCH">
     <jdbcDriver libraryRef="IFXLib"/>
     <properties.informix databaseName="stores_demo" ifxIFXHOST="172.16.186.241" password="spcspc" portNumber="9088" serverName="ol_informix1210" user="informix"/>
   </dataSource>
 
-        <jndiEntry jndiName="TestIFXConnection" value="SELECT CURRENT FROM systables WHERE tabid=1"/>
+	<jndiEntry jndiName="TestIFXConnection" value="SELECT CURRENT FROM systables WHERE tabid=1"/>
 
   <!-- END IFX SETUP-->
-
 
   <!-- START DMA SETUP-->
 
@@ -159,22 +173,20 @@
 	<jndiEntry jndiName="CognosLogin" value="admin"/>
 	<jndiEntry jndiName="CognosPassword" value="Freestyle05$"/>
 	<jndiEntry jndiName="CognosNamespace" value="CognosEx"/>
-	<jndiEntry jndiName="CognosDataSource" value="DEV"/>
-	<jndiEntry jndiName="CognosSchema" value="DANONE"/>
 	<jndiEntry jndiName="CognosDefaultLocale" value="en-gb"/>
 	<jndiEntry jndiName="CognosLocales" value="en"/>
-	<jndiEntry jndiName="CognosCatalog" value=""/>
 
   <!-- END COGNOS SETUP -->
 
   <applicationMonitor updateTrigger="mbean"/>
 
   <application id="dma" location="dma.war" name="dma">
-	<application-bnd>
-        	<security-role name="testing">
-	          <special-subject type="ALL_AUTHENTICATED_USERS" />
-        	</security-role>
-      	</application-bnd>
+        <application-bnd>
+                <security-role name="testing">
+                  <special-subject type="ALL_AUTHENTICATED_USERS" />
+                </security-role>
+        </application-bnd>
   </application>
+
 
 </server>
