@@ -40,7 +40,10 @@ relationCols.push({field:"sec", title: "sec", formatter: "boolFormatter", align:
 relationCols.push({field:"tra", title: "tra", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"nommageRep", title: "RepTableName", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"leftJoin", title: "Left Join", formatter: "boolFormatter", align: "center"});
-relationCols.push({field:"usedForDimensions", title: "Used For Dimensions", formatter: "boolFormatter", align: "center"});
+// relationCols.push({field:"usedForDimensions", title: "Used For Dimensions", formatter: "boolFormatter", align: "center"});
+relationCols.push({field:"usedForDimensions", title: "Used For Dimensions", editable: {type: "text", mode: "inline"}, align: "center"});
+
+
 // relationCols.push({field:"rightJoin", title: "Right Join", formatter: "boolFormatter", align: "center"});
 relationCols.push({field:"duplicate", title: '<i class="glyphicon glyphicon-duplicate"></i>', formatter: "duplicateFormatter", align: "center"});
 relationCols.push({field:"remove", title: '<i class="glyphicon glyphicon-trash"></i>', formatter: "removeFormatter", align: "center"});
@@ -954,7 +957,7 @@ function buildSubTable($el, cols, data, parentData){
           case "hidden":
           case "timezone":
           case "leftJoin":
-          case "usedForDimensions":
+          // case "usedForDimensions":
           case "rightJoin":
             console.log(field);
             console.log(value);

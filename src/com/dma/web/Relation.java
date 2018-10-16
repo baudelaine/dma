@@ -1,9 +1,7 @@
 package com.dma.web;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class Relation {
 
@@ -24,7 +22,7 @@ public class Relation {
 	boolean tra = false;
 	boolean nommageRep = false;
 	boolean leftJoin = false;
-	boolean usedForDimensions = false;
+	String usedForDimensions = "";
 	boolean rightJoin = false;
 	String relationship = "";
 	String where = "";
@@ -181,11 +179,14 @@ public class Relation {
 	public void setLeftJoin(boolean leftJoin) {
 		this.leftJoin = leftJoin;
 	}
-	public boolean isUsedForDimensions() {
+	public String getUsedForDimensions() {
 		return usedForDimensions;
 	}
-	public void setUsedForDimensions(boolean usedForDimensions) {
+	public void setUsedForDimensions(String usedForDimensions) {
 		this.usedForDimensions = usedForDimensions;
+	}
+	public void setRelationship(String relationship) {
+		this.relationship = relationship;
 	}
 	public boolean isRightJoin() {
 		return rightJoin;
