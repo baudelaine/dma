@@ -162,6 +162,8 @@ public class FactorySVC {
 				xmlFile = new File(csvc.getPathToXML() + "/DBImport_PGSQL.xml");
 			} else  if (engineName.equals("DB2")) {
 				xmlFile = new File(csvc.getPathToXML() + "/DBImport_DB2.xml");
+			} else  if (engineName.equals("IFX")) {
+				xmlFile = new File(csvc.getPathToXML() + "/DBImport_IFX.xml");
 			}
 
 			SAXReader reader = new SAXReader();
@@ -199,8 +201,12 @@ public class FactorySVC {
 			} else  if (engineName.equals("DB2")) {
 				Element elemSchema = (Element) doc.selectSingleNode("//item/item");
 				elemSchema.addAttribute("Name", schemaName);
+			} else  if (engineName.equals("IFX")) {
+				Element elemCatalog = (Element) doc.selectSingleNode("//item/item");
+				Element elemSchema = (Element) doc.selectSingleNode("//item/item/item");
+				elemCatalog.addAttribute("Name", catalogName);
+				elemSchema.addAttribute("Name", schemaName);
 			}
-			
 			Element root_cdata = doc.getRootElement();
 	
 			// attach cdata
