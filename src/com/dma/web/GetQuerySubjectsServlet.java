@@ -260,7 +260,7 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 		if(schema.equalsIgnoreCase("MAXIMO") && !getMaxImportedKeysQuery.isEmpty()) {
 			Statement stmt = con.createStatement();
     		stmt.execute("SET SCHEMA " + schema);
-    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table + "'");
+    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE TARGETOBJ = '" + table + "'");
     	}
 		else {
 			rst = metaData.getImportedKeys(con.getCatalog(), schema, table);

@@ -100,7 +100,7 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 						String getMaxImportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getImportedKeysQuery");
 			    		stmt = con.createStatement();
 			    		stmt.execute("SET SCHEMA " + schema);
-			    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table_name + "'");
+			    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE TARGETOBJ = '" + table_name + "'");
 			    	}
 			    	else {
 				    	rst = metaData.getImportedKeys(con.getCatalog(), schema, table_name);
