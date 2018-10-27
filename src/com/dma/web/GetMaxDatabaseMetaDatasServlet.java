@@ -116,17 +116,19 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 			    	int PKSeqCount = 0;
 			    	Set<String> PKSet = new HashSet<String>();
 			    	if(schema.equalsIgnoreCase("MAXIMO")) {
+			    		System.out.println("On passe dans MAXIMO");
 						path = Paths.get(request.getServletContext().getRealPath("res/maximo.json"));
-						String getMaxExportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getExportedKeysQuery");
+						String getMaxImportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getImportedKeysQuery");
 			    		stmt = con.createStatement();
 			    		stmt.execute("SET SCHEMA " + schema);
-			    		rst = stmt.executeQuery(getMaxExportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table_name + "'");
+			    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table_name + "'");
 			    	}
 			    	else {
 			    		rst = metaData.getExportedKeys(con.getCatalog(), schema, table_name);
 			    	}
 			    	while(rst.next()){
 			    		String PKName = rst.getString("FK_NAME");
+			    		System.out.println("PKName=" + PKName);
 			    		PKSet.add(PKName);
 			    		PKSeqCount++;
 			    	}
