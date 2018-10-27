@@ -47,6 +47,7 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@SuppressWarnings("resource")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		Connection con = null;
@@ -111,10 +112,19 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 			    		FKSeqCount++;
 			    	}
 		            if(rst != null){rst.close();}
-	
-			    	rst = metaData.getExportedKeys(con.getCatalog(), schema, table_name);
+
 			    	int PKSeqCount = 0;
 			    	Set<String> PKSet = new HashSet<String>();
+			    	if(schema.equalsIgnoreCase("MAXIMO")) {
+						path = Paths.get(request.getServletContext().getRealPath("res/maximo.json"));
+						String getMaxExportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getExportedKeysQuery");
+			    		stmt = con.createStatement();
+			    		stmt.execute("SET SCHEMA " + schema);
+			    		rst = stmt.executeQuery(getMaxExportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table_name + "'");
+			    	}
+			    	else {
+			    		rst = metaData.getExportedKeys(con.getCatalog(), schema, table_name);
+			    	}
 			    	while(rst.next()){
 			    		String PKName = rst.getString("FK_NAME");
 			    		PKSet.add(PKName);
