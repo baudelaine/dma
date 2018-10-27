@@ -1,6 +1,8 @@
 package com.dma.web;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -52,6 +54,7 @@ public class GetPKRelationsServlet extends HttpServlet {
 		
 		Connection con = null;
 		ResultSet rst = null;
+		Statement stmt = null;
 		DatabaseMetaData metaData = null;
 		String schema = "";
 		Map<String, String> tableAliases = null;
@@ -66,9 +69,18 @@ public class GetPKRelationsServlet extends HttpServlet {
 			tableAliases = (Map<String, String>) request.getSession().getAttribute("tableAliases");
 			
 		    Map<String, Relation> map = new HashMap<String, Relation>();
-			metaData = con.getMetaData();
-			rst = metaData.getExportedKeys(con.getCatalog(), schema, table);
 		    
+			if(schema.equalsIgnoreCase("MAXIMO")) {
+				Path path = Paths.get(request.getServletContext().getRealPath("res/maximo.json"));
+				String relationsQuery = (String) Tools.fromJSON(path.toFile()).get("relationsQuery");
+	    		stmt = con.createStatement();
+	    		stmt.execute("SET SCHEMA " + schema);
+	    		rst = stmt.executeQuery(relationsQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table + "'");
+	    	}
+			else {
+				metaData = con.getMetaData();
+				rst = metaData.getExportedKeys(con.getCatalog(), schema, table);
+			}
 		    
 		    while (rst.next()) {
 		    	
@@ -172,11 +184,12 @@ public class GetPKRelationsServlet extends HttpServlet {
 		    }
 		    
 		    if(rst != null){rst.close();}
+		    if (stmt != null) { stmt.close();}
 		    
 		    if(withRecCount){
 		    	
 	            long tableRecCount = 0;
-	    		Statement stmt = null;
+	    		stmt = null;
 	    		ResultSet rs = null;
 	            try{
 		    		String query = "SELECT COUNT(*) FROM ";

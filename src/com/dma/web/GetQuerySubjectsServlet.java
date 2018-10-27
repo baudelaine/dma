@@ -42,7 +42,7 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	long qs_recCount = 0L;
 	Map<String, Object> dbmd = null;
 	Map<String, String> tableAliases = null;
-	String getMaxImportedKeysQuery = "";
+	String relationsQuery = "";
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -85,7 +85,7 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 			
 			if(schema.equalsIgnoreCase("MAXIMO")) {
 				Path path = Paths.get(request.getServletContext().getRealPath("res/maximo.json"));
-				getMaxImportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getImportedKeysQuery");
+				relationsQuery = (String) Tools.fromJSON(path.toFile()).get("relationsQuery");
 
 			}
 			
@@ -257,10 +257,10 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 		
 		ResultSet rst = null;
 		
-		if(schema.equalsIgnoreCase("MAXIMO") && !getMaxImportedKeysQuery.isEmpty()) {
+		if(schema.equalsIgnoreCase("MAXIMO") && !relationsQuery.isEmpty()) {
 			Statement stmt = con.createStatement();
     		stmt.execute("SET SCHEMA " + schema);
-    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE TARGETOBJ = '" + table + "'");
+    		rst = stmt.executeQuery(relationsQuery.replace(";", "") + " WHERE TARGETOBJ = '" + table + "'");
     	}
 		else {
 			rst = metaData.getImportedKeys(con.getCatalog(), schema, table);

@@ -98,10 +98,10 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 			    	
 			    	if(schema.equalsIgnoreCase("MAXIMO")) {
 						path = Paths.get(request.getServletContext().getRealPath("res/maximo.json"));
-						String getMaxImportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getImportedKeysQuery");
+						String relationsQuery = (String) Tools.fromJSON(path.toFile()).get("relationsQuery");
 			    		stmt = con.createStatement();
 			    		stmt.execute("SET SCHEMA " + schema);
-			    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE TARGETOBJ = '" + table_name + "'");
+			    		rst = stmt.executeQuery(relationsQuery.replace(";", "") + " WHERE TARGETOBJ = '" + table_name + "'");
 			    	}
 			    	else {
 				    	rst = metaData.getImportedKeys(con.getCatalog(), schema, table_name);
@@ -117,19 +117,17 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 			    	int PKSeqCount = 0;
 			    	Set<String> PKSet = new HashSet<String>();
 			    	if(schema.equalsIgnoreCase("MAXIMO")) {
-			    		System.out.println("On passe dans MAXIMO");
 						path = Paths.get(request.getServletContext().getRealPath("res/maximo.json"));
-						String getMaxImportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getImportedKeysQuery");
+						String relationsQuery = (String) Tools.fromJSON(path.toFile()).get("relationsQuery");
 			    		stmt = con.createStatement();
 			    		stmt.execute("SET SCHEMA " + schema);
-			    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table_name + "'");
+			    		rst = stmt.executeQuery(relationsQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table_name + "'");
 			    	}
 			    	else {
 			    		rst = metaData.getExportedKeys(con.getCatalog(), schema, table_name);
 			    	}
 			    	while(rst.next()){
 			    		String PKName = rst.getString("FK_NAME");
-			    		System.out.println("PKName=" + PKName);
 			    		PKSet.add(PKName);
 			    		PKSeqCount++;
 			    	}
