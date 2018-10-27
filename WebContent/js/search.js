@@ -513,7 +513,7 @@ function GetDBMD(table) {
       $.when(
         $.ajax({
           type: 'POST',
-          url: "GetDBMD",
+          url: "GetMaxDBMD",
           dataType: 'json',
           async: true,
           success: function(data) {

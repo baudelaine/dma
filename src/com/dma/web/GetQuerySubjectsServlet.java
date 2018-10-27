@@ -1,6 +1,8 @@
 package com.dma.web;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -40,6 +42,7 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 	long qs_recCount = 0L;
 	Map<String, Object> dbmd = null;
 	Map<String, String> tableAliases = null;
+	String getMaxImportedKeysQuery = "";
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -79,6 +82,13 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 			QuerySubject querySubject = getQuerySubjects();
 			
 			querySubject.setFields(getFields());
+			
+			if(schema.equalsIgnoreCase("MAXIMO")) {
+				Path path = Paths.get(request.getServletContext().getRealPath("res/maximo.json"));
+				getMaxImportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getImportedKeysQuery");
+
+			}
+			
 			querySubject.addRelations(getForeignKeys());
 				
 			result.add(querySubject);
@@ -245,7 +255,15 @@ public class GetQuerySubjectsServlet extends HttpServlet {
 		
 		Map<String, Relation> map = new HashMap<String, Relation>();
 		
-	    ResultSet rst = metaData.getImportedKeys(con.getCatalog(), schema, table);
+		ResultSet rst = null;
+		
+		if(schema.equalsIgnoreCase("MAXIMO") && !getMaxImportedKeysQuery.isEmpty()) {
+			Statement stmt = con.createStatement();
+    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table + "'");
+    	}
+		else {
+			rst = metaData.getImportedKeys(con.getCatalog(), schema, table);
+		}
 	    
 	    while (rst.next()) {
 	    	
