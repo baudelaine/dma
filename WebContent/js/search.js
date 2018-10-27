@@ -563,9 +563,9 @@ function loadDBMD(dbmd){
     })
   });
 
-  console.log(dbmd);
-  localStorage.setItem('dbmd', JSON.stringify(dbmd));
-  console.log(datas);
+  // console.log(dbmd);
+  // localStorage.setItem('dbmd', JSON.stringify(dbmd));
+  // console.log(datas);
   $('#searchTable').bootstrapTable("load", datas);
   ChooseTable($('#searchSelect'), '2');
 
