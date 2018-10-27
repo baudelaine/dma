@@ -102,6 +102,7 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 			    		stmt = con.createStatement();
 			    		stmt.execute("SET SCHEMA " + schema);
 			    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE TARGETOBJ = '" + table_name + "'");
+			    		if(stmt != null){stmt.close();}
 			    	}
 			    	else {
 				    	rst = metaData.getImportedKeys(con.getCatalog(), schema, table_name);
@@ -122,6 +123,7 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 			    		stmt = con.createStatement();
 			    		stmt.execute("SET SCHEMA " + schema);
 			    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table_name + "'");
+			    		if(stmt != null){stmt.close();}
 			    	}
 			    	else {
 			    		rst = metaData.getExportedKeys(con.getCatalog(), schema, table_name);
