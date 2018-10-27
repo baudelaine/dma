@@ -99,6 +99,7 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 						path = Paths.get(request.getServletContext().getRealPath("res/maximo.json"));
 						String getMaxImportedKeysQuery = (String) Tools.fromJSON(path.toFile()).get("getImportedKeysQuery");
 			    		stmt = con.createStatement();
+			    		stmt.execute("SET SCHEMA " + schema);
 			    		rst = stmt.executeQuery(getMaxImportedKeysQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table_name + "'");
 			    	}
 			    	else {
@@ -214,7 +215,6 @@ public class GetMaxDatabaseMetaDatasServlet extends HttpServlet {
 				    if(rst1 != null){rst1.close();}
 				    table.put("columns", fields);
 				    result.put(table_name, table);
-				    System.out.println(Tools.toJSON(table));
 				    
 			    }		    
 			    

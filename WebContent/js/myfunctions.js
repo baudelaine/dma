@@ -872,11 +872,11 @@ function buildSubTable($el, cols, data, parentData){
 
       onAll: function(name, args){
         //Fires when all events trigger, the parameters contain: name: the event name, args: the event data.
-        console.log("---------- buildSubTable: onAll -------------");
-        console.log("name=" + name);
-        console.log("args=");
-        console.log(args);
-        console.log("---------- buildSubTable: onAll -------------");
+        // console.log("---------- buildSubTable: onAll -------------");
+        // console.log("name=" + name);
+        // console.log("args=");
+        // console.log(args);
+        // console.log("---------- buildSubTable: onAll -------------");
       },
 
       onEditableInit: function(){
@@ -884,32 +884,32 @@ function buildSubTable($el, cols, data, parentData){
       },
       onEditableShown: function(editable, field, row, $el){
         //Fired when an editable cell is opened for edits.
-        console.log("---------- buildSubTable: onEditableShown -------------");
-        console.log("editable=");
-        console.log(editable);
-        console.log("field=");
-        console.log(field);
-        console.log("row=");
-        console.log(row);
-        console.log("$el=");
-        console.log($el);
-        console.log("---------- buildSubTable: onEditableShown -------------");
+        // console.log("---------- buildSubTable: onEditableShown -------------");
+        // console.log("editable=");
+        // console.log(editable);
+        // console.log("field=");
+        // console.log(field);
+        // console.log("row=");
+        // console.log(row);
+        // console.log("$el=");
+        // console.log($el);
+        // console.log("---------- buildSubTable: onEditableShown -------------");
       },
       onEditableHidden: function(field, row, $el, reason){
         //Fired when an editable cell is hidden / closed.
       },
       onEditableSave: function (field, row, oldValue, editable) {
         //Fired when an editable cell is saved.
-        console.log("---------- buildSubTable: onEditableSave -------------");
-        console.log("editable=");
-        console.log(editable);
-        console.log("field=");
-        console.log(field);
-        console.log("row=");
-        console.log(row);
-        console.log("oldValue=");
-        console.log(oldValue);
-        console.log("---------- buildSubTable: onEditableSave -------------");
+        // console.log("---------- buildSubTable: onEditableSave -------------");
+        // console.log("editable=");
+        // console.log(editable);
+        // console.log("field=");
+        // console.log(field);
+        // console.log("row=");
+        // console.log(row);
+        // console.log("oldValue=");
+        // console.log(oldValue);
+        // console.log("---------- buildSubTable: onEditableSave -------------");
 
         row._id = row.key_type + 'K_' + row.pktable_alias + '_' + row.table_alias + '_' + row.type;
         if(field == "pktable_alias"){
