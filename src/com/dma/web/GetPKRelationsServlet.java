@@ -67,6 +67,7 @@ public class GetPKRelationsServlet extends HttpServlet {
 			dbmd = (Map<String, Object>) request.getSession().getAttribute("dbmd");
 			withRecCount = (Boolean) request.getServletContext().getAttribute("withRecCount");
 			tableAliases = (Map<String, String>) request.getSession().getAttribute("tableAliases");
+			metaData = con.getMetaData();
 			
 		    Map<String, Relation> map = new HashMap<String, Relation>();
 		    
@@ -78,7 +79,6 @@ public class GetPKRelationsServlet extends HttpServlet {
 	    		rst = stmt.executeQuery(relationsQuery.replace(";", "") + " WHERE OBJECTNAME = '" + table + "'");
 	    	}
 			else {
-				metaData = con.getMetaData();
 				rst = metaData.getExportedKeys(con.getCatalog(), schema, table);
 			}
 		    
