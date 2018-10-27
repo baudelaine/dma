@@ -69,12 +69,15 @@ public class GetLabelsServlet extends HttpServlet {
 			con = (Connection) request.getSession().getAttribute("con");
 			schema = (String) request.getSession().getAttribute("schema");
 			dbEngine = (String) request.getSession().getAttribute("dbEngine");
+			con.createStatement().execute("set schema " + schema);
+
 			if((dbEngine).equalsIgnoreCase("ORA")){
-				con.createStatement().execute("alter session set current_schema=" + schema);
 				con.createStatement().execute("ALTER SESSION SET NLS_SORT=BINARY_CI");
 				con.createStatement().execute("ALTER SESSION SET NLS_COMP=LINGUISTIC");
 			}
 
+			
+			
 			List<String> tables = (List<String>) parms.get("tables");
 			
 			if(tables.size() > 0){
