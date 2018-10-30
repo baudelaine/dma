@@ -609,7 +609,7 @@ function buildTable($el, cols) {
         showToggle: false,
         pagination: true,
         pageSize: 25,
-        showPaginationSwitch: true,
+        showPaginationSwitch: false,
         paginationVAlign: "both",
         detailView: false
     })
